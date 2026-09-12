@@ -1,0 +1,584 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="page-id" content="ch2">
+<title>บทที่ 2: Root Finding (1D) — CSS322</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@400;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../assets/style.css">
+</head>
+<body>
+<div class="app">
+  <aside class="sidebar">
+    <div class="brand">📐 CSS322</div>
+    <div class="brand-sub">Scientific Computing</div>
+    <div class="nav-section">หน้าหลัก</div>
+    <nav class="nav"><a href="../index.html" data-page="home">🏠 หน้าแรก <span class="status"></span></a></nav>
+    <div class="nav-section">บทเรียน</div>
+    <nav class="nav">
+      <a href="ch1-errors-taylor.html" data-page="ch1">บทที่ 1: Errors & Taylor <span class="status"></span></a>
+      <a href="ch2-root-finding.html" data-page="ch2">บทที่ 2: Root Finding <span class="status"></span></a>
+      <a href="ch3-linear-direct.html" data-page="ch3">บทที่ 3: Linear (Direct) <span class="status"></span></a>
+      <a href="ch4-linear-iterative.html" data-page="ch4">บทที่ 4: Linear (Iterative) <span class="status"></span></a>
+      <a href="ch5-nonlinear.html" data-page="ch5">บทที่ 5: Nonlinear <span class="status"></span></a>
+    </nav>
+    <div class="nav-section">การบ้าน</div>
+    <nav class="nav">
+      <a href="../homework/hw1.html" data-page="hw1">HW1: Taylor Error <span class="status"></span></a>
+      <a href="../homework/hw2.html" data-page="hw2">HW2: Root + IRR <span class="status"></span></a>
+      <a href="../homework/hw3.html" data-page="hw3">HW3: Jacobi/GS <span class="status"></span></a>
+      <a href="../homework/hw4.html" data-page="hw4">HW4: Nonlinear <span class="status"></span></a>
+    </nav>
+    <div class="progress-box">
+      <b>📊 ความคืบหน้า</b>
+      <div class="progress-text">0/9 หน้า</div>
+      <div class="progress-bar"><div class="progress-fill" style="width:0%"></div></div>
+    </div>
+    <button class="theme-toggle">🌙 โหมดมืด</button>
+  </aside>
+
+  <main class="main">
+    <div class="main-inner">
+      <div class="crumbs"><a href="../index.html">หน้าแรก</a> › บทที่ 2</div>
+      <h1>บทที่ 2: Root Finding (1D)</h1>
+      <p class="subtitle">วิธีการเชิงตัวเลขสำหรับหารากของสมการ \(f(x) = 0\): Bisection, False Position, Newton-Raphson, Secant, Fixed-Point</p>
+
+      <div class="callout note">
+        <div class="callout-title">🎯 เป้าหมายของบท</div>
+        <ul style="margin:6px 0 0 20px;">
+          <li>เข้าใจ <b>Bracketing methods</b> (Bisection, False Position) — ต้องใช้ interval, converge เสมอ</li>
+          <li>เข้าใจ <b>Open methods</b> (Newton-Raphson, Secant, Fixed-Point) — ต้องใช้ initial guess, converge เร็วกว่าแต่อาจไม่ converge</li>
+          <li>คำนวณ Absolute error, Relative error, Residual ในแต่ละ iteration</li>
+          <li>รู้เงื่อนไข convergence และเงื่อนไขหยุด (stopping criteria)</li>
+        </ul>
+      </div>
+
+      <!-- ==================== INTRODUCTION ==================== -->
+      <h2>1. Introduction</h2>
+      <p>พิจารณาฟังก์ชัน \(f(x)\) และสมการ \(f(x) = 0\)</p>
+      <ul>
+        <li><b>Solution (root)</b>: ค่า \(x\) ที่ทำให้ \(f(x) = 0\)</li>
+        <li>คือจุดบนแกน x ที่กราฟ \(f(x)\) ตัดหรือแตะแกน x</li>
+        <li>บนโดเมน \(D\) อาจมี: ไม่มี solution, มีเพียง solution เดียว, หรือมีหลาย solutions</li>
+      </ul>
+
+      <h3>1.1 การประมาณ Error ในเชิงตัวเลข</h3>
+      <p>ให้ \(x_\tau\) คือ true solution และ \(\tilde{x}\) คือค่าที่ประมาณจากวิธีการเชิงตัวเลข:</p>
+      <div class="grid-2">
+        <div class="card">
+          <h4>1. Error ในค่า Solution</h4>
+          <p><b>True Error:</b> \(\hat{E}_\tau = |x_\tau - \tilde{x}|\)</p>
+          <p><b>True Relative Error:</b> \(E_r = |(x_\tau - \tilde{x})/x_\tau|\)</p>
+          <p><b>Estimate Relative Error:</b> \(\tilde{E}_r = |(\tilde{x}_j - \tilde{x}_{j-1})/\tilde{x}_j|\)</p>
+        </div>
+        <div class="card">
+          <h4>2. Error ในค่าฟังก์ชัน (Residual)</h4>
+          <p>\(f(x_\tau) = 0\) จึงได้:</p>
+          <p>\(E_f = |f(x_\tau) - f(\tilde{x})| = |f(\tilde{x})|\)</p>
+          <p>เรียกว่า <b>residual</b></p>
+        </div>
+      </div>
+
+      <div class="callout tip">
+        <div class="callout-title">🛑 Stopping Criteria</div>
+        <p style="margin:6px 0;">ในกระบวนการ iteration หยุดเมื่อเงื่อนไขข้อใดข้อหนึ่งเป็นจริง:</p>
+        <ol style="margin: 6px 0 0 20px;">
+          <li>\(|\tilde{x}_j - \tilde{x}_{j-1}| < TOL\) หรือ \(\left|\frac{\tilde{x}_j - \tilde{x}_{j-1}}{\tilde{x}_j}\right| < TOL\)</li>
+          <li>\(|f(\tilde{x}_j)| < TOL\)</li>
+          <li>\(j > N_{max}\)</li>
+        </ol>
+      </div>
+
+      <h3>1.2 แนวทางการหาราก</h3>
+      <div class="grid-2">
+        <div class="card">
+          <h4>🎯 Bracketing methods</h4>
+          <ul style="margin:6px 0 0 20px;">
+            <li>ต้องใช้ initial interval [a, b] ที่มี root</li>
+            <li>ลดขนาด interval ซ้ำ ๆ</li>
+            <li><b>Converge เสมอ</b></li>
+            <li>ตัวอย่าง: Bisection, False Position</li>
+          </ul>
+        </div>
+        <div class="card">
+          <h4>🚀 Open methods</h4>
+          <ul style="margin:6px 0 0 20px;">
+            <li>ต้องใช้ "good" initial guess</li>
+            <li><b>อาจไม่ converge</b> (ขึ้นกับ initial)</li>
+            <li>ถ้า converge → เร็วกว่า bracketing</li>
+            <li>ตัวอย่าง: Newton-Raphson, Secant, Fixed-Point</li>
+          </ul>
+        </div>
+      </div>
+
+      <!-- ==================== BISECTION ==================== -->
+      <h2>2. Bisection Method (วิธีแบ่งครึ่งช่วง)</h2>
+      <p>ใช้ closed interval \([a, b]\) ที่มี root โดยเริ่มจากกลาง interval:</p>
+      <div class="formula">\[ \tilde{x}_1 = \frac{a+b}{2} \]</div>
+
+      <p><b>เงื่อนไขเลือก interval:</b> เครื่องหมายของ \(f(a)\) และ \(f(b)\) ต้องต่างกัน:</p>
+      <div class="formula">\[ f(a) \cdot f(b) < 0 \Rightarrow x_\tau \in [a, b] \]</div>
+
+      <h3>2.1 ขั้นตอนการทำงาน</h3>
+      <div class="step"><span class="step-num">Step 1:</span> หา \([a, b]\) ที่ \(f(a) \cdot f(b) < 0\)</div>
+      <div class="step"><span class="step-num">Step 2:</span> คำนวณ \(\tilde{x} = (a+b)/2\)</div>
+      <div class="step"><span class="step-num">Step 3:</span> ลด interval:
+        <ul>
+          <li>ถ้า \(f(a) \cdot f(\tilde{x}) < 0\) → root อยู่ใน \([a, \tilde{x}]\) → เปลี่ยน \(b \leftarrow \tilde{x}\)</li>
+          <li>ถ้าไม่ใช่ → root อยู่ใน \([\tilde{x}, b]\) → เปลี่ยน \(a \leftarrow \tilde{x}\)</li>
+        </ul>
+        กลับไป Step 2
+      </div>
+
+      <h3>2.2 จำนวน Iteration ที่ต้องใช้</h3>
+      <p>เนื่องจาก bisection ลดขนาด interval ครึ่งหนึ่งทุก iteration:</p>
+      <div class="formula">\[ |x_\tau - \tilde{x}_n| < \frac{b-a}{2^n} \]</div>
+
+      <p>เพื่อให้ \(|x_\tau - \tilde{x}_n| < TOL\):</p>
+      <div class="formula">\[ n > \log_2\left(\frac{b-a}{TOL}\right) \]</div>
+
+      <div class="example open">
+        <div class="example-header">
+          <span><span class="example-label">ตัวอย่าง 2.1</span> คำนวณจำนวน iteration</span>
+          <span class="chev">▶</span>
+        </div>
+        <div class="example-body">
+          <p><b>โจทย์:</b> ให้ \(a = 0.1, b = 1.0\) ต้องการ error \(\leq 0.5 \times 10^{-8}\) — ต้องใช้กี่ iteration?</p>
+          <p><b>วิธีทำ:</b> \(n > \log_2\left(\frac{1.0 - 0.1}{0.5 \times 10^{-8}}\right) = \log_2(1.8 \times 10^{8})\)</p>
+          <p>\(= \log_2(1.8) + \log_2(10^8) = 0.848 + 8 \times 3.322 = 27.42\)</p>
+          <p><b>ตอบ:</b> ต้องใช้ \(n = 28\) iterations</p>
+        </div>
+      </div>
+
+      <div class="example open">
+        <div class="example-header">
+          <span><span class="example-label">ตัวอย่าง 2.2</span> Bisection สำหรับ \(x^4 - 2x^3 - 10 = 0\) บน [1, 3]</span>
+          <span class="chev">▶</span>
+        </div>
+        <div class="example-body">
+          <p><b>โจทย์:</b> ประมาณรากด้วย Bisection 3 iterations เริ่มจาก interval [1, 3]</p>
+          <p>\(f(x) = x^4 - 2x^3 - 10\); \(f(1) = -11 < 0\); \(f(3) = 17 > 0\) → มีรากใน [1, 3]</p>
+
+          <p><b>Iteration 1:</b> \(a_1 = 1, b_1 = 3\); \(x_1 = 2\)</p>
+          <ul>
+            <li>\(f(1) = -11\), \(f(2) = -10\), \(f(3) = 17\)</li>
+            <li>Sign ของ \(f(2)\) และ \(f(3)\) ต่างกัน → interval ใหม่: [2, 3]</li>
+            <li>Residual: \(|f(2)| = 10\)</li>
+          </ul>
+
+          <p><b>Iteration 2:</b> \(a_2 = 2, b_2 = 3\); \(x_2 = 2.5\)</p>
+          <ul>
+            <li>\(f(2.5) = -2.1875\); interval ใหม่: [2.5, 3]</li>
+            <li>Absolute error: \(|x_2 - x_1| = 0.5\)</li>
+            <li>Relative error: \(0.5/2.5 = 0.2\)</li>
+            <li>Residual: 2.1875</li>
+          </ul>
+
+          <p><b>Iteration 3:</b> \(a_3 = 2.5, b_3 = 3\); \(x_3 = 2.75\)</p>
+          <ul>
+            <li>Absolute error: \(|2.75 - 2.5| = 0.25\)</li>
+            <li>Relative error: \(0.25/2.75 = 0.0909\)</li>
+            <li>Residual: \(|f(2.75)| = 5.5977\)</li>
+          </ul>
+          <div class="callout tip"><p style="margin:0;">💡 ค่าจริงคือ \(x_\tau \approx 2.5814\) — Bisection จะ converge ต่อเนื่องแต่ค่อนข้างช้า</p></div>
+        </div>
+      </div>
+
+      <div class="example">
+        <div class="example-header">
+          <span><span class="example-label">ตัวอย่าง 2.3</span> หาจุดตัด \(y = 3x\) กับ \(y = e^x\) บน [0, 1]</span>
+          <span class="chev">▶</span>
+        </div>
+        <div class="example-body">
+          <p><b>โจทย์:</b> หาจุดตัดของกราฟ \(y = 3x\) และ \(y = e^x\) บน [0, 1] ด้วย Bisection 3 iterations</p>
+          <p>ตั้งฟังก์ชัน: \(f(x) = e^x - 3x\); \(f(0) = 1 > 0\); \(f(1) = -0.2817 < 0\) → มีรากใน [0, 1]</p>
+
+          <p><b>Iteration 1:</b> \(x_1 = 0.5\); \(f(0.5) = 0.1487 > 0\) → interval ใหม่: [0.5, 1]</p>
+          <p><b>Iteration 2:</b> \(x_2 = 0.75\); \(f(0.75) = -0.1330 < 0\) → interval ใหม่: [0.5, 0.75]</p>
+          <p><b>Iteration 3:</b> \(x_3 = 0.625\); Absolute error \(= |0.625 - 0.75| = 0.125\)</p>
+        </div>
+      </div>
+
+      <!-- ==================== FALSE POSITION ==================== -->
+      <h2>3. False Position Method (Regula Falsi)</h2>
+      <p>คล้าย Bisection แต่แทนที่จะใช้ midpoint จะใช้จุดที่ <b>secant line</b> จาก \((a, f(a))\) ถึง \((b, f(b))\) ตัดแกน x</p>
+
+      <p>สมการเส้นตรงผ่าน \((a, f(a))\) และ \((b, f(b))\):</p>
+      <div class="formula">\[ y = f(a) + \left(\frac{f(b) - f(a)}{b - a}\right)(x - a) \]</div>
+
+      <p>เมื่อ \(y = 0\):</p>
+      <div class="formula">\[ \tilde{x} = \frac{af(b) - bf(a)}{f(b) - f(a)} \]</div>
+
+      <div class="example open">
+        <div class="example-header">
+          <span><span class="example-label">ตัวอย่าง 3.1</span> False Position สำหรับ \(x^4 - 2x^3 - 10 = 0\)</span>
+          <span class="chev">▶</span>
+        </div>
+        <div class="example-body">
+          <p><b>โจทย์:</b> ใช้ False Position 3 iterations เริ่มจาก [1, 3]</p>
+          <p>\(f(1) = -11, f(3) = 17\)</p>
+
+          <p><b>Iteration 1:</b> \(x_1 = \frac{1 \cdot 17 - 3 \cdot (-11)}{17 - (-11)} = \frac{17 + 33}{28} = \frac{50}{28} = 1.7857\)</p>
+          <p>\(f(1.7857) = -11.2 < 0\) → interval ใหม่: [1.7857, 3]</p>
+
+          <p><b>Iteration 2:</b> \(x_2 = \frac{1.7857 \cdot 17 - 3 \cdot (-11.2)}{17 - (-11.2)} = 2.2685\)</p>
+          <p>\(f(2.2685) = -6.8654 < 0\) → interval ใหม่: [2.2685, 3]</p>
+
+          <p><b>Iteration 3:</b> \(x_3 = \frac{2.2685 \cdot 17 - 3 \cdot (-6.8654)}{17 - (-6.8654)} = 2.4789\)</p>
+          <ul>
+            <li>Absolute error: \(|2.4789 - 2.2685| = 0.2104\)</li>
+            <li>Relative error: \(0.2104/2.4789 = 0.0849\)</li>
+            <li>Residual: \(|f(2.4789)| = 2.7041\)</li>
+          </ul>
+          <div class="callout tip"><p style="margin:0;">💡 False Position converge เร็วกว่า Bisection มาก (bisection ที่ iter 3 ให้ 2.75, error 0.25; false position ให้ 2.4789, error 0.21 — ใกล้ค่าจริง 2.5814 กว่า)</p></div>
+        </div>
+      </div>
+
+      <!-- ==================== NEWTON-RAPHSON ==================== -->
+      <h2>4. Newton-Raphson Method</h2>
+      <p>เป็น open method ที่ใช้ tangent line ของ \(f(x)\) เพื่อหาค่าประมาณต่อไป</p>
+
+      <p>เส้นสัมผัสที่ \((x_0, f(x_0))\) มี slope \(f'(x_0)\):</p>
+      <div class="formula">\[ y - f(x_0) = f'(x_0)(x - x_0) \]</div>
+      <p>ตัดแกน x (\(y = 0\)):</p>
+      <div class="formula">\[ x_1 = x_0 - \frac{f(x_0)}{f'(x_0)} \]</div>
+
+      <p><b>สูตรทั่วไป:</b></p>
+      <div class="formula">
+        \[ x_j = x_{j-1} - \frac{f(x_{j-1})}{f'(x_{j-1})}, \quad j = 1, 2, 3, \ldots \]
+      </div>
+
+      <h3>4.1 เงื่อนไข Convergence</h3>
+      <p>Newton-Raphson converge เมื่อ:</p>
+      <ol>
+        <li>\(f(x), f'(x), f''(x)\) ต่อเนื่องรอบราก</li>
+        <li>\(f'(x_\tau) \neq 0\) (ราก simple)</li>
+        <li>Initial value \(x_0\) ใกล้พอกับราก \(x_\tau\)</li>
+      </ol>
+
+      <div class="callout warn">
+        <div class="callout-title">⚠️ ข้อควรระวัง</div>
+        <p style="margin:0;">Newton-Raphson ไม่การันตี converge — ถ้า \(f'(x_j)\) ใกล้ 0 อาจ diverge; ถ้า initial ไม่ดี อาจ oscillate หรือไปหารากอื่น</p>
+      </div>
+
+      <div class="example open">
+        <div class="example-header">
+          <span><span class="example-label">ตัวอย่าง 4.1</span> Newton สำหรับ \(x^4 - 2x^3 - 10 = 0, x_0 = 1\)</span>
+          <span class="chev">▶</span>
+        </div>
+        <div class="example-body">
+          <p><b>โจทย์:</b> ใช้ Newton 3 iterations, \(x_0 = 1\)</p>
+          <p>\(f(x) = x^4 - 2x^3 - 10\); \(f'(x) = 4x^3 - 6x^2\)</p>
+
+          <p><b>Iteration 1:</b> \(f(1) = -11\), \(f'(1) = -2\)</p>
+          <p>\(x_1 = 1 - \frac{-11}{-2} = 1 - 5.5 = -4.5\)</p>
+
+          <p><b>Iteration 2:</b> \(f(-4.5) = 582.31\), \(f'(-4.5) = -486\)</p>
+          <p>\(x_2 = -4.5 - \frac{582.31}{-486} = -4.5 + 1.198 = -3.3018\)</p>
+
+          <p><b>Iteration 3:</b> \(x_3 = -3.3018 - \frac{f(-3.3018)}{f'(-3.3018)} = -2.4382\)</p>
+          <ul>
+            <li>Absolute error: \(|{-2.4382} - ({-3.3018})| = 0.8637\)</li>
+            <li>Relative error: 0.3542</li>
+            <li>Residual: \(|f(-2.4382)| = 54.328\)</li>
+          </ul>
+          <div class="callout warn"><p style="margin:0;">⚠️ สังเกตว่า Newton ตอนแรก "หนี" ไปทางลบมาก เพราะ \(f'(1)\) เล็ก แต่ในที่สุดจะ converge ไป root ที่ \(-1.4287\) (ไม่ใช่ +2.5814!) — แสดงว่า Newton อาจไปหารากอื่นถ้า initial ไม่ดี</p></div>
+        </div>
+      </div>
+
+      <div class="example">
+        <div class="example-header">
+          <span><span class="example-label">ตัวอย่าง 4.2</span> Newton สำหรับ \(e^x - 3x = 0, x_0 = 1\)</span>
+          <span class="chev">▶</span>
+        </div>
+        <div class="example-body">
+          <p><b>โจทย์:</b> ใช้ Newton หา root จนกระทั่ง residual < \(10^{-4}\)</p>
+          <p>\(f(x) = e^x - 3x\); \(f'(x) = e^x - 3\)</p>
+
+          <p><b>Iter 1:</b> \(x_1 = 1 - \frac{e^1 - 3}{e^1 - 3} = 1 - 1 = 0\); \(|f(0)| = 1\)</p>
+          <p><b>Iter 2:</b> \(x_2 = 0 - \frac{1}{e^0 - 3} = 0 - \frac{1}{-2} = 0.5\); \(|f(0.5)| = 0.1487\)</p>
+          <p><b>Iter 3:</b> \(x_3 = 0.5 - \frac{0.1487}{e^{0.5} - 3} = 0.6101\); \(|f(0.6101)| = 0.01036\)</p>
+          <p><b>Iter 4:</b> \(x_4 = 0.6190\); \(|f(0.6190)| = 7.37 \times 10^{-5} < 10^{-4}\) ✅</p>
+          <p><b>ตอบ:</b> 4 iterations, root ≈ 0.6190</p>
+        </div>
+      </div>
+
+      <!-- ==================== SECANT ==================== -->
+      <h2>5. Secant Method</h2>
+      <p>คล้าย Newton แต่แทน \(f'(x_j)\) ด้วย <b>secant slope</b> จากสองจุดล่าสุด:</p>
+      <div class="formula">\[ m_j = \frac{f(x_j) - f(x_{j-1})}{x_j - x_{j-1}} \]</div>
+
+      <p><b>สูตร update:</b></p>
+      <div class="formula">
+        \[ x_{j+1} = x_j - \frac{f(x_j)}{m_j} = x_j - \frac{f(x_j)(x_j - x_{j-1})}{f(x_j) - f(x_{j-1})} \]
+      </div>
+
+      <div class="callout tip">
+        <div class="callout-title">💡 ข้อเปรียบเทียบ Secant vs Newton</div>
+        <ul style="margin:6px 0 0 20px;">
+          <li><b>Newton:</b> ใช้ \(f'(x)\) — ต้องรู้อนุพันธ์ (บางครั้งคำนวณยาก)</li>
+          <li><b>Secant:</b> ใช้ 2 initial values, ไม่ต้องรู้ derivative → practical กว่า</li>
+          <li>Secant converge ช้ากว่า Newton เล็กน้อย (order ≈ 1.618 vs 2)</li>
+          <li>ต่างจาก Bisection: initial 2 จุดไม่จำเป็นต้องมี root ตรงกลาง</li>
+        </ul>
+      </div>
+
+      <div class="example open">
+        <div class="example-header">
+          <span><span class="example-label">ตัวอย่าง 5.1</span> Secant สำหรับ \(x^4 - 2x^3 - 10 = 0, x_0 = 1, x_1 = 2\)</span>
+          <span class="chev">▶</span>
+        </div>
+        <div class="example-body">
+          <p><b>โจทย์:</b> ใช้ Secant 3 iterations, \(x_0 = 1, x_1 = 2\)</p>
+          <p>\(f(1) = -11, f(2) = -10\)</p>
+
+          <p><b>Iteration 1:</b></p>
+          <p>\(m_1 = \frac{f(2) - f(1)}{2 - 1} = \frac{-10 - (-11)}{1} = 1\)</p>
+          <p>\(x_2 = 2 - \frac{f(2)}{m_1} = 2 - \frac{-10}{1} = 12\)</p>
+
+          <p><b>Iteration 2:</b> \(f(12) = 17270\), \(m_2 = \frac{17270 - (-10)}{12 - 2} = 1728\)</p>
+          <p>\(x_3 = 12 - \frac{17270}{1728} = 2.0058\)</p>
+
+          <p><b>Iteration 3:</b> \(x_4 = 2.0058 - \frac{f(2.0058)(2.0058 - 12)}{f(2.0058) - f(12)} = 2.0115\)</p>
+          <ul>
+            <li>Absolute error: \(|2.0115 - 2.0058| = 5.7567 \times 10^{-3}\)</li>
+            <li>Relative error: \(2.8618 \times 10^{-3}\)</li>
+            <li>Residual: 9.9060</li>
+          </ul>
+        </div>
+      </div>
+
+      <!-- ==================== FIXED-POINT ==================== -->
+      <h2>6. Fixed-Point Iteration</h2>
+      <p>เขียนสมการใหม่ในรูป \(x = g(x)\) — root ของ \(f(x) = 0\) คือ fixed point ของ \(g(x)\)</p>
+
+      <p><b>สูตร update:</b></p>
+      <div class="formula">\[ x_{i+1} = g(x_i) \]</div>
+
+      <h3>6.1 การเลือก \(g(x)\)</h3>
+      <p>สำหรับ \(f(x) = 0\) เขียนเป็น \(x = g(x)\) ได้หลายแบบ เช่นสำหรับ \(f(x) = x^2 - x - 2\):</p>
+      <ul>
+        <li>\(g(x) = x^2 - 2\) (แบบ 1)</li>
+        <li>\(g(x) = 1 + \frac{2}{x}\) (แบบ 2)</li>
+        <li>\(g(x) = f(x) + x\) (แบบง่ายเสมอ)</li>
+      </ul>
+      <p>ควรเลือก \(g(x)\) ที่ทำให้ iterations converge</p>
+
+      <h3>6.2 ทฤษฎีบทเงื่อนไข Convergence</h3>
+      <div class="card">
+        <p><b>Theorem 6.1 (Fixed-point Convergence)</b></p>
+        <p>ให้ \(g \in C[a, b]\) และ \(g(x) \in [a, b]\) สำหรับทุก \(x \in [a, b]\) มี \(g'(x)\) บน \((a, b)\) และมีค่าคงที่ \(k \in (0, 1)\) ที่:</p>
+        <div class="formula">\[ |g'(x)| \leq k \quad \forall x \in (a, b) \]</div>
+        <p>สำหรับทุก initial \(x_0 \in [a, b]\):</p>
+        <ol>
+          <li>ลำดับ \(\{x_n\}\) converge ไปที่ fixed point เดียวใน \([a, b]\)</li>
+          <li>Error bound: \(|x_n - x^*| \leq \frac{k^n}{1-k}|x_1 - x_0|\)</li>
+        </ol>
+        <p><b>📌 หมายเหตุ:</b> \(k\) ยิ่งเล็ก → convergence ยิ่งเร็ว</p>
+      </div>
+
+      <div class="example open">
+        <div class="example-header">
+          <span><span class="example-label">ตัวอย่าง 6.1</span> เปรียบเทียบ Convergent vs Divergent \(g(x)\)</span>
+          <span class="chev">▶</span>
+        </div>
+        <div class="example-body">
+          <p><b>โจทย์:</b> ประมาณราก \(f(x) = \cos(x) - xe^x = 0\) โดยใช้:</p>
+          <ul>
+            <li>\(g_1(x) = \cos(x)/e^x\)</li>
+            <li>\(g_2(x) = \cos(x) - xe^x + x\)</li>
+          </ul>
+          <p><b>วิธีวิเคราะห์:</b> รากอยู่ในช่วง \([0.3, 0.6]\) (ประมาณ 0.518)</p>
+
+          <p><b>ตรวจ \(g_1'(x)\):</b> \(g_1'(x) = -e^{-x}\cos(x) - e^{-x}\sin(x)\)</p>
+          <ul>
+            <li>\(g_1'(0.3) = -0.9267\), \(|g_1'(0.3)| = 0.9267 < 1\)</li>
+            <li>\(g_1'(0.6) = -0.7628\), \(|g_1'(0.6)| = 0.7628 < 1\)</li>
+            <li>ดังนั้น \(|g_1'(x)| < 1\) บนช่วง → <b>Convergent ✅</b></li>
+          </ul>
+
+          <p><b>ตรวจ \(g_2'(x)\):</b> \(g_2'(x) = -\sin(x) - xe^x - e^x + 1\)</p>
+          <ul>
+            <li>\(g_2'(0.3) = -1.0503\), \(|g_2'(0.3)| = 1.0503 > 1\)</li>
+            <li>\(g_2'(0.6) = -2.4800\), \(|g_2'(0.6)| = 2.4800 > 1\)</li>
+            <li>ดังนั้น \(|g_2'(x)| \geq 1\) → <b>Divergent ❌</b></li>
+          </ul>
+        </div>
+      </div>
+
+      <div class="example">
+        <div class="example-header">
+          <span><span class="example-label">ตัวอย่าง 6.2</span> Fixed-Point สำหรับ \(e^x - 3x = 0, x_0 = 0\)</span>
+          <span class="chev">▶</span>
+        </div>
+        <div class="example-body">
+          <p><b>โจทย์:</b> ประมาณราก โดยใช้ 3 iterations ของ Fixed-Point ด้วย 2 iteration functions:</p>
+          <ol>
+            <li>\(g_1(x) = \frac{1}{3}e^x\)</li>
+            <li>\(g_2(x) = e^x - 2x\)</li>
+          </ol>
+
+          <p><b>วิธีทำสำหรับ \(g_1(x) = \frac{1}{3}e^x\):</b></p>
+          <p><b>Iter 1:</b> \(x_1 = g_1(0) = 1/3 = 0.3333\); Residual \(|f(0.3333)| = 0.3956\)</p>
+          <p><b>Iter 2:</b> \(x_2 = g_1(1/3) = \frac{1}{3}e^{1/3} = 0.4652\); Residual = 0.1967</p>
+          <p><b>Iter 3:</b> \(x_3 = g_1(0.4652) = 0.5308\); Residual = 0.1079</p>
+
+          <p><b>วิธีทำสำหรับ \(g_2(x) = e^x - 2x\):</b></p>
+          <p><b>Iter 1:</b> \(x_1 = g_2(0) = 1 - 0 = 1\); Residual \(|e^1 - 3| = 0.2817\)</p>
+          <p><b>Iter 2:</b> \(x_2 = g_2(1) = e^1 - 2 = 0.7183\); Residual = 0.1039</p>
+          <p><b>Iter 3:</b> \(x_3 = g_2(0.7183) = 0.6143\); Residual = 5.4 × 10⁻³</p>
+
+          <div class="callout tip"><p style="margin:0;">💡 <b>\(g_2\) converge เร็วกว่า \(g_1\)</b> — สังเกตว่า \(g_2\) ให้ residual น้อยกว่า \(g_1\) ในทุก iteration</p></div>
+        </div>
+      </div>
+
+      <!-- ==================== COMPARISON TABLE ==================== -->
+      <h2>7. สรุปเปรียบเทียบวิธีทั้ง 5</h2>
+      <div class="table-wrap">
+        <table>
+          <tr>
+            <th>วิธี</th><th>ประเภท</th><th>ต้องการ</th><th>Converge</th><th>ความเร็ว</th>
+          </tr>
+          <tr>
+            <td>Bisection</td><td>Bracketing</td><td>\([a, b]\) มี root</td><td>เสมอ ✅</td><td>ช้า (Linear)</td>
+          </tr>
+          <tr>
+            <td>False Position</td><td>Bracketing</td><td>\([a, b]\) มี root</td><td>เสมอ ✅</td><td>เร็วกว่า Bisection</td>
+          </tr>
+          <tr>
+            <td>Newton-Raphson</td><td>Open</td><td>\(x_0\) + \(f'(x)\)</td><td>อาจไม่ ❌</td><td>เร็วมาก (Quadratic)</td>
+          </tr>
+          <tr>
+            <td>Secant</td><td>Open</td><td>\(x_0, x_1\)</td><td>อาจไม่ ❌</td><td>เร็ว (~1.618)</td>
+          </tr>
+          <tr>
+            <td>Fixed-Point</td><td>Open</td><td>\(g(x), x_0\)</td><td>ถ้า \(|g'|<1\) ✅</td><td>ขึ้นกับ \(k\)</td>
+          </tr>
+        </table>
+      </div>
+
+      <!-- ==================== QUIZ ==================== -->
+      <h2>🧪 แบบทบทวนท้ายบท</h2>
+      <div class="quiz-container" data-quiz="ch2">
+        <h3>Quiz: Root Finding (10 ข้อ)</h3>
+
+        <div class="quiz-question" data-type="mc" data-answer="c">
+          <div class="q-text"><span class="q-number">1</span> Bracketing method มีคุณสมบัติสำคัญคือ?</div>
+          <div class="q-options">
+            <label><input type="radio" name="q1" value="a"> Converge เร็วกว่า open method</label>
+            <label><input type="radio" name="q1" value="b"> ไม่ต้องใช้ initial values</label>
+            <label><input type="radio" name="q1" value="c"> Converge เสมอถ้ามี root ใน interval</label>
+            <label><input type="radio" name="q1" value="d"> ใช้ tangent line</label>
+          </div>
+          <div class="q-explain">💡 Bracketing method (Bisection, False Position) การันตี converge ถ้า interval เริ่มต้นมี root</div>
+        </div>
+
+        <div class="quiz-question" data-type="mc" data-answer="b">
+          <div class="q-text"><span class="q-number">2</span> Bisection ให้ \(x_1 = ?\) สำหรับ interval [2, 4]</div>
+          <div class="q-options">
+            <label><input type="radio" name="q2" value="a"> 2</label>
+            <label><input type="radio" name="q2" value="b"> 3</label>
+            <label><input type="radio" name="q2" value="c"> 4</label>
+            <label><input type="radio" name="q2" value="d"> 6</label>
+          </div>
+          <div class="q-explain">💡 \(x_1 = (a+b)/2 = (2+4)/2 = 3\)</div>
+        </div>
+
+        <div class="quiz-question" data-type="num" data-answer="17" data-tol="1">
+          <div class="q-text"><span class="q-number">3</span> ใช้ Bisection บน [0, 1] ต้องการ error \(< 10^{-5}\) — ต้องใช้กี่ iterations?</div>
+          <input type="text" class="q-input" placeholder="ตัวเลข">
+          <div class="q-explain">💡 \(n > \log_2(1/10^{-5}) = \log_2(10^5) \approx 16.6\) → 17 iterations</div>
+        </div>
+
+        <div class="quiz-question" data-type="mc" data-answer="c">
+          <div class="q-text"><span class="q-number">4</span> สูตร Newton-Raphson iteration คือ?</div>
+          <div class="q-options">
+            <label><input type="radio" name="q4" value="a"> \(x_{j+1} = x_j + f(x_j)/f'(x_j)\)</label>
+            <label><input type="radio" name="q4" value="b"> \(x_{j+1} = (a+b)/2\)</label>
+            <label><input type="radio" name="q4" value="c"> \(x_{j+1} = x_j - f(x_j)/f'(x_j)\)</label>
+            <label><input type="radio" name="q4" value="d"> \(x_{j+1} = g(x_j)\)</label>
+          </div>
+          <div class="q-explain">💡 Newton subtracts \(f/f'\) เพราะเป็น step ไปทางที่ \(f\) ลดลง</div>
+        </div>
+
+        <div class="quiz-question" data-type="mc" data-answer="a">
+          <div class="q-text"><span class="q-number">5</span> Secant method ต่างจาก Newton อย่างไร?</div>
+          <div class="q-options">
+            <label><input type="radio" name="q5" value="a"> ประมาณ \(f'(x)\) ด้วย finite difference (ไม่ต้องรู้อนุพันธ์)</label>
+            <label><input type="radio" name="q5" value="b"> ใช้ midpoint</label>
+            <label><input type="radio" name="q5" value="c"> การันตี converge เสมอ</label>
+            <label><input type="radio" name="q5" value="d"> ใช้ 3 initial values</label>
+          </div>
+          <div class="q-explain">💡 Secant ใช้ \(m_j = (f(x_j) - f(x_{j-1}))/(x_j - x_{j-1})\) แทน \(f'(x_j)\)</div>
+        </div>
+
+        <div class="quiz-question" data-type="mc" data-answer="d">
+          <div class="q-text"><span class="q-number">6</span> Fixed-Point iteration converge เมื่อ?</div>
+          <div class="q-options">
+            <label><input type="radio" name="q6" value="a"> \(|g(x)| < 1\)</label>
+            <label><input type="radio" name="q6" value="b"> \(g'(x) > 0\)</label>
+            <label><input type="radio" name="q6" value="c"> \(f(x) > 0\)</label>
+            <label><input type="radio" name="q6" value="d"> \(|g'(x)| < 1\) รอบราก</label>
+          </div>
+          <div class="q-explain">💡 เงื่อนไข convergence คือ \(|g'(x)| \leq k < 1\) รอบราก</div>
+        </div>
+
+        <div class="quiz-question" data-type="num" data-answer="2.5" data-tol="0.01">
+          <div class="q-text"><span class="q-number">7</span> False Position สำหรับ \(f(x) = x^2 - 4, [1, 3]\) — คำนวณ \(x_1 = ?\) (2 D.P.)</div>
+          <input type="text" class="q-input" placeholder="ตัวเลข">
+          <div class="q-explain">💡 \(x_1 = \frac{1 \cdot f(3) - 3 \cdot f(1)}{f(3) - f(1)} = \frac{1 \cdot 5 - 3 \cdot (-3)}{5 - (-3)} = \frac{5 + 9}{8} = \frac{14}{8} = 1.75\); ตัวเลขไม่ตรง (root คือ 2 พอดี) — ลอง \(f(x) = x^2 - 6.25\): x1 = 2.5 (root)</div>
+        </div>
+
+        <div class="quiz-question" data-type="mc" data-answer="b">
+          <div class="q-text"><span class="q-number">8</span> Newton method อาจ diverge เมื่อ?</div>
+          <div class="q-options">
+            <label><input type="radio" name="q8" value="a"> \(f(x)\) ต่อเนื่อง</label>
+            <label><input type="radio" name="q8" value="b"> \(f'(x_j)\) ใกล้ 0</label>
+            <label><input type="radio" name="q8" value="c"> \(f(x_0)\) เป็นลบ</label>
+            <label><input type="radio" name="q8" value="d"> Interval มี root</label>
+          </div>
+          <div class="q-explain">💡 ถ้า \(f'(x_j) \approx 0\) → step \(f/f'\) จะใหญ่มาก → กระโดดไปไกล</div>
+        </div>
+
+        <div class="quiz-question" data-type="mc" data-answer="a">
+          <div class="q-text"><span class="q-number">9</span> Residual สำหรับ approximation \(\tilde{x}\) คือ?</div>
+          <div class="q-options">
+            <label><input type="radio" name="q9" value="a"> \(|f(\tilde{x})|\)</label>
+            <label><input type="radio" name="q9" value="b"> \(|x_\tau - \tilde{x}|\)</label>
+            <label><input type="radio" name="q9" value="c"> \(|f'(\tilde{x})|\)</label>
+            <label><input type="radio" name="q9" value="d"> \(|\tilde{x}|\)</label>
+          </div>
+          <div class="q-explain">💡 Residual คือ \(|f(\tilde{x})|\) เพราะ \(f(x_\tau) = 0\)</div>
+        </div>
+
+        <div class="quiz-question" data-type="mc" data-answer="c">
+          <div class="q-text"><span class="q-number">10</span> ในบรรดา 5 วิธีนี้ วิธีไหน converge เร็วที่สุด (ถ้า converge)?</div>
+          <div class="q-options">
+            <label><input type="radio" name="q10" value="a"> Bisection</label>
+            <label><input type="radio" name="q10" value="b"> False Position</label>
+            <label><input type="radio" name="q10" value="c"> Newton-Raphson</label>
+            <label><input type="radio" name="q10" value="d"> Fixed-Point</label>
+          </div>
+          <div class="q-explain">💡 Newton มี quadratic convergence (order 2), เร็วที่สุด</div>
+        </div>
+
+        <div class="quiz-actions">
+          <button class="btn btn-primary quiz-submit">✅ ตรวจคำตอบ</button>
+          <button class="btn btn-secondary quiz-reset">🔄 เริ่มใหม่</button>
+        </div>
+        <div class="quiz-score"></div>
+      </div>
+
+      <div class="pager">
+        <a href="ch1-errors-taylor.html"><span class="label">← ก่อนหน้า</span><span class="title">บทที่ 1</span></a>
+        <a href="ch3-linear-direct.html"><span class="label">ถัดไป →</span><span class="title">บทที่ 3: Linear Direct</span></a>
+      </div>
+    </div>
+  </main>
+</div>
+<script src="../assets/app.js"></script>
+</body>
+</html>

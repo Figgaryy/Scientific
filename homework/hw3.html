@@ -1,0 +1,251 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="page-id" content="hw3">
+<title>HW3: Jacobi & Gauss-Seidel — CSS322</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@400;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../assets/style.css">
+</head>
+<body>
+<div class="app">
+  <aside class="sidebar">
+    <div class="brand">📐 CSS322</div>
+    <div class="brand-sub">Scientific Computing</div>
+    <div class="nav-section">หน้าหลัก</div>
+    <nav class="nav"><a href="../index.html" data-page="home">🏠 หน้าแรก <span class="status"></span></a></nav>
+    <div class="nav-section">บทเรียน</div>
+    <nav class="nav">
+      <a href="../chapters/ch1-errors-taylor.html" data-page="ch1">บทที่ 1: Errors & Taylor <span class="status"></span></a>
+      <a href="../chapters/ch2-root-finding.html" data-page="ch2">บทที่ 2: Root Finding <span class="status"></span></a>
+      <a href="../chapters/ch3-linear-direct.html" data-page="ch3">บทที่ 3: Linear (Direct) <span class="status"></span></a>
+      <a href="../chapters/ch4-linear-iterative.html" data-page="ch4">บทที่ 4: Linear (Iterative) <span class="status"></span></a>
+      <a href="../chapters/ch5-nonlinear.html" data-page="ch5">บทที่ 5: Nonlinear <span class="status"></span></a>
+    </nav>
+    <div class="nav-section">การบ้าน</div>
+    <nav class="nav">
+      <a href="hw1.html" data-page="hw1">HW1: Taylor Error <span class="status"></span></a>
+      <a href="hw2.html" data-page="hw2">HW2: Root + IRR <span class="status"></span></a>
+      <a href="hw3.html" data-page="hw3">HW3: Jacobi/GS <span class="status"></span></a>
+      <a href="hw4.html" data-page="hw4">HW4: Nonlinear <span class="status"></span></a>
+    </nav>
+    <div class="progress-box">
+      <b>📊 ความคืบหน้า</b>
+      <div class="progress-text">0/9 หน้า</div>
+      <div class="progress-bar"><div class="progress-fill" style="width:0%"></div></div>
+    </div>
+    <button class="theme-toggle">🌙 โหมดมืด</button>
+  </aside>
+
+  <main class="main">
+    <div class="main-inner">
+      <div class="crumbs"><a href="../index.html">หน้าแรก</a> › HW3</div>
+      <h1>📝 HW3: Jacobi & Gauss-Seidel Methods</h1>
+      <p class="subtitle">Assignment 3 — Update formulas, Matrix \(T\) & vector \(\mathbf{c}\), 2 iterations manually</p>
+
+      <div class="callout note">
+        <div class="callout-title">🔗 หัวข้อที่เกี่ยวข้อง</div>
+        <p style="margin:0;">อ่านทบทวน <a href="../chapters/ch4-linear-iterative.html">บทที่ 4 — Iterative Methods</a> — Jacobi, Gauss-Seidel, สูตร Matrix Form</p>
+      </div>
+
+      <!-- ==================== PROBLEM 1 ==================== -->
+      <div class="card">
+        <h2 style="margin-top:0; border:none; padding:0; color: var(--text);">Problem 1 — Linear System 3×3</h2>
+        <p><b>ระบบสมการ:</b></p>
+        <div class="formula">
+          \[ \begin{aligned}
+          4x_1 + 3x_2 &= 1 \\
+          3x_1 + 4x_2 - x_3 &= 0 \\
+          -x_2 + 4x_3 &= 1
+          \end{aligned} \]
+        </div>
+
+        <h3>(a) Update Formula (Component-wise) + 2 Iterations</h3>
+        <p>ใช้ \(\mathbf{x}^{(0)} = [0, 0, 0]^T\); ทำ 2 iterations ด้วย:</p>
+        <ul>
+          <li>(i) Jacobi method</li>
+          <li>(ii) Gauss-Seidel method</li>
+        </ul>
+
+        <h3>(b) Construct Matrix \(T\) และ Vector \(\mathbf{c}\)</h3>
+        <p>สำหรับ update formula \(\mathbf{x}^{(k)} = T\mathbf{x}^{(k-1)} + \mathbf{c}\) โดยใช้:</p>
+        <ul>
+          <li>(i) Jacobi method</li>
+          <li>(ii) Gauss-Seidel method</li>
+        </ul>
+      </div>
+
+      <div class="solution">
+        <button class="solution-toggle">💡 ดูเฉลย</button>
+        <div class="solution-body">
+          <h3>✅ Guided Solution</h3>
+
+          <h4>Setup</h4>
+          <p>\(A = \begin{bmatrix}4&3&0\\3&4&-1\\0&-1&4\end{bmatrix}\), \(\mathbf{b} = \begin{bmatrix}1\\0\\1\end{bmatrix}\)</p>
+          <p>แยก \(A = D + L + U\):</p>
+          <div class="formula">
+            \[ D = \begin{bmatrix}4&0&0\\0&4&0\\0&0&4\end{bmatrix}, L = \begin{bmatrix}0&0&0\\3&0&0\\0&-1&0\end{bmatrix}, U = \begin{bmatrix}0&3&0\\0&0&-1\\0&0&0\end{bmatrix} \]
+          </div>
+
+          <h4>(a)(i) Jacobi — Component-wise + 2 iterations</h4>
+          <p><b>สูตร:</b></p>
+          <div class="formula">
+            \[ \begin{aligned}
+            x_1^{(k+1)} &= \frac{1}{4}(1 - 3x_2^{(k)}) \\
+            x_2^{(k+1)} &= \frac{1}{4}(0 - 3x_1^{(k)} + x_3^{(k)}) \\
+            x_3^{(k+1)} &= \frac{1}{4}(1 + x_2^{(k)})
+            \end{aligned} \]
+          </div>
+
+          <p><b>Iteration 1:</b> \(\mathbf{x}^{(0)} = [0, 0, 0]\)</p>
+          <ul>
+            <li>\(x_1^{(1)} = (1 - 0)/4 = 0.25\)</li>
+            <li>\(x_2^{(1)} = (0 - 0 + 0)/4 = 0\)</li>
+            <li>\(x_3^{(1)} = (1 + 0)/4 = 0.25\)</li>
+          </ul>
+          <p>\(\mathbf{x}^{(1)} = [0.25, 0, 0.25]^T\)</p>
+
+          <p><b>Iteration 2:</b> ใช้ \(\mathbf{x}^{(1)}\):</p>
+          <ul>
+            <li>\(x_1^{(2)} = (1 - 3 \cdot 0)/4 = 0.25\)</li>
+            <li>\(x_2^{(2)} = (0 - 3 \cdot 0.25 + 0.25)/4 = -0.125\)</li>
+            <li>\(x_3^{(2)} = (1 + 0)/4 = 0.25\)</li>
+          </ul>
+          <p>\(\mathbf{x}^{(2)} = [0.25, -0.125, 0.25]^T\)</p>
+
+          <h4>(a)(ii) Gauss-Seidel — Component-wise + 2 iterations</h4>
+          <p><b>สูตร:</b></p>
+          <div class="formula">
+            \[ \begin{aligned}
+            x_1^{(k+1)} &= \frac{1}{4}(1 - 3x_2^{(k)}) \\
+            x_2^{(k+1)} &= \frac{1}{4}(0 - 3x_1^{(k+1)} + x_3^{(k)}) \\
+            x_3^{(k+1)} &= \frac{1}{4}(1 + x_2^{(k+1)})
+            \end{aligned} \]
+          </div>
+
+          <p><b>Iteration 1:</b> \(\mathbf{x}^{(0)} = [0, 0, 0]\)</p>
+          <ul>
+            <li>\(x_1^{(1)} = 1/4 = 0.25\)</li>
+            <li>\(x_2^{(1)} = (0 - 3 \cdot 0.25 + 0)/4 = -0.1875\)</li>
+            <li>\(x_3^{(1)} = (1 - 0.1875)/4 = 0.2031\)</li>
+          </ul>
+
+          <p><b>Iteration 2:</b> ใช้ \(\mathbf{x}^{(1)}\):</p>
+          <ul>
+            <li>\(x_1^{(2)} = (1 - 3(-0.1875))/4 = (1 + 0.5625)/4 = 0.3906\)</li>
+            <li>\(x_2^{(2)} = (0 - 3(0.3906) + 0.2031)/4 = (-1.1718 + 0.2031)/4 = -0.2422\)</li>
+            <li>\(x_3^{(2)} = (1 - 0.2422)/4 = 0.1895\)</li>
+          </ul>
+          <p>\(\mathbf{x}^{(2)} = [0.3906, -0.2422, 0.1895]^T\)</p>
+          <p>สังเกตว่า Gauss-Seidel เข้าใกล้ solution แท้จริง (\([0.4174, -0.2432, 0.1892]^T\)) เร็วกว่า Jacobi</p>
+
+          <h4>(b)(i) Jacobi Matrix Form</h4>
+          <p>\(T = -D^{-1}(L+U)\); \(D^{-1} = \text{diag}(1/4, 1/4, 1/4)\)</p>
+          <div class="formula">
+            \[ L + U = \begin{bmatrix}0&3&0\\3&0&-1\\0&-1&0\end{bmatrix} \]
+            \[ T_J = -\frac{1}{4}(L+U) = \begin{bmatrix}0&-3/4&0\\-3/4&0&1/4\\0&1/4&0\end{bmatrix} \]
+            \[ \mathbf{c}_J = D^{-1}\mathbf{b} = \begin{bmatrix}1/4\\0\\1/4\end{bmatrix} \]
+          </div>
+
+          <h4>(b)(ii) Gauss-Seidel Matrix Form</h4>
+          <p>\(T_{GS} = -(D+L)^{-1}U\); \(\mathbf{c}_{GS} = (D+L)^{-1}\mathbf{b}\)</p>
+          <p>คำนวณ \((D+L)^{-1}\) โดย forward substitution row-by-row:</p>
+          <div class="formula">
+            \[ (D+L)^{-1} = \begin{bmatrix}1/4&0&0\\-3/16&1/4&0\\-3/64&1/16&1/4\end{bmatrix} \]
+          </div>
+          <div class="formula">
+            \[ T_{GS} = -\begin{bmatrix}1/4&0&0\\-3/16&1/4&0\\-3/64&1/16&1/4\end{bmatrix}\begin{bmatrix}0&3&0\\0&0&-1\\0&0&0\end{bmatrix} = \begin{bmatrix}0&-3/4&0\\0&9/16&1/4\\0&9/64&1/16\end{bmatrix} \]
+            \[ \mathbf{c}_{GS} = \begin{bmatrix}1/4\\-3/16\\13/64\end{bmatrix} \]
+          </div>
+        </div>
+      </div>
+
+      <!-- ==================== PROBLEM 2 ==================== -->
+      <div class="card">
+        <h2 style="margin-top:0; border:none; padding:0; color: var(--text);">🔬 Optional: Programming — Linear System 4×4</h2>
+        <p>Implement Jacobi และ Gauss-Seidel เพื่อประมาณ solution:</p>
+        <div class="formula">
+          \[ \begin{aligned}
+          12x_1 + x_2 + 2x_3 + x_4 &= 12 \\
+          x_1 + 6x_2 - x_3 + x_4 &= 14 \\
+          2x_1 + 15x_3 - x_4 &= -13 \\
+          x_1 + 2x_2 + 9x_4 &= 5
+          \end{aligned} \]
+        </div>
+        <p>Initial: \(\mathbf{x}^{(0)} = [1, 1, 1, 1]^T\); <b>Stopping criterion: residual < \(10^{-4}\)</b></p>
+      </div>
+
+      <div class="solution">
+        <button class="solution-toggle">💡 ดูเฉลย</button>
+        <div class="solution-body">
+          <h4>สูตร Update สำหรับ Jacobi:</h4>
+          <div class="formula">
+            \[ \begin{aligned}
+            x_1^{(k+1)} &= \frac{1}{12}(12 - x_2^{(k)} - 2x_3^{(k)} - x_4^{(k)}) \\
+            x_2^{(k+1)} &= \frac{1}{6}(14 - x_1^{(k)} + x_3^{(k)} - x_4^{(k)}) \\
+            x_3^{(k+1)} &= \frac{1}{15}(-13 - 2x_1^{(k)} + x_4^{(k)}) \\
+            x_4^{(k+1)} &= \frac{1}{9}(5 - x_1^{(k)} - 2x_2^{(k)})
+            \end{aligned} \]
+          </div>
+
+          <h4>Iteration 1 (Jacobi):</h4>
+          <ul>
+            <li>\(x_1^{(1)} = (12 - 1 - 2 - 1)/12 = 0.6667\)</li>
+            <li>\(x_2^{(1)} = (14 - 1 + 1 - 1)/6 = 2.1667\)</li>
+            <li>\(x_3^{(1)} = (-13 - 2 + 1)/15 = -0.9333\)</li>
+            <li>\(x_4^{(1)} = (5 - 1 - 2)/9 = 0.2222\)</li>
+          </ul>
+
+          <h4>ผลลัพธ์ Jacobi:</h4>
+          <div class="table-wrap"><table>
+            <tr><th>iter</th><th>x1</th><th>x2</th><th>x3</th><th>x4</th><th>Residual</th></tr>
+            <tr><td>1</td><td>0.6667</td><td>2.1667</td><td>-0.9333</td><td>0.2222</td><td>4.0967</td></tr>
+            <tr><td>3</td><td>0.9877</td><td>2.0171</td><td>-0.9942</td><td>-0.0017</td><td>0.1603</td></tr>
+            <tr><td>8</td><td>1.0000</td><td>2.0000</td><td>-1.0000</td><td>0.0000</td><td>0.0001</td></tr>
+          </table></div>
+
+          <h4>ผลลัพธ์ Gauss-Seidel (ใช้เวลาน้อยกว่า):</h4>
+          <div class="table-wrap"><table>
+            <tr><th>iter</th><th>x1</th><th>x2</th><th>x3</th><th>x4</th><th>Residual</th></tr>
+            <tr><td>1</td><td>0.6667</td><td>2.2222</td><td>-0.8889</td><td>-0.0123</td><td>3.8109</td></tr>
+            <tr><td>3</td><td>0.9973</td><td>2.0014</td><td>-0.9998</td><td>-0.0000</td><td>0.0313</td></tr>
+            <tr><td>6</td><td>1.0000</td><td>2.0000</td><td>-1.0000</td><td>-0.0000</td><td>0.0000</td></tr>
+          </table></div>
+
+          <div class="callout tip">
+            <p style="margin:6px 0;"><b>Final Solution:</b> \(\mathbf{x}^* = [1, 2, -1, 0]^T\)</p>
+            <p style="margin:0;">Gauss-Seidel converge เร็วกว่า Jacobi (~6 vs 8 iterations สำหรับ residual < \(10^{-4}\))</p>
+          </div>
+
+          <h4>Python Code Example:</h4>
+          <pre>import numpy as np
+A = np.array([[12,1,2,1],[1,6,-1,1],[2,0,15,-1],[1,2,0,9]], dtype=float)
+b = np.array([12,14,-13,5], dtype=float)
+x = np.ones(4)
+for k in range(100):
+    x_new = np.zeros(4)
+    for i in range(4):
+        # Gauss-Seidel: use x_new[j] for j<i, x[j] for j>i
+        s = b[i] - sum(A[i,j]*x_new[j] for j in range(i)) \
+                 - sum(A[i,j]*x[j] for j in range(i+1,4))
+        x_new[i] = s / A[i,i]
+    if np.linalg.norm(A @ x_new - b) < 1e-4:
+        break
+    x = x_new
+print(f"Converged in {k+1} iterations: {x_new}")</pre>
+        </div>
+      </div>
+
+      <div class="pager">
+        <a href="hw2.html"><span class="label">← ก่อนหน้า</span><span class="title">HW2</span></a>
+        <a href="hw4.html"><span class="label">ถัดไป →</span><span class="title">HW4: Nonlinear</span></a>
+      </div>
+    </div>
+  </main>
+</div>
+<script src="../assets/app.js"></script>
+</body>
+</html>

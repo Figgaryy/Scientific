@@ -1,0 +1,461 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="page-id" content="ch1">
+<title>บทที่ 1: Errors & Taylor Series — CSS322</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@400;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../assets/style.css">
+</head>
+<body>
+<div class="app">
+  <aside class="sidebar">
+    <div class="brand">📐 CSS322</div>
+    <div class="brand-sub">Scientific Computing</div>
+    <div class="nav-section">หน้าหลัก</div>
+    <nav class="nav"><a href="../index.html" data-page="home">🏠 หน้าแรก <span class="status"></span></a></nav>
+    <div class="nav-section">บทเรียน</div>
+    <nav class="nav">
+      <a href="ch1-errors-taylor.html" data-page="ch1">บทที่ 1: Errors & Taylor <span class="status"></span></a>
+      <a href="ch2-root-finding.html" data-page="ch2">บทที่ 2: Root Finding <span class="status"></span></a>
+      <a href="ch3-linear-direct.html" data-page="ch3">บทที่ 3: Linear (Direct) <span class="status"></span></a>
+      <a href="ch4-linear-iterative.html" data-page="ch4">บทที่ 4: Linear (Iterative) <span class="status"></span></a>
+      <a href="ch5-nonlinear.html" data-page="ch5">บทที่ 5: Nonlinear <span class="status"></span></a>
+    </nav>
+    <div class="nav-section">การบ้าน</div>
+    <nav class="nav">
+      <a href="../homework/hw1.html" data-page="hw1">HW1: Taylor Error <span class="status"></span></a>
+      <a href="../homework/hw2.html" data-page="hw2">HW2: Root + IRR <span class="status"></span></a>
+      <a href="../homework/hw3.html" data-page="hw3">HW3: Jacobi/GS <span class="status"></span></a>
+      <a href="../homework/hw4.html" data-page="hw4">HW4: Nonlinear <span class="status"></span></a>
+    </nav>
+    <div class="progress-box">
+      <b>📊 ความคืบหน้า</b>
+      <div class="progress-text">0/9 หน้า</div>
+      <div class="progress-bar"><div class="progress-fill" style="width:0%"></div></div>
+    </div>
+    <button class="theme-toggle">🌙 โหมดมืด</button>
+  </aside>
+
+  <main class="main">
+    <div class="main-inner">
+      <div class="crumbs"><a href="../index.html">หน้าแรก</a> › บทที่ 1</div>
+      <h1>บทที่ 1: Errors & Taylor Series</h1>
+      <p class="subtitle">อนุกรม Taylor, การวิเคราะห์ Truncation error, True/Approximate/Relative error, Round-off error และการนับเลขนัยสำคัญ</p>
+
+      <div class="callout note">
+        <div class="callout-title">🎯 เป้าหมายของบท</div>
+        <ul style="margin:6px 0 0 20px;">
+          <li>เข้าใจ <b>อนุกรม Taylor</b> และการใช้ประมาณค่าฟังก์ชัน</li>
+          <li>คำนวณ <b>Truncation error</b> จาก Taylor's Remainder Theorem</li>
+          <li>แยกแยะ <b>True error, True relative error, Approximate error</b></li>
+          <li>เข้าใจ <b>Round-off error</b> (Rounding vs Chopping) และการนับ <b>D.P. / S.D.</b></li>
+        </ul>
+      </div>
+
+      <!-- ==================== SECTION 1: TAYLOR SERIES ==================== -->
+      <h2>1. อนุกรม Taylor (Taylor Series)</h2>
+      <p><b>Truncation errors</b> คือ error ที่เกิดจากการใช้ค่าประมาณแทนที่วิธีการทางคณิตศาสตร์ที่แน่นอน หนึ่งในเครื่องมือหลักในการวิเคราะห์คือ <b>Taylor series</b> ซึ่งใช้ประมาณฟังก์ชันได้อย่างแม่นยำ</p>
+
+      <p>สำหรับฟังก์ชัน \(f \in C^\infty[a,b]\) รอบจุด \(x = c\), Taylor series กำหนดโดย:</p>
+      <div class="formula">
+        \[ f(x) = \sum_{k=0}^{\infty} \frac{f^{(k)}(c)}{k!}(x-c)^k \]
+      </div>
+
+      <h3>ทฤษฎีบท 1.1 — Taylor's Remainder Theorem</h3>
+      <p>ให้ \(f \in C^n[a,b]\) และมี \(f^{(n+1)}\) บนช่วงเปิด \((a,b)\) แล้วสำหรับทุก \(c, x \in [a,b]\):</p>
+      <div class="formula">
+        \[ f(x) = \sum_{k=0}^{n} \frac{f^{(k)}(c)}{k!}(x-c)^k + R_{n+1}(x) \]
+      </div>
+      <p>โดย remainder term คือ:</p>
+      <div class="formula">
+        \[ R_{n+1}(x) = \frac{f^{(n+1)}(\xi)}{(n+1)!}(x-c)^{n+1} \]
+      </div>
+      <p>สำหรับบาง \(\xi\) ระหว่าง \(c\) กับ \(x\) (คือ \(\xi \in (c,x)\) หรือ \(\xi \in (x,c)\))</p>
+
+      <p><b>n-th order Taylor's series expansion</b> ของ \(f(x)\) คือ:</p>
+      <div class="formula">
+        \[ p_n(x) := \sum_{k=0}^{n} \frac{f^{(k)}(c)}{k!}(x-c)^k \]
+      </div>
+
+      <div class="callout tip">
+        <div class="callout-title">💡 ข้อสังเกต</div>
+        <p style="margin:6px 0;"><b>(i)</b> เมื่อใช้ \(p_n(x)\) ประมาณ \(f(x)\), Truncation error คือ:</p>
+        <div class="formula">\[ E_T := |f(x) - p_n(x)| = |R_{n+1}(x)| \]</div>
+        <p style="margin:6px 0;"><b>(ii)</b> เมื่อ \(c = 0\), เราเรียกอนุกรมนี้ว่า <b>Maclaurin series</b> ของ \(f(x)\)</p>
+      </div>
+
+      <!-- Example 1.1 -->
+      <div class="example open">
+        <div class="example-header">
+          <span><span class="example-label">ตัวอย่าง 1.1</span> Taylor series ของ \(e^x\)</span>
+          <span class="chev">▶</span>
+        </div>
+        <div class="example-body">
+          <p><b>โจทย์:</b></p>
+          <ol>
+            <li>หา Taylor series expansion ของ \(e^x\) รอบ \(x = 0\)</li>
+            <li>ประมาณค่า \(e^{0.1}\) จาก Taylor series ที่ขยายรอบ \(x=0\) โดยใช้ (a) 1 term, (b) 2 terms, (c) 3 terms</li>
+          </ol>
+          <p><b>วิธีทำ (1):</b></p>
+          <p>เนื่องจาก \(f(x) = e^x\) มีอนุพันธ์ทุกอันดับเท่ากับ \(e^x\) ทั้งหมด:</p>
+          <p>\(f(x) = e^x, f'(x) = e^x, f''(x) = e^x, \ldots, f^{(n)}(x) = e^x\)</p>
+          <p>ที่ \(x = 0\): \(f(0) = f'(0) = f''(0) = \ldots = e^0 = 1\)</p>
+          <p>ดังนั้น Taylor series ของ \(e^x\) รอบ \(x = 0\) คือ:</p>
+          <div class="formula">\[ e^x = 1 + x + \frac{x^2}{2} + \frac{x^3}{3!} + \cdots + \frac{x^n}{n!} + \cdots \]</div>
+
+          <p><b>วิธีทำ (2):</b> ค่าจริง \(e^{0.1} = 1.1052\) (4 D.P.)</p>
+          <div class="step"><span class="step-num">(a) 1 term:</span> \(e^{0.1} \approx f(0) = 1\)</div>
+          <div class="step"><span class="step-num">(b) 2 terms:</span> \(e^{0.1} \approx 1 + 1 \cdot (0.1) = 1.100\)</div>
+          <div class="step"><span class="step-num">(c) 3 terms:</span> \(e^{0.1} \approx 1 + 0.1 + \frac{1}{2}(0.01) = 1.105\)</div>
+          <p>สังเกตว่ายิ่งใช้ terms มากขึ้น การประมาณยิ่งใกล้ค่าจริง 1.1052</p>
+        </div>
+      </div>
+
+      <!-- ==================== SECTION 2: ERROR DEFINITIONS ==================== -->
+      <h2>2. นิยาม Error (Error Definitions)</h2>
+
+      <h3>2.1 เมื่อทราบค่าจริง (True value)</h3>
+      <div class="card">
+        <p><b>True Error:</b></p>
+        <div class="formula">\[ E_t = |\text{true value} - \text{approximate value}| \]</div>
+        <p><b>True Relative Error:</b></p>
+        <div class="formula">\[ \varepsilon_t = \left|\frac{\text{true value} - \text{approximation}}{\text{true value}}\right| = \frac{E_t}{|\text{true value}|} \]</div>
+        <p><b>True Percent Relative Error:</b> \(\varepsilon_t \times 100\%\)</p>
+      </div>
+      <p>อย่างไรก็ตาม โดยทั่วไปเรา<b>ไม่ทราบค่าจริง</b> จึงต้องใช้นิยาม error อีกแบบสำหรับกระบวนการวนซ้ำ</p>
+
+      <h3>2.2 เมื่อไม่ทราบค่าจริง (Iterative approach)</h3>
+      <p>ให้ \(j = 1, 2, 3, \ldots\) เป็นจำนวนรอบการทำซ้ำ</p>
+      <div class="card">
+        <p><b>Approximate Error:</b></p>
+        <div class="formula">\[ E_a = |\text{current approx} - \text{previous approx}| \]</div>
+        <p><b>Approximate Relative Error:</b></p>
+        <div class="formula">\[ \varepsilon_a = \left|\frac{\text{current approx} - \text{previous approx}}{\text{current approx}}\right| \]</div>
+        <p>โดยทั่วไป error จะแม่นยำขึ้นเมื่อจำนวน iteration เพิ่มขึ้น</p>
+      </div>
+
+      <!-- Example 1.2 -->
+      <div class="example open">
+        <div class="example-header">
+          <span><span class="example-label">ตัวอย่าง 1.2</span> ตะเกียบและรั้ว (เปรียบเทียบ True vs Relative Error)</span>
+          <span class="chev">▶</span>
+        </div>
+        <div class="example-body">
+          <p><b>โจทย์:</b> ตะเกียบยาวจริง 10 cm, รั้วยาวจริง 5000 cm วัดได้ 9 cm และ 4990 cm ตามลำดับ จงหา (a) True error (b) True relative error</p>
+          <p><b>(a) True Error:</b></p>
+          <p>ตะเกียบ: \(E_t = |10 - 9| = 1\) cm</p>
+          <p>รั้ว: \(E_t = |5000 - 4990| = 10\) cm</p>
+          <p><b>(b) True Relative Error:</b></p>
+          <p>ตะเกียบ: \(\varepsilon_t = |10-9|/10 = 0.1\) (10%)</p>
+          <p>รั้ว: \(\varepsilon_t = |5000-4990|/5000 = 0.002\) (0.2%)</p>
+          <div class="callout note">
+            <p style="margin:0;">📌 <b>บทเรียนสำคัญ:</b> แม้ true error ของรั้ว (10 cm) จะมากกว่าของตะเกียบ (1 cm) แต่ relative error ของรั้วน้อยกว่ามาก (0.2% เทียบกับ 10%) ดังนั้น <b>relative error เหมาะกว่าสำหรับการเปรียบเทียบ</b></p>
+          </div>
+        </div>
+      </div>
+
+      <h3>2.3 Absolute Error และ Stopping Criteria</h3>
+      <p>ในหลายกรณี เราสนใจเพียงขนาด (ไม่สนใจเครื่องหมาย): \(|E_t|, |\varepsilon_t|, |E_a|, |\varepsilon_a|\)</p>
+
+      <p>ในการทำ iteration เรากำหนด <b>tolerance (TOL)</b> เป็นเงื่อนไขหยุด:</p>
+      <div class="formula">\[ |\varepsilon_a| < TOL \]</div>
+      <p>และควรกำหนดจำนวน iteration สูงสุด (\(iter_{max}\)) เพื่อป้องกันไม่ให้ loop ทำงานไม่รู้จบ:</p>
+      <div class="formula">\[ \text{iteration index} < iter_{max} \]</div>
+
+      <div class="callout tip">
+        <div class="callout-title">📏 n-Digit Approximation</div>
+        <p style="margin:6px 0;">การประมาณ \(\tilde{x}\) แม่นยำถึง \(n\) ตำแหน่งทศนิยม (D.P.) เมื่อ:</p>
+        <div class="formula">\[ |x - \tilde{x}| \leq 0.5 \times 10^{-n} \]</div>
+        <p style="margin:6px 0;">หรือ \(TOL = 0.5 \times 10^{-n}\), และในหน่วยเปอร์เซ็นต์ \(TOL_\% = (0.5 \times 10^{2-n})\%\)</p>
+      </div>
+
+      <p><b>Total Error:</b></p>
+      <div class="formula">\[ \text{Total Error} = \text{Round-off Error} + \text{Truncation Error} \]</div>
+
+      <!-- Example 1.3 -->
+      <div class="example">
+        <div class="example-header">
+          <span><span class="example-label">ตัวอย่าง 1.3</span> Relative error และจำนวน terms สำหรับ \(e^{-0.1}\)</span>
+          <span class="chev">▶</span>
+        </div>
+        <div class="example-body">
+          <p><b>โจทย์:</b> จาก \(e^x = 1 + x + \frac{x^2}{2} + \frac{x^3}{3!} + \cdots\), ค่าจริง \(e^{-0.1} = 0.904837418035960\) (15 D.P.)</p>
+          <ol>
+            <li>หา relative error เมื่อใช้ 3 terms แรก (4 D.P. Rounding)</li>
+            <li>ต้องใช้กี่ terms เพื่อให้ประมาณตรงถึง 6 หลัก?</li>
+          </ol>
+          <p><b>วิธีทำ (a):</b> \(e^{-0.1} = 0.9048\) (4 D.P.)</p>
+          <p>ใช้ 3 terms: \(e^{-0.1} \approx 1 - 0.1 + \frac{1}{2}(0.01) = 0.9050\)</p>
+          <p>Absolute error: \(|0.9048 - 0.9050| = 0.0002\)</p>
+          <p>Relative error: \(\left|\frac{0.9048 - 0.9050}{0.9048}\right| = 2.2104 \times 10^{-4}\)</p>
+
+          <p><b>วิธีทำ (b):</b> ต้องการ \(|e^{-0.1} - p_n(-0.1)| \leq 0.5 \times 10^{-6}\)</p>
+          <p>จาก Taylor's remainder theorem สำหรับ \(f(x) = e^x, c=0\):</p>
+          <div class="formula">\[ |e^{-0.1} - p_n(-0.1)| = \left|\frac{e^\xi}{(n+1)!}(-0.1)^{n+1}\right| \leq \frac{(0.1)^{n+1}}{(n+1)!} \]</div>
+          <p>(เพราะ \(|e^\xi| < e^0 = 1\) สำหรับ \(\xi \in (-0.1, 0)\))</p>
+          <p>ตรวจค่า \(\frac{(0.1)^{n+1}}{(n+1)!}\):</p>
+          <ul>
+            <li>\(n=2\): \(1.6667 \times 10^{-4}\) ❌</li>
+            <li>\(n=3\): \(4.1667 \times 10^{-6}\) ❌</li>
+            <li>\(n=4\): \(8.3333 \times 10^{-8} < 5 \times 10^{-7}\) ✅</li>
+          </ul>
+          <p><b>ตอบ:</b> ต้องใช้ \(n+1 = 5\) terms</p>
+        </div>
+      </div>
+
+      <!-- Example 1.4 (from slides — for sin(x)) -->
+      <div class="example">
+        <div class="example-header">
+          <span><span class="example-label">ตัวอย่าง 1.4</span> Maximum error ของ Taylor polynomial degree 5 สำหรับ sin(0.5)</span>
+          <span class="chev">▶</span>
+        </div>
+        <div class="example-body">
+          <p><b>โจทย์:</b> Maximum possible error ของ Taylor polynomial degree 5 สำหรับ \(f(x) = \sin(x)\) รอบ 0 เพื่อประมาณ \(\sin(0.5)\)?</p>
+          <p><b>วิธีทำ:</b> ใช้ Taylor's Remainder Theorem สำหรับ \(n = 5, c = 0, x = 0.5\):</p>
+          <div class="formula">\[ |R_6(0.5)| = \left|\frac{f^{(6)}(\xi)}{6!}(0.5)^6\right| \]</div>
+          <p>เนื่องจาก \(f^{(6)}(x) = -\sin(x)\) และ \(|-\sin(\xi)| \leq 1\):</p>
+          <div class="formula">\[ |R_6(0.5)| \leq \frac{1}{720}(0.5)^6 = \frac{0.015625}{720} \approx 2.17 \times 10^{-5} \]</div>
+          <p><b>ตอบ:</b> Maximum error ≈ \(2.17 \times 10^{-5}\)</p>
+        </div>
+      </div>
+
+      <!-- Example 1.5 -->
+      <div class="example">
+        <div class="example-header">
+          <span><span class="example-label">ตัวอย่าง 1.5</span> Maximum error ของ Taylor polynomial degree 4 สำหรับ \(e^{0.2}\)</span>
+          <span class="chev">▶</span>
+        </div>
+        <div class="example-body">
+          <p><b>โจทย์:</b> Maximum error ของ Taylor polynomial degree 4 สำหรับ \(f(x) = e^x\) รอบ 0 เพื่อประมาณ \(e^{0.2}\)?</p>
+          <p><b>วิธีทำ:</b> \(n = 4, c = 0, x = 0.2\); \(f^{(5)}(x) = e^x\)</p>
+          <div class="formula">\[ |R_5(0.2)| = \left|\frac{e^\xi}{5!}(0.2)^5\right| \]</div>
+          <p>สำหรับ \(\xi \in (0, 0.2)\): \(|e^\xi| < e^{0.2} \approx 1.2214\)</p>
+          <div class="formula">\[ |R_5(0.2)| \leq \frac{1.2214}{120}(0.2)^5 = \frac{1.2214 \times 0.00032}{120} \approx 3.26 \times 10^{-6} \]</div>
+          <p><b>ตอบ:</b> Maximum error ≈ \(3.26 \times 10^{-6}\)</p>
+        </div>
+      </div>
+
+      <!-- Example 1.6 -->
+      <div class="example">
+        <div class="example-header">
+          <span><span class="example-label">ตัวอย่าง 1.6</span> หา degree ของ Taylor polynomial สำหรับ sin(1) ให้แม่นยำ 0.001</span>
+          <span class="chev">▶</span>
+        </div>
+        <div class="example-body">
+          <p><b>โจทย์:</b> ต้องใช้ Taylor polynomial degree เท่าใดสำหรับ \(\sin(x)\) (รอบ 0) เพื่อประมาณ \(\sin(1)\) ให้แม่นยำภายใน 0.001?</p>
+          <p><b>วิธีทำ:</b> ต้องการ \(\frac{|f^{(n+1)}(\xi)|}{(n+1)!}(1)^{n+1} < 0.001\)</p>
+          <p>เนื่องจาก \(|f^{(n+1)}(\xi)| \leq 1\) (เป็น sin/cos):</p>
+          <div class="formula">\[ \frac{1}{(n+1)!} < 0.001 \]</div>
+          <p>ตรวจค่า:</p>
+          <ul>
+            <li>\(n=5\): \(1/720 \approx 1.39 \times 10^{-3}\) ❌ (มากกว่า 0.001)</li>
+            <li>\(n=6\): \(1/5040 \approx 1.98 \times 10^{-4}\) ✅ (น้อยกว่า 0.001)</li>
+          </ul>
+          <p><b>ตอบ:</b> ต้องใช้ Taylor polynomial <b>degree 6</b> (7 terms)</p>
+        </div>
+      </div>
+
+      <!-- ==================== SECTION 3: ACCURACY REPRESENTATION ==================== -->
+      <h2>3. Accuracy Representation: D.P. & S.D.</h2>
+
+      <h3>3.1 Decimal Places (D.P.)</h3>
+      <p>นับจำนวนหลักหลังจุดทศนิยม:</p>
+      <div class="table-wrap">
+        <table>
+          <tr><th>ตัวเลข</th><th>D.P.</th></tr>
+          <tr><td>10.01</td><td>2</td></tr>
+          <tr><td>0.2332</td><td>4</td></tr>
+        </table>
+      </div>
+
+      <h3>3.2 Significant Digits (S.D.)</h3>
+      <p><b>กฎการนับ S.D.:</b></p>
+      <ol>
+        <li>ตัวเลขที่ไม่ใช่ 0 นับเป็น S.D. ทั้งหมด</li>
+        <li>เลข 0 ที่อยู่ระหว่าง S.D. นับเป็น S.D.</li>
+        <li>เลข 0 ที่อยู่<b>ทั้ง</b>ทางขวาของจุดทศนิยม<b>และ</b>ทางขวาของเลข non-zero นับเป็น S.D.</li>
+      </ol>
+
+      <div class="table-wrap">
+        <table>
+          <tr><th>ตัวเลข</th><th>S.D.</th><th>คำอธิบาย</th></tr>
+          <tr><td>3.14159</td><td>6</td><td>ตัวเลขทั้งหมดให้ข้อมูล</td></tr>
+          <tr><td>1000</td><td>1</td><td>เลข 0 เป็นแค่ placeholder</td></tr>
+          <tr><td>1000.0</td><td>5</td><td>".0" บอกว่าแม่นยำถึงตำแหน่งสิบส่วน</td></tr>
+          <tr><td>0.00023</td><td>2</td><td>เลข 0 ก่อน 2 เป็น placeholder</td></tr>
+          <tr><td>0.000230</td><td>3</td><td>0 ท้ายบอกความแม่นยำ</td></tr>
+          <tr><td>4007</td><td>4</td><td>0 อยู่ระหว่าง S.D.</td></tr>
+          <tr><td>230</td><td>2</td><td>0 ท้ายเป็น placeholder</td></tr>
+          <tr><td>230.0</td><td>4</td><td>".0" ให้ความแม่นยำ</td></tr>
+        </table>
+      </div>
+
+      <!-- ==================== SECTION 4: ROUND-OFF ERROR ==================== -->
+      <h2>4. Round-off Error: Rounding & Chopping</h2>
+      <p>เมื่อคอมพิวเตอร์ต้องเก็บเลขที่มีจำนวนหลักมากกว่าที่ available มันจะ<b>ตัด</b>หรือ<b>ปัด</b>หลักที่เกิน ทำให้เกิด <b>round-off error</b></p>
+
+      <p>สมมติมีที่ให้เก็บ \(d\) หลัก:</p>
+      <div class="grid-2">
+        <div class="card">
+          <h4>✂️ Chopping (ตัดทิ้ง)</h4>
+          <p>ไม่สนใจหลักที่เกิน (\(d+1, d+2, \ldots\)) เก็บเฉพาะ \(d\) หลักแรก</p>
+        </div>
+        <div class="card">
+          <h4>🔄 Rounding (ปัด)</h4>
+          <p>ใช้หลักที่ \(d+1\) ตัดสินใจ:</p>
+          <ul>
+            <li>ถ้า \((d+1)\text{-th digit} \geq 5\) → ปัดขึ้นหลักที่ \(d\)</li>
+            <li>ถ้า \((d+1)\text{-th digit} < 5\) → คงหลักที่ \(d\) ไว้</li>
+          </ul>
+        </div>
+      </div>
+
+      <div class="example open">
+        <div class="example-header">
+          <span><span class="example-label">ตัวอย่าง 4.1</span> 3 D.P. Rounding vs Chopping</span>
+          <span class="chev">▶</span>
+        </div>
+        <div class="example-body">
+          <p><b>โจทย์:</b> เขียน (a) \(\frac{1}{3}\) และ (b) 1.666666 ในรูป 3 D.P. Rounding และ 3 D.P. Chopping</p>
+          <p><b>(a) \(\frac{1}{3} = 0.33333\ldots\)</b></p>
+          <ul>
+            <li>3 D.P. Rounding: \(\boxed{0.333}\) (หลักที่ 4 = 3 < 5 → คงเดิม)</li>
+            <li>3 D.P. Chopping: \(\boxed{0.333}\) (ตัดทิ้ง)</li>
+          </ul>
+          <p><b>(b) 1.666666</b></p>
+          <ul>
+            <li>3 D.P. Rounding: \(\boxed{1.667}\) (หลักที่ 4 = 6 ≥ 5 → ปัดขึ้น)</li>
+            <li>3 D.P. Chopping: \(\boxed{1.666}\) (ตัดทิ้ง)</li>
+          </ul>
+          <p style="margin-top:8px;"><b>⚠️ หมายเหตุ:</b> ในสไลด์ต้นฉบับสลับกัน (Rounding=1.666, Chopping=1.667) ซึ่งอาจเป็น typo — วิธีถูกต้องคือ Rounding ให้ปัดขึ้นเมื่อหลักต่อไป ≥ 5</p>
+        </div>
+      </div>
+
+      <!-- ==================== EXERCISES / QUIZ ==================== -->
+      <h2>🧪 แบบทบทวนท้ายบท (End-of-Chapter Quiz)</h2>
+      <p>ทดสอบความเข้าใจของคุณ! ทำครบทุกข้อแล้วกด "ตรวจคำตอบ"</p>
+
+      <div class="quiz-container" data-quiz="ch1">
+        <h3>Quiz: Errors & Taylor Series (10 ข้อ)</h3>
+
+        <div class="quiz-question" data-type="mc" data-answer="c">
+          <div class="q-text"><span class="q-number">1</span> Taylor series ของ \(f(x)\) รอบ \(c = 0\) มีชื่อเรียกอีกอย่างว่าอะไร?</div>
+          <div class="q-options">
+            <label><input type="radio" name="q1" value="a"> Laurent series</label>
+            <label><input type="radio" name="q1" value="b"> Fourier series</label>
+            <label><input type="radio" name="q1" value="c"> Maclaurin series</label>
+            <label><input type="radio" name="q1" value="d"> Power series</label>
+          </div>
+          <div class="q-explain">💡 เมื่อ \(c = 0\), Taylor series กลายเป็น <b>Maclaurin series</b></div>
+        </div>
+
+        <div class="quiz-question" data-type="mc" data-answer="b">
+          <div class="q-text"><span class="q-number">2</span> Truncation error คืออะไร?</div>
+          <div class="q-options">
+            <label><input type="radio" name="q2" value="a"> Error จากการปัดเลขในคอมพิวเตอร์</label>
+            <label><input type="radio" name="q2" value="b"> Error จากการใช้ finite terms แทน infinite series</label>
+            <label><input type="radio" name="q2" value="c"> Error จากการวัดค่าจริง</label>
+            <label><input type="radio" name="q2" value="d"> Error จากการเลือก TOL ต่ำเกินไป</label>
+          </div>
+          <div class="q-explain">💡 Truncation error เกิดจากการ<b>ตัด</b>อนุกรมอนันต์ให้เหลือ finite terms เมื่อใช้ประมาณ (ต่างจาก round-off ที่เกิดจากการเก็บเลขในหน่วยความจำ)</div>
+        </div>
+
+        <div class="quiz-question" data-type="mc" data-answer="a">
+          <div class="q-text"><span class="q-number">3</span> ถ้าค่าจริง = 100 และค่าประมาณ = 99 True Relative Error คือ?</div>
+          <div class="q-options">
+            <label><input type="radio" name="q3" value="a"> 0.01 หรือ 1%</label>
+            <label><input type="radio" name="q3" value="b"> 0.1 หรือ 10%</label>
+            <label><input type="radio" name="q3" value="c"> 1 หรือ 100%</label>
+            <label><input type="radio" name="q3" value="d"> 0.001 หรือ 0.1%</label>
+          </div>
+          <div class="q-explain">💡 \(\varepsilon_t = |100-99|/100 = 0.01\) หรือ 1%</div>
+        </div>
+
+        <div class="quiz-question" data-type="num" data-answer="1.221" data-tol="0.01">
+          <div class="q-text"><span class="q-number">4</span> ประมาณ \(e^{0.2}\) โดยใช้ 3 terms ของ Taylor series รอบ 0 (ตอบทศนิยม 3 ตำแหน่ง)</div>
+          <input type="text" class="q-input" placeholder="ตัวเลข">
+          <div class="q-explain">💡 \(e^{0.2} \approx 1 + 0.2 + \frac{(0.2)^2}{2} = 1 + 0.2 + 0.02 = 1.220\) (ค่าจริง 1.2214)</div>
+        </div>
+
+        <div class="quiz-question" data-type="mc" data-answer="c">
+          <div class="q-text"><span class="q-number">5</span> จำนวน Significant Digits (S.D.) ของ 0.00450 คือ?</div>
+          <div class="q-options">
+            <label><input type="radio" name="q5" value="a"> 2</label>
+            <label><input type="radio" name="q5" value="b"> 4</label>
+            <label><input type="radio" name="q5" value="c"> 3</label>
+            <label><input type="radio" name="q5" value="d"> 5</label>
+          </div>
+          <div class="q-explain">💡 4, 5, และ 0 ท้ายเป็น S.D. ทั้งหมด (0 นำหน้าเป็น placeholder) → 3 S.D.</div>
+        </div>
+
+        <div class="quiz-question" data-type="mc" data-answer="a">
+          <div class="q-text"><span class="q-number">6</span> จำนวน Decimal Places (D.P.) ของ 10.001 คือ?</div>
+          <div class="q-options">
+            <label><input type="radio" name="q6" value="a"> 3</label>
+            <label><input type="radio" name="q6" value="b"> 5</label>
+            <label><input type="radio" name="q6" value="c"> 2</label>
+            <label><input type="radio" name="q6" value="d"> 4</label>
+          </div>
+          <div class="q-explain">💡 นับหลักหลังจุด: "001" มี 3 หลัก → 3 D.P.</div>
+        </div>
+
+        <div class="quiz-question" data-type="mc" data-answer="b">
+          <div class="q-text"><span class="q-number">7</span> 3.14159 ปัดเป็น 3 D.P. Rounding ได้เท่าใด?</div>
+          <div class="q-options">
+            <label><input type="radio" name="q7" value="a"> 3.141</label>
+            <label><input type="radio" name="q7" value="b"> 3.142</label>
+            <label><input type="radio" name="q7" value="c"> 3.14</label>
+            <label><input type="radio" name="q7" value="d"> 3.140</label>
+          </div>
+          <div class="q-explain">💡 หลักที่ 4 หลังจุด = 5 ≥ 5 → ปัดขึ้น หลักที่ 3 จาก 1 เป็น 2 → 3.142</div>
+        </div>
+
+        <div class="quiz-question" data-type="mc" data-answer="b">
+          <div class="q-text"><span class="q-number">8</span> "ประมาณค่าแม่นยำถึง 4 D.P." เทียบเท่ากับ TOL เท่าใด?</div>
+          <div class="q-options">
+            <label><input type="radio" name="q8" value="a"> \(0.5 \times 10^{-3}\)</label>
+            <label><input type="radio" name="q8" value="b"> \(0.5 \times 10^{-4}\)</label>
+            <label><input type="radio" name="q8" value="c"> \(0.5 \times 10^{-5}\)</label>
+            <label><input type="radio" name="q8" value="d"> \(10^{-4}\)</label>
+          </div>
+          <div class="q-explain">💡 n-Digit approximation: \(TOL = 0.5 \times 10^{-n}\); ที่ \(n = 4\) → \(0.5 \times 10^{-4}\)</div>
+        </div>
+
+        <div class="quiz-question" data-type="mc" data-answer="d">
+          <div class="q-text"><span class="q-number">9</span> Total Error ประกอบด้วยอะไรบ้าง?</div>
+          <div class="q-options">
+            <label><input type="radio" name="q9" value="a"> True + Relative error</label>
+            <label><input type="radio" name="q9" value="b"> Round-off error เท่านั้น</label>
+            <label><input type="radio" name="q9" value="c"> Truncation error เท่านั้น</label>
+            <label><input type="radio" name="q9" value="d"> Round-off error + Truncation error</label>
+          </div>
+          <div class="q-explain">💡 Total Error = Round-off + Truncation</div>
+        </div>
+
+        <div class="quiz-question" data-type="num" data-answer="5" data-tol="0.5">
+          <div class="q-text"><span class="q-number">10</span> ต้องใช้กี่ terms (จำนวนพจน์) ของ Taylor series \(e^x\) รอบ 0 เพื่อประมาณ \(e^{-0.1}\) ให้แม่นยำถึง 6 หลัก (จากตัวอย่าง 1.3)?</div>
+          <input type="text" class="q-input" placeholder="ตัวเลข">
+          <div class="q-explain">💡 ต้องใช้ \(n = 4\) → จำนวน terms = \(n + 1 = 5\)</div>
+        </div>
+
+        <div class="quiz-actions">
+          <button class="btn btn-primary quiz-submit">✅ ตรวจคำตอบ</button>
+          <button class="btn btn-secondary quiz-reset">🔄 เริ่มใหม่</button>
+        </div>
+        <div class="quiz-score"></div>
+      </div>
+
+      <div class="pager">
+        <a href="../index.html"><span class="label">← ย้อนกลับ</span><span class="title">หน้าแรก</span></a>
+        <a href="ch2-root-finding.html"><span class="label">ถัดไป →</span><span class="title">บทที่ 2: Root Finding</span></a>
+      </div>
+    </div>
+  </main>
+</div>
+<script src="../assets/app.js"></script>
+</body>
+</html>

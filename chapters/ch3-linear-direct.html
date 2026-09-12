@@ -1,0 +1,510 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="page-id" content="ch3">
+<title>บทที่ 3: Linear Systems (Direct) — CSS322</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@400;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../assets/style.css">
+</head>
+<body>
+<div class="app">
+  <aside class="sidebar">
+    <div class="brand">📐 CSS322</div>
+    <div class="brand-sub">Scientific Computing</div>
+    <div class="nav-section">หน้าหลัก</div>
+    <nav class="nav"><a href="../index.html" data-page="home">🏠 หน้าแรก <span class="status"></span></a></nav>
+    <div class="nav-section">บทเรียน</div>
+    <nav class="nav">
+      <a href="ch1-errors-taylor.html" data-page="ch1">บทที่ 1: Errors & Taylor <span class="status"></span></a>
+      <a href="ch2-root-finding.html" data-page="ch2">บทที่ 2: Root Finding <span class="status"></span></a>
+      <a href="ch3-linear-direct.html" data-page="ch3">บทที่ 3: Linear (Direct) <span class="status"></span></a>
+      <a href="ch4-linear-iterative.html" data-page="ch4">บทที่ 4: Linear (Iterative) <span class="status"></span></a>
+      <a href="ch5-nonlinear.html" data-page="ch5">บทที่ 5: Nonlinear <span class="status"></span></a>
+    </nav>
+    <div class="nav-section">การบ้าน</div>
+    <nav class="nav">
+      <a href="../homework/hw1.html" data-page="hw1">HW1: Taylor Error <span class="status"></span></a>
+      <a href="../homework/hw2.html" data-page="hw2">HW2: Root + IRR <span class="status"></span></a>
+      <a href="../homework/hw3.html" data-page="hw3">HW3: Jacobi/GS <span class="status"></span></a>
+      <a href="../homework/hw4.html" data-page="hw4">HW4: Nonlinear <span class="status"></span></a>
+    </nav>
+    <div class="progress-box">
+      <b>📊 ความคืบหน้า</b>
+      <div class="progress-text">0/9 หน้า</div>
+      <div class="progress-bar"><div class="progress-fill" style="width:0%"></div></div>
+    </div>
+    <button class="theme-toggle">🌙 โหมดมืด</button>
+  </aside>
+
+  <main class="main">
+    <div class="main-inner">
+      <div class="crumbs"><a href="../index.html">หน้าแรก</a> › บทที่ 3</div>
+      <h1>บทที่ 3: Linear Systems — Direct Methods</h1>
+      <p class="subtitle">Gaussian Elimination, Partial Pivoting, Gauss-Jordan, Matrix Inverse, LU Decomposition</p>
+
+      <div class="callout note">
+        <div class="callout-title">🎯 เป้าหมายของบท</div>
+        <ul style="margin:6px 0 0 20px;">
+          <li>เข้าใจระบบสมการเชิงเส้นและ triangular systems</li>
+          <li>ใช้ <b>Back/Forward substitution</b> แก้ triangular systems</li>
+          <li>ใช้ <b>Gaussian Elimination</b> (+ Partial Pivoting) แก้ระบบทั่วไป</li>
+          <li>ใช้ <b>Gauss-Jordan</b> เพื่อหา matrix inverse</li>
+          <li>เข้าใจและใช้ <b>LU decomposition</b> เพื่อแก้ระบบที่มี b หลายค่า</li>
+        </ul>
+      </div>
+
+      <!-- ==================== INTRODUCTION ==================== -->
+      <h2>1. Systems of Linear Equations</h2>
+      <p>ระบบสมการเชิงเส้น \(m\) สมการ \(n\) ตัวแปร:</p>
+      <div class="formula">
+        \[ \begin{aligned}
+        a_{11}x_1 + a_{12}x_2 + \cdots + a_{1n}x_n &= b_1 \\
+        a_{21}x_1 + a_{22}x_2 + \cdots + a_{2n}x_n &= b_2 \\
+        &\vdots \\
+        a_{m1}x_1 + a_{m2}x_2 + \cdots + a_{mn}x_n &= b_m
+        \end{aligned} \]
+      </div>
+      <p>เขียนในรูป <b>matrix form</b>:</p>
+      <div class="formula">\[ A\mathbf{x} = \mathbf{b} \]</div>
+
+      <p>สำหรับ \(m = n\) มี 3 กรณีเป็นไปได้:</p>
+      <ul>
+        <li>ไม่มี solution (เส้นขนาน / ระนาบขนาน)</li>
+        <li>มี unique solution เดียว (เส้นตัดกัน 1 จุด)</li>
+        <li>มี infinitely many solutions (เส้นทับกัน)</li>
+      </ul>
+
+      <p><b>Augmented matrix:</b> รวม \(A\) และ \(\mathbf{b}\):</p>
+      <div class="formula">\[ [A|\mathbf{b}] \]</div>
+
+      <!-- ==================== TRIANGULAR SYSTEMS ==================== -->
+      <h2>2. Triangular Systems</h2>
+      <p>บาง special forms แก้ได้ง่ายมาก:</p>
+      <div class="grid-2">
+        <div class="card">
+          <h4>Upper Triangular</h4>
+          <p>\(a_{ij} = 0\) สำหรับ \(i > j\)</p>
+          <div class="formula">\[ \begin{bmatrix} \star & \star & \star \\ 0 & \star & \star \\ 0 & 0 & \star \end{bmatrix} \]</div>
+          <p>แก้ด้วย <b>Back substitution</b></p>
+        </div>
+        <div class="card">
+          <h4>Lower Triangular</h4>
+          <p>\(a_{ij} = 0\) สำหรับ \(i < j\)</p>
+          <div class="formula">\[ \begin{bmatrix} \star & 0 & 0 \\ \star & \star & 0 \\ \star & \star & \star \end{bmatrix} \]</div>
+          <p>แก้ด้วย <b>Forward substitution</b></p>
+        </div>
+      </div>
+
+      <h3>2.1 Back Substitution (Upper Triangular)</h3>
+      <p>เริ่มจากสมการล่างสุด:</p>
+      <div class="formula">
+        \[ x_n = \frac{b_n}{a_{nn}}, \quad x_i = \frac{1}{a_{ii}}\left(b_i - \sum_{k=i+1}^{n} a_{ik}x_k\right) \]
+      </div>
+
+      <h3>2.2 Forward Substitution (Lower Triangular)</h3>
+      <div class="formula">
+        \[ x_1 = \frac{b_1}{a_{11}}, \quad x_i = \frac{1}{a_{ii}}\left(b_i - \sum_{k=1}^{i-1} a_{ik}x_k\right) \]
+      </div>
+
+      <div class="example open">
+        <div class="example-header">
+          <span><span class="example-label">ตัวอย่าง 2.1</span> Back Substitution</span>
+          <span class="chev">▶</span>
+        </div>
+        <div class="example-body">
+          <p><b>โจทย์:</b> แก้ระบบ \(3x_1 + x_2 + x_3 = 5; \; x_2 + 2x_3 = 4; \; 3x_3 = 6\)</p>
+          <p><b>วิธีทำ:</b> Upper triangular → back substitution</p>
+          <div class="step"><b>R3:</b> \(x_3 = 6/3 = 2\)</div>
+          <div class="step"><b>R2:</b> \(x_2 = 4 - 2x_3 = 4 - 4 = 0\)</div>
+          <div class="step"><b>R1:</b> \(x_1 = (5 - x_2 - x_3)/3 = (5 - 0 - 2)/3 = 1\)</div>
+          <p><b>ตอบ:</b> \((x_1, x_2, x_3) = (1, 0, 2)\)</p>
+        </div>
+      </div>
+
+      <!-- ==================== ELEMENTARY ROW OPERATIONS ==================== -->
+      <h2>3. Elementary Row Operations</h2>
+      <p>กฎ 3 ข้อสำหรับเปลี่ยน augmented matrix โดยไม่เปลี่ยน solution:</p>
+      <ol>
+        <li>สลับสอง rows ได้: \(R_i \leftrightarrow R_j\)</li>
+        <li>คูณ row ด้วยค่าคงที่ไม่ใช่ 0: \(R_i \to cR_i\)</li>
+        <li>บวก multiple ของ row หนึ่งไปยังอีก row: \(R_i \to R_i + cR_j\)</li>
+      </ol>
+      <p>ใช้กฎเหล่านี้แปลง system เป็น <b>upper</b>, <b>lower</b>, หรือ <b>diagonal</b> form</p>
+
+      <!-- ==================== GAUSSIAN ELIMINATION ==================== -->
+      <h2>4. Gaussian Elimination</h2>
+      <p>ประกอบด้วย 2 ขั้นตอน:</p>
+      <ol>
+        <li><b>Forward Elimination</b>: แปลงเป็น upper triangular</li>
+        <li><b>Back Substitution</b>: หา \(\mathbf{x}\)</li>
+      </ol>
+
+      <h3>4.1 Forward Elimination — ขั้นตอน</h3>
+      <p>สำหรับ step \(k\) (\(k = 1, 2, \ldots, n-1\)):</p>
+      <ul>
+        <li>\(R_k\) = pivot row, \(a_{kk}\) = pivot element</li>
+        <li>สำหรับแต่ละ \(i > k\): คำนวณ multiplier \(m_{ik} = a_{ik}/a_{kk}\)</li>
+        <li>Update: \(R_i \to R_i - m_{ik}R_k\)</li>
+      </ul>
+
+      <div class="example open">
+        <div class="example-header">
+          <span><span class="example-label">ตัวอย่าง 4.1</span> Gaussian Elimination — Unique Solution</span>
+          <span class="chev">▶</span>
+        </div>
+        <div class="example-body">
+          <p><b>โจทย์:</b> แก้ระบบ \(x - y = 2; \; 2x - y - z = 3; \; x + y + z = 6\)</p>
+          <p><b>Augmented matrix:</b></p>
+          <div class="formula">\[ \begin{bmatrix} 1 & -1 & 0 & | & 2 \\ 2 & -1 & -1 & | & 3 \\ 1 & 1 & 1 & | & 6 \end{bmatrix} \]</div>
+
+          <p><b>Step 1:</b> Pivot = \(a_{11} = 1\); \(m_{21} = 2, m_{31} = 1\)</p>
+          <p>\(R_2 \to R_2 - 2R_1\); \(R_3 \to R_3 - R_1\):</p>
+          <div class="formula">\[ \begin{bmatrix} 1 & -1 & 0 & | & 2 \\ 0 & 1 & -1 & | & -1 \\ 0 & 2 & 1 & | & 4 \end{bmatrix} \]</div>
+
+          <p><b>Step 2:</b> Pivot = \(a_{22} = 1\); \(m_{32} = 2\)</p>
+          <p>\(R_3 \to R_3 - 2R_2\):</p>
+          <div class="formula">\[ \begin{bmatrix} 1 & -1 & 0 & | & 2 \\ 0 & 1 & -1 & | & -1 \\ 0 & 0 & 3 & | & 6 \end{bmatrix} \]</div>
+
+          <p><b>Back Substitution:</b></p>
+          <div class="step">R3: \(3z = 6 \Rightarrow z = 2\)</div>
+          <div class="step">R2: \(y - z = -1 \Rightarrow y = -1 + 2 = 1\)</div>
+          <div class="step">R1: \(x - y = 2 \Rightarrow x = 2 + 1 = 3\)</div>
+          <p><b>ตอบ:</b> \((x, y, z) = (3, 1, 2)\)</p>
+        </div>
+      </div>
+
+      <div class="example">
+        <div class="example-header">
+          <span><span class="example-label">ตัวอย่าง 4.2</span> No Solution Case</span>
+          <span class="chev">▶</span>
+        </div>
+        <div class="example-body">
+          <p><b>โจทย์:</b> \(x - 2y - 6z = 12; \; x - 4y - 12z = 22; \; 2x + 4y + 12z = -17\)</p>
+
+          <p>หลัง Forward Elimination ได้ R3: \(0 = -1\)</p>
+          <p><b>ผลลัพธ์:</b> ไม่สามารถหา \(z\) ที่ทำให้ R3 เป็นจริง → <b>No Solution</b></p>
+        </div>
+      </div>
+
+      <div class="example">
+        <div class="example-header">
+          <span><span class="example-label">ตัวอย่าง 4.3</span> Many Solutions Case</span>
+          <span class="chev">▶</span>
+        </div>
+        <div class="example-body">
+          <p><b>โจทย์:</b> \(x + y - 2z = 1; \; y - z = 3; \; -x + 4y - 3z = 14\)</p>
+          <p>หลัง Elimination ได้ R3: \(0z = 0\) → \(z\) เป็นค่าอิสระ</p>
+          <p>ให้ \(z = t\): \(y = 3 + t\), \(x = 1 - y + 2z = -2 + t\)</p>
+          <p><b>ตอบ:</b> \((x, y, z) = (-2 + t, 3 + t, t)\) สำหรับ \(t \in \mathbb{R}\)</p>
+        </div>
+      </div>
+
+      <!-- ==================== PARTIAL PIVOTING ==================== -->
+      <h2>5. Gaussian Elimination with Partial Pivoting (GEP)</h2>
+      <p>ปัญหาของ Gaussian ทั่วไป: ถ้า pivot element เล็กมากหรือเป็น 0 → เกิด round-off error รุนแรง</p>
+
+      <div class="callout warn">
+        <div class="callout-title">⚠️ Problematic Example</div>
+        <p style="margin:6px 0;">สำหรับ \(\varepsilon x + y = 1; \; x + y = 2\) เมื่อ \(\varepsilon = 10^{-8}\):</p>
+        <ul style="margin: 6px 0 0 20px;">
+          <li>ถ้าใช้ 7 D.P. โดยไม่ pivot: solution ผิดสิ้นเชิง (\(x = 0\) แทน \(x = 1\))</li>
+          <li>ถ้าใช้ partial pivoting: ได้ \(x \approx 1.0000000\) ✅</li>
+        </ul>
+      </div>
+
+      <h3>5.1 ขั้นตอน Partial Pivoting</h3>
+      <p>ในแต่ละ column \(i\):</p>
+      <ol>
+        <li>หา \(p\) ที่ทำให้ \(|a_{pi}| = \max_{i \leq k \leq n} |a_{ki}|\)</li>
+        <li>สลับ row: \(R_i \leftrightarrow R_p\)</li>
+      </ol>
+      <p>แล้วทำ Forward Elimination ตามปกติ</p>
+
+      <div class="example open">
+        <div class="example-header">
+          <span><span class="example-label">ตัวอย่าง 5.1</span> GEP สำหรับ \(x - y = 2; 2x - y - z = 3; x + y + z = 6\)</span>
+          <span class="chev">▶</span>
+        </div>
+        <div class="example-body">
+          <p><b>Step 1 Pivoting:</b> \(\max(|1|, |2|, |1|) = 2 = |a_{21}|\) → สลับ \(R_1 \leftrightarrow R_2\)</p>
+          <div class="formula">\[ \begin{bmatrix} 2 & -1 & -1 & | & 3 \\ 1 & -1 & 0 & | & 2 \\ 1 & 1 & 1 & | & 6 \end{bmatrix} \]</div>
+          <p>Elimination: \(m_{21} = 1/2, m_{31} = 1/2\):</p>
+          <div class="formula">\[ \begin{bmatrix} 2 & -1 & -1 & | & 3 \\ 0 & -1/2 & 1/2 & | & 1/2 \\ 0 & 3/2 & 3/2 & | & 9/2 \end{bmatrix} \]</div>
+
+          <p><b>Step 2 Pivoting:</b> \(\max(|-1/2|, |3/2|) = 3/2\) → สลับ \(R_2 \leftrightarrow R_3\)</p>
+          <p>Elimination: \(m_{32} = -1/3\):</p>
+          <div class="formula">\[ \begin{bmatrix} 2 & -1 & -1 & | & 3 \\ 0 & 3/2 & 3/2 & | & 9/2 \\ 0 & 0 & 1 & | & 2 \end{bmatrix} \]</div>
+
+          <p><b>Back Substitution:</b> \(z = 2, y = (9/2 - 3)(2/3) = 1, x = (3 + 1 + 2)/2 = 3\)</p>
+        </div>
+      </div>
+
+      <!-- ==================== GAUSS-JORDAN ==================== -->
+      <h2>6. Gauss-Jordan Elimination</h2>
+      <p>แปลง \([A|\mathbf{b}]\) เป็น <b>diagonal (identity)</b> form:</p>
+      <div class="formula">\[ [A|\mathbf{b}] \Rightarrow [I | \tilde{\mathbf{b}}] \]</div>
+      <p>Solution: \(x_i = \tilde{b}_i\) โดยตรง</p>
+
+      <div class="example open">
+        <div class="example-header">
+          <span><span class="example-label">ตัวอย่าง 6.1</span> Gauss-Jordan สำหรับระบบเดิม</span>
+          <span class="chev">▶</span>
+        </div>
+        <div class="example-body">
+          <p><b>โจทย์:</b> \(x - y = 2; 2x - y - z = 3; x + y + z = 6\)</p>
+          <p><b>Forward Elimination</b> (Step 1-2 เหมือน Gaussian): ได้:</p>
+          <div class="formula">\[ \begin{bmatrix} 1 & -1 & 0 & | & 2 \\ 0 & 1 & -1 & | & -1 \\ 0 & 0 & 3 & | & 6 \end{bmatrix} \]</div>
+
+          <p><b>Step 2 (เพิ่มเติม):</b> \(R_1 \to R_1 + R_2\) (กำจัด \(a_{12}\)):</p>
+          <div class="formula">\[ \begin{bmatrix} 1 & 0 & -1 & | & 1 \\ 0 & 1 & -1 & | & -1 \\ 0 & 0 & 3 & | & 6 \end{bmatrix} \]</div>
+
+          <p><b>Step 3:</b> \(R_3 \to R_3/3\); \(R_1 \to R_1 + R_3\); \(R_2 \to R_2 + R_3\):</p>
+          <div class="formula">\[ \begin{bmatrix} 1 & 0 & 0 & | & 3 \\ 0 & 1 & 0 & | & 1 \\ 0 & 0 & 1 & | & 2 \end{bmatrix} \]</div>
+
+          <p><b>ตอบ:</b> \((x, y, z) = (3, 1, 2)\) อ่านจาก column ขวาสุดโดยตรง</p>
+        </div>
+      </div>
+
+      <!-- ==================== MATRIX INVERSE ==================== -->
+      <h2>7. Matrix Inverse ด้วย Gauss-Jordan</h2>
+      <p>ตั้ง augmented \([A|I]\) แล้วทำ Gauss-Jordan จนได้ \([I|A^{-1}]\):</p>
+      <div class="formula">\[ [A|I] \xrightarrow{GJE} [I|A^{-1}] \]</div>
+
+      <div class="example open">
+        <div class="example-header">
+          <span><span class="example-label">ตัวอย่าง 7.1</span> Inverse ของ \(A = \begin{bmatrix}1&2&3\\2&5&3\\1&0&8\end{bmatrix}\)</span>
+          <span class="chev">▶</span>
+        </div>
+        <div class="example-body">
+          <p><b>Setup:</b></p>
+          <div class="formula">\[ [A|I] = \begin{bmatrix} 1&2&3 & | & 1&0&0 \\ 2&5&3 & | & 0&1&0 \\ 1&0&8 & | & 0&0&1 \end{bmatrix} \]</div>
+
+          <p><b>Step 1:</b> \(R_2 \to R_2 - 2R_1\); \(R_3 \to R_3 - R_1\):</p>
+          <div class="formula">\[ \begin{bmatrix} 1&2&3 & | & 1&0&0 \\ 0&1&-3 & | & -2&1&0 \\ 0&-2&5 & | & -1&0&1 \end{bmatrix} \]</div>
+
+          <p><b>Step 2:</b> \(R_1 \to R_1 - 2R_2\); \(R_3 \to R_3 + 2R_2\):</p>
+          <div class="formula">\[ \begin{bmatrix} 1&0&9 & | & 5&-2&0 \\ 0&1&-3 & | & -2&1&0 \\ 0&0&-1 & | & -5&2&1 \end{bmatrix} \]</div>
+
+          <p><b>Step 3:</b> \(R_3 \to -R_3\); \(R_1 \to R_1 - 9R_3\); \(R_2 \to R_2 + 3R_3\):</p>
+          <div class="formula">\[ [I|A^{-1}] = \begin{bmatrix} 1&0&0 & | & -40&16&9 \\ 0&1&0 & | & 13&-5&-3 \\ 0&0&1 & | & 5&-2&-1 \end{bmatrix} \]</div>
+
+          <p><b>ตอบ:</b> \(A^{-1} = \begin{bmatrix} -40&16&9 \\ 13&-5&-3 \\ 5&-2&-1 \end{bmatrix}\)</p>
+        </div>
+      </div>
+
+      <!-- ==================== LU DECOMPOSITION ==================== -->
+      <h2>8. LU Decomposition</h2>
+      <p>แยก \(A\) เป็นผลคูณของ <b>Lower triangular</b> \(L\) และ <b>Upper triangular</b> \(U\):</p>
+      <div class="formula">\[ A = LU \]</div>
+
+      <p>โดย \(L\) มี diagonal = 1 (unitriangular):</p>
+      <div class="formula">
+        \[ L = \begin{bmatrix} 1 & 0 & 0 \\ \ell_{21} & 1 & 0 \\ \ell_{31} & \ell_{32} & 1 \end{bmatrix}, \quad U = \begin{bmatrix} u_{11} & u_{12} & u_{13} \\ 0 & u_{22} & u_{23} \\ 0 & 0 & u_{33} \end{bmatrix} \]
+      </div>
+
+      <h3>8.1 การแก้ระบบด้วย LU</h3>
+      <p>\(A\mathbf{x} = \mathbf{b} \Leftrightarrow LU\mathbf{x} = \mathbf{b}\) แก้ 2 ขั้นตอน:</p>
+      <div class="step"><b>Step 1 (Forward):</b> ตั้ง \(\mathbf{y} = U\mathbf{x}\); แก้ \(L\mathbf{y} = \mathbf{b}\) หา \(\mathbf{y}\)</div>
+      <div class="step"><b>Step 2 (Back):</b> แก้ \(U\mathbf{x} = \mathbf{y}\) หา \(\mathbf{x}\)</div>
+
+      <div class="callout tip">
+        <div class="callout-title">💡 เมื่อใดควรใช้ LU?</div>
+        <p style="margin:0;">มีประโยชน์<b>มาก</b>เมื่อต้องแก้ \(A\mathbf{x} = \mathbf{b}\) หลายครั้งด้วย \(A\) เดิมแต่ \(\mathbf{b}\) ต่างกัน — decompose \(L, U\) ครั้งเดียว ใช้ได้กับทุก \(\mathbf{b}\)</p>
+      </div>
+
+      <h3>8.2 การหา L และ U ด้วยการแก้สมการ</h3>
+      <p>จาก \(A = LU\) ได้:</p>
+      <div class="formula">
+        \[ \begin{aligned}
+        \text{Row 1: } & u_{11} = a_{11}, \; u_{12} = a_{12}, \; u_{13} = a_{13} \\
+        \text{Row 2: } & \ell_{21} = a_{21}/u_{11}, \; u_{22} = a_{22} - \ell_{21}u_{12}, \; u_{23} = a_{23} - \ell_{21}u_{13} \\
+        \text{Row 3: } & \ell_{31} = a_{31}/u_{11}, \; \ell_{32} = (a_{32} - \ell_{31}u_{12})/u_{22}, \; u_{33} = a_{33} - \ell_{31}u_{13} - \ell_{32}u_{23}
+        \end{aligned} \]
+      </div>
+
+      <div class="example open">
+        <div class="example-header">
+          <span><span class="example-label">ตัวอย่าง 8.1</span> LU สำหรับ \(A = \begin{bmatrix}5&3&4\\5&6&6\\15&15&18\end{bmatrix}\)</span>
+          <span class="chev">▶</span>
+        </div>
+        <div class="example-body">
+          <p><b>คำนวณ:</b></p>
+          <ul>
+            <li>Row 1: \(u_{11}=5, u_{12}=3, u_{13}=4\)</li>
+            <li>Row 2: \(\ell_{21}=1, u_{22}=6-3=3, u_{23}=6-4=2\)</li>
+            <li>Row 3: \(\ell_{31}=3, \ell_{32}=(15-9)/3=2, u_{33}=18-12-4=2\)</li>
+          </ul>
+          <div class="formula">
+            \[ L = \begin{bmatrix}1&0&0\\1&1&0\\3&2&1\end{bmatrix}, \quad U = \begin{bmatrix}5&3&4\\0&3&2\\0&0&2\end{bmatrix} \]
+          </div>
+
+          <p><b>ใช้ LU แก้ \(A\mathbf{x} = \mathbf{b}\) เมื่อ \(\mathbf{b} = [1, 0, 1]^T\):</b></p>
+          <p><b>Step 1:</b> \(L\mathbf{y} = \mathbf{b}\):</p>
+          <ul>
+            <li>R1: \(y_1 = 1\)</li>
+            <li>R2: \(y_1 + y_2 = 0 \Rightarrow y_2 = -1\)</li>
+            <li>R3: \(3(1) + 2(-1) + y_3 = 1 \Rightarrow y_3 = 0\)</li>
+          </ul>
+
+          <p><b>Step 2:</b> \(U\mathbf{x} = \mathbf{y} = [1, -1, 0]^T\):</p>
+          <ul>
+            <li>R3: \(2x_3 = 0 \Rightarrow x_3 = 0\)</li>
+            <li>R2: \(3x_2 + 2(0) = -1 \Rightarrow x_2 = -1/3\)</li>
+            <li>R1: \(5x_1 + 3(-1/3) + 4(0) = 1 \Rightarrow x_1 = 2/5\)</li>
+          </ul>
+          <p><b>ตอบ:</b> \(\mathbf{x} = [2/5, -1/3, 0]^T\)</p>
+        </div>
+      </div>
+
+      <div class="example">
+        <div class="example-header">
+          <span><span class="example-label">ตัวอย่าง 8.2</span> ใช้ LU ตัวเดิมกับ \(\mathbf{b} = [1, 2, 0]^T\)</span>
+          <span class="chev">▶</span>
+        </div>
+        <div class="example-body">
+          <p><b>Step 1:</b> \(L\mathbf{y} = [1, 2, 0]\): \(y_1 = 1, y_2 = 1, y_3 = -5\)</p>
+          <p><b>Step 2:</b> \(U\mathbf{x} = [1, 1, -5]\):</p>
+          <ul>
+            <li>R3: \(2x_3 = -5 \Rightarrow x_3 = -2.5\)</li>
+            <li>R2: \(3x_2 + 2(-2.5) = 1 \Rightarrow x_2 = 2\)</li>
+            <li>R1: \(5x_1 + 3(2) + 4(-2.5) = 1 \Rightarrow x_1 = 1\)</li>
+          </ul>
+          <p><b>ตอบ:</b> \(\mathbf{x} = [1, 2, -2.5]^T\)</p>
+          <div class="callout tip"><p style="margin:0;">✨ สังเกตว่าเราใช้ \(L, U\) เดิม แค่แก้ 2 triangular systems ใหม่ — ประหยัดเวลามาก!</p></div>
+        </div>
+      </div>
+
+      <h3>8.3 LU จาก Gaussian Elimination</h3>
+      <p>แต่ละ multiplier \(m_{ik}\) ใน forward elimination คือ \(\ell_{ik}\) ของ \(L\); \(U\) คือ upper triangular ที่เหลือ</p>
+
+      <!-- ==================== QUIZ ==================== -->
+      <h2>🧪 แบบทบทวนท้ายบท</h2>
+      <div class="quiz-container" data-quiz="ch3">
+        <h3>Quiz: Linear Systems Direct (10 ข้อ)</h3>
+
+        <div class="quiz-question" data-type="mc" data-answer="b">
+          <div class="q-text"><span class="q-number">1</span> Upper triangular matrix มีลักษณะใด?</div>
+          <div class="q-options">
+            <label><input type="radio" name="q1" value="a"> \(a_{ij} = 0\) สำหรับ \(i < j\)</label>
+            <label><input type="radio" name="q1" value="b"> \(a_{ij} = 0\) สำหรับ \(i > j\)</label>
+            <label><input type="radio" name="q1" value="c"> \(a_{ij} = 0\) สำหรับทุก \(i, j\)</label>
+            <label><input type="radio" name="q1" value="d"> \(a_{ij} = 1\) สำหรับ diagonal</label>
+          </div>
+          <div class="q-explain">💡 Upper triangular = ค่าใต้ diagonal เป็น 0 (คือ \(a_{ij} = 0\) เมื่อ \(i > j\))</div>
+        </div>
+
+        <div class="quiz-question" data-type="mc" data-answer="c">
+          <div class="q-text"><span class="q-number">2</span> ระบบ Upper triangular แก้ด้วยวิธีใด?</div>
+          <div class="q-options">
+            <label><input type="radio" name="q2" value="a"> Forward substitution</label>
+            <label><input type="radio" name="q2" value="b"> Newton-Raphson</label>
+            <label><input type="radio" name="q2" value="c"> Back substitution</label>
+            <label><input type="radio" name="q2" value="d"> Gauss-Jordan</label>
+          </div>
+          <div class="q-explain">💡 Upper triangular ต้องเริ่มแก้จากแถวล่างสุด → Back substitution</div>
+        </div>
+
+        <div class="quiz-question" data-type="mc" data-answer="a">
+          <div class="q-text"><span class="q-number">3</span> Gaussian Elimination ประกอบด้วย?</div>
+          <div class="q-options">
+            <label><input type="radio" name="q3" value="a"> Forward elimination + Back substitution</label>
+            <label><input type="radio" name="q3" value="b"> Forward substitution + Back substitution</label>
+            <label><input type="radio" name="q3" value="c"> Matrix inverse + Multiplication</label>
+            <label><input type="radio" name="q3" value="d"> LU decomposition + Substitution</label>
+          </div>
+          <div class="q-explain">💡 Gaussian = Forward Elimination (แปลงเป็น upper triangular) + Back Substitution</div>
+        </div>
+
+        <div class="quiz-question" data-type="mc" data-answer="b">
+          <div class="q-text"><span class="q-number">4</span> Partial Pivoting ใช้เพื่อ?</div>
+          <div class="q-options">
+            <label><input type="radio" name="q4" value="a"> ให้ solution เพิ่มขึ้น</label>
+            <label><input type="radio" name="q4" value="b"> หลีกเลี่ยง round-off error จาก pivot เล็ก</label>
+            <label><input type="radio" name="q4" value="c"> ให้ matrix เป็น diagonal</label>
+            <label><input type="radio" name="q4" value="d"> ประหยัดเวลา</label>
+          </div>
+          <div class="q-explain">💡 Partial pivoting เลือก pivot ที่มี |max value| เพื่อหลีกเลี่ยงการหารด้วยเลขเล็ก (round-off error รุนแรง)</div>
+        </div>
+
+        <div class="quiz-question" data-type="mc" data-answer="d">
+          <div class="q-text"><span class="q-number">5</span> Gauss-Jordan แปลง \([A|\mathbf{b}]\) เป็นรูปใด?</div>
+          <div class="q-options">
+            <label><input type="radio" name="q5" value="a"> Upper triangular</label>
+            <label><input type="radio" name="q5" value="b"> Lower triangular</label>
+            <label><input type="radio" name="q5" value="c"> Symmetric</label>
+            <label><input type="radio" name="q5" value="d"> Identity (\([I|\tilde{\mathbf{b}}]\))</label>
+          </div>
+          <div class="q-explain">💡 Gauss-Jordan แปลงจนซ้ายเป็น I → ขวาคือ solution โดยตรง</div>
+        </div>
+
+        <div class="quiz-question" data-type="mc" data-answer="b">
+          <div class="q-text"><span class="q-number">6</span> LU decomposition มีประโยชน์เมื่อใด?</div>
+          <div class="q-options">
+            <label><input type="radio" name="q6" value="a"> เมื่อ \(A\) เป็น sparse</label>
+            <label><input type="radio" name="q6" value="b"> เมื่อต้องแก้หลาย \(\mathbf{b}\) ด้วย \(A\) เดิม</label>
+            <label><input type="radio" name="q6" value="c"> เมื่อ \(A\) เป็น symmetric</label>
+            <label><input type="radio" name="q6" value="d"> เสมอ (เร็วกว่า Gaussian)</label>
+          </div>
+          <div class="q-explain">💡 LU decompose ครั้งเดียว ใช้ซ้ำได้กับทุก \(\mathbf{b}\) → ประหยัดเมื่อมี \(\mathbf{b}\) หลายค่า</div>
+        </div>
+
+        <div class="quiz-question" data-type="mc" data-answer="a">
+          <div class="q-text"><span class="q-number">7</span> ในการแก้ \(LU\mathbf{x} = \mathbf{b}\) ต้องแก้อะไรก่อน?</div>
+          <div class="q-options">
+            <label><input type="radio" name="q7" value="a"> \(L\mathbf{y} = \mathbf{b}\) (Forward)</label>
+            <label><input type="radio" name="q7" value="b"> \(U\mathbf{x} = \mathbf{b}\) (Back)</label>
+            <label><input type="radio" name="q7" value="c"> หา \(L^{-1}\) ก่อน</label>
+            <label><input type="radio" name="q7" value="d"> หา determinant ก่อน</label>
+          </div>
+          <div class="q-explain">💡 ตั้ง \(\mathbf{y} = U\mathbf{x}\); แก้ \(L\mathbf{y} = \mathbf{b}\) หา \(\mathbf{y}\) ก่อน แล้วค่อยแก้ \(U\mathbf{x} = \mathbf{y}\)</div>
+        </div>
+
+        <div class="quiz-question" data-type="mc" data-answer="c">
+          <div class="q-text"><span class="q-number">8</span> วิธีหา \(A^{-1}\) ด้วย Gauss-Jordan คืออะไร?</div>
+          <div class="q-options">
+            <label><input type="radio" name="q8" value="a"> ตั้ง \([A|A]\) แล้วทำ GJE</label>
+            <label><input type="radio" name="q8" value="b"> ตั้ง \([A|\mathbf{b}]\) แล้วอ่าน \(A^{-1}\) จาก \(\mathbf{b}\)</label>
+            <label><input type="radio" name="q8" value="c"> ตั้ง \([A|I]\) แล้วทำ GJE จนได้ \([I|A^{-1}]\)</label>
+            <label><input type="radio" name="q8" value="d"> คำนวณ determinant ก่อน</label>
+          </div>
+          <div class="q-explain">💡 ตั้ง augmented \([A|I]\), ทำ Gauss-Jordan → ได้ \([I|A^{-1}]\)</div>
+        </div>
+
+        <div class="quiz-question" data-type="num" data-answer="5" data-tol="0.01">
+          <div class="q-text"><span class="q-number">9</span> จาก \(u_{11} = a_{11}\) ในตัวอย่าง 8.1 \(A = [5,3,4;5,6,6;15,15,18]\) — \(u_{11} = ?\)</div>
+          <input type="text" class="q-input" placeholder="ตัวเลข">
+          <div class="q-explain">💡 \(u_{11} = a_{11} = 5\)</div>
+        </div>
+
+        <div class="quiz-question" data-type="mc" data-answer="b">
+          <div class="q-text"><span class="q-number">10</span> ถ้าใน Gaussian Elimination ได้แถวสุดท้ายเป็น "0 = 5" ผลลัพธ์คือ?</div>
+          <div class="q-options">
+            <label><input type="radio" name="q10" value="a"> Unique solution</label>
+            <label><input type="radio" name="q10" value="b"> No solution</label>
+            <label><input type="radio" name="q10" value="c"> Infinitely many solutions</label>
+            <label><input type="radio" name="q10" value="d"> Solution เป็น 5</label>
+          </div>
+          <div class="q-explain">💡 "0 = ค่าไม่ใช่ 0" เป็น contradiction → No Solution</div>
+        </div>
+
+        <div class="quiz-actions">
+          <button class="btn btn-primary quiz-submit">✅ ตรวจคำตอบ</button>
+          <button class="btn btn-secondary quiz-reset">🔄 เริ่มใหม่</button>
+        </div>
+        <div class="quiz-score"></div>
+      </div>
+
+      <div class="pager">
+        <a href="ch2-root-finding.html"><span class="label">← ก่อนหน้า</span><span class="title">บทที่ 2</span></a>
+        <a href="ch4-linear-iterative.html"><span class="label">ถัดไป →</span><span class="title">บทที่ 4: Linear Iterative</span></a>
+      </div>
+    </div>
+  </main>
+</div>
+<script src="../assets/app.js"></script>
+</body>
+</html>

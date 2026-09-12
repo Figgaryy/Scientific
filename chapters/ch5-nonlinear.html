@@ -1,0 +1,422 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="page-id" content="ch5">
+<title>บทที่ 5: Nonlinear Systems — CSS322</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@400;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../assets/style.css">
+</head>
+<body>
+<div class="app">
+  <aside class="sidebar">
+    <div class="brand">📐 CSS322</div>
+    <div class="brand-sub">Scientific Computing</div>
+    <div class="nav-section">หน้าหลัก</div>
+    <nav class="nav"><a href="../index.html" data-page="home">🏠 หน้าแรก <span class="status"></span></a></nav>
+    <div class="nav-section">บทเรียน</div>
+    <nav class="nav">
+      <a href="ch1-errors-taylor.html" data-page="ch1">บทที่ 1: Errors & Taylor <span class="status"></span></a>
+      <a href="ch2-root-finding.html" data-page="ch2">บทที่ 2: Root Finding <span class="status"></span></a>
+      <a href="ch3-linear-direct.html" data-page="ch3">บทที่ 3: Linear (Direct) <span class="status"></span></a>
+      <a href="ch4-linear-iterative.html" data-page="ch4">บทที่ 4: Linear (Iterative) <span class="status"></span></a>
+      <a href="ch5-nonlinear.html" data-page="ch5">บทที่ 5: Nonlinear <span class="status"></span></a>
+    </nav>
+    <div class="nav-section">การบ้าน</div>
+    <nav class="nav">
+      <a href="../homework/hw1.html" data-page="hw1">HW1: Taylor Error <span class="status"></span></a>
+      <a href="../homework/hw2.html" data-page="hw2">HW2: Root + IRR <span class="status"></span></a>
+      <a href="../homework/hw3.html" data-page="hw3">HW3: Jacobi/GS <span class="status"></span></a>
+      <a href="../homework/hw4.html" data-page="hw4">HW4: Nonlinear <span class="status"></span></a>
+    </nav>
+    <div class="progress-box">
+      <b>📊 ความคืบหน้า</b>
+      <div class="progress-text">0/9 หน้า</div>
+      <div class="progress-bar"><div class="progress-fill" style="width:0%"></div></div>
+    </div>
+    <button class="theme-toggle">🌙 โหมดมืด</button>
+  </aside>
+
+  <main class="main">
+    <div class="main-inner">
+      <div class="crumbs"><a href="../index.html">หน้าแรก</a> › บทที่ 5</div>
+      <h1>บทที่ 5: Solving Nonlinear Systems</h1>
+      <p class="subtitle">Newton's Method (multi-variable + Jacobian) และ Fixed-Point iteration สำหรับระบบสมการไม่เชิงเส้น</p>
+
+      <div class="callout note">
+        <div class="callout-title">🎯 เป้าหมายของบท</div>
+        <ul style="margin:6px 0 0 20px;">
+          <li>เขียน <b>Jacobian matrix</b> ของ vector-valued function</li>
+          <li>ใช้ <b>Newton's method</b> สำหรับระบบ 2+ ตัวแปร</li>
+          <li>ใช้ <b>Fixed-point iteration</b> สำหรับระบบ nonlinear</li>
+          <li>ตรวจสอบเงื่อนไข convergence ของ fixed-point method (partial derivatives)</li>
+          <li>คำนวณ error ด้วย Euclidean และ Infinity norm</li>
+        </ul>
+      </div>
+
+      <!-- ==================== INTRO ==================== -->
+      <h2>1. ระบบสมการไม่เชิงเส้น (Nonlinear System)</h2>
+      <p>ระบบ nonlinear \(n\) สมการ \(n\) unknowns:</p>
+      <div class="formula">
+        \[ \begin{aligned}
+        f_1(x_1, x_2, \ldots, x_n) &= 0 \\
+        f_2(x_1, x_2, \ldots, x_n) &= 0 \\
+        &\vdots \\
+        f_n(x_1, x_2, \ldots, x_n) &= 0
+        \end{aligned} \]
+      </div>
+      <p>ในรูป vector: \(\mathbf{f}(\mathbf{x}) = \mathbf{0}\)</p>
+
+      <p>2 วิธีหลัก:</p>
+      <ol>
+        <li><b>Newton's method</b> (ใช้ Jacobian)</li>
+        <li><b>Fixed-point iteration</b> (แปลงเป็น \(\mathbf{x} = \mathbf{g}(\mathbf{x})\))</li>
+      </ol>
+
+      <!-- ==================== NEWTON ==================== -->
+      <h2>2. Newton's Method</h2>
+      <p>สำหรับระบบ 2 สมการ \(f_1(x, y) = 0, f_2(x, y) = 0\), ใช้ Taylor's series รอบ \((x_0, y_0)\):</p>
+      <div class="formula">
+        \[ f_i(x, y) = f_i(x_0, y_0) + \frac{\partial f_i}{\partial x}(x - x_0) + \frac{\partial f_i}{\partial y}(y - y_0) + \ldots \]
+      </div>
+
+      <h3>2.1 Jacobian Matrix</h3>
+      <p>Jacobian ของ \(\mathbf{f}(x, y) = [f_1(x,y); f_2(x,y)]\) ที่จุด \((x, y)\):</p>
+      <div class="formula">
+        \[ \mathbf{J}(x, y) = \begin{bmatrix} \frac{\partial f_1}{\partial x} & \frac{\partial f_1}{\partial y} \\ \frac{\partial f_2}{\partial x} & \frac{\partial f_2}{\partial y} \end{bmatrix} \]
+      </div>
+
+      <p>สำหรับ n ตัวแปร (\(\mathbf{x} = [x_1, \ldots, x_n]^T\)):</p>
+      <div class="formula">
+        \[ \mathbf{J}(\mathbf{x}) = \begin{bmatrix} \frac{\partial f_1}{\partial x_1} & \cdots & \frac{\partial f_1}{\partial x_n} \\ \vdots & \ddots & \vdots \\ \frac{\partial f_n}{\partial x_1} & \cdots & \frac{\partial f_n}{\partial x_n} \end{bmatrix} \]
+      </div>
+
+      <h3>2.2 Newton's Iteration</h3>
+      <p>ตัด higher-order terms ของ Taylor:</p>
+      <div class="formula">
+        \[ \mathbf{x}^{(i+1)} = \mathbf{x}^{(i)} - \mathbf{J}_i^{-1} \mathbf{f}(\mathbf{x}^{(i)}) \]
+      </div>
+      <p>หรือ \(\mathbf{x}^{(i+1)} = \mathbf{x}^{(i)} + \Delta\mathbf{x}^{(i)}\) โดย \(\Delta\mathbf{x}\) แก้จาก:</p>
+      <div class="formula">\[ \mathbf{J}_i \Delta\mathbf{x}^{(i)} = -\mathbf{f}(\mathbf{x}^{(i)}) \]</div>
+
+      <div class="callout tip">
+        <div class="callout-title">💡 การหา \(\Delta\mathbf{x}\)</div>
+        <p style="margin:6px 0;">ใช้วิธีจากบทที่ 3-4:</p>
+        <ul style="margin:0 0 0 20px;">
+          <li><b>Gauss-Jordan / Gaussian Elimination</b> — general</li>
+          <li><b>LU decomposition</b> — ถ้าใช้หลาย iteration</li>
+          <li><b>Cramer's Rule</b> — ง่ายสำหรับ n = 2, 3</li>
+          <li><b>Compute \(\mathbf{J}^{-1}\) directly</b> — ใช้ minors/cofactors สำหรับ n = 2</li>
+        </ul>
+      </div>
+
+      <h3>2.3 Cramer's Rule สำหรับ 2×2</h3>
+      <p>ระบบ \(\mathbf{J}\Delta\mathbf{x} = -\mathbf{f}\):</p>
+      <div class="formula">
+        \[ \Delta x_1 = \frac{\begin{vmatrix} b_1 & a_{12} \\ b_2 & a_{22} \end{vmatrix}}{\det(\mathbf{J})}, \quad \Delta x_2 = \frac{\begin{vmatrix} a_{11} & b_1 \\ a_{21} & b_2 \end{vmatrix}}{\det(\mathbf{J})} \]
+      </div>
+
+      <h3>2.4 Inverse ของ Matrix 2×2</h3>
+      <div class="formula">
+        \[ \mathbf{J}^{-1} = \frac{1}{ad - bc}\begin{bmatrix} d & -b \\ -c & a \end{bmatrix}, \quad \mathbf{J} = \begin{bmatrix} a & b \\ c & d \end{bmatrix} \]
+      </div>
+
+      <div class="example open">
+        <div class="example-header">
+          <span><span class="example-label">ตัวอย่าง 2.1</span> Jacobian ของฟังก์ชัน 3 ตัวแปร</span>
+          <span class="chev">▶</span>
+        </div>
+        <div class="example-body">
+          <p><b>โจทย์:</b> \(\mathbf{f}(x_1, x_2, x_3) = \begin{bmatrix} 2x_1x_3 + e^{x_2} \\ x_3^2 - 1 \\ x_2 \sin(x_1) \end{bmatrix}\)</p>
+          <p><b>วิธีทำ:</b> คำนวณ partial derivatives:</p>
+          <div class="formula">
+            \[ \mathbf{J}(\mathbf{x}) = \begin{bmatrix} 2x_3 & e^{x_2} & 2x_1 \\ 0 & 0 & 2x_3 \\ x_2\cos(x_1) & \sin(x_1) & 0 \end{bmatrix} \]
+          </div>
+          <p>ที่ \((0, 1, 1)\):</p>
+          <div class="formula">
+            \[ \mathbf{J}(0, 1, 1) = \begin{bmatrix} 2 & e & 0 \\ 0 & 0 & 2 \\ \cos(0) & \sin(0) & 0 \end{bmatrix} = \begin{bmatrix} 2 & 2.7183 & 0 \\ 0 & 0 & 2 \\ 1 & 0 & 0 \end{bmatrix} \]
+          </div>
+        </div>
+      </div>
+
+      <div class="example open">
+        <div class="example-header">
+          <span><span class="example-label">ตัวอย่าง 2.2</span> Newton สำหรับระบบ \(e^{2x+y} - x = 0, x^2 - y = 0\)</span>
+          <span class="chev">▶</span>
+        </div>
+        <div class="example-body">
+          <p><b>โจทย์:</b> \(x_0 = 0, y_0 = 0\), ทำ 2 iterations</p>
+          <p>\(f_1 = e^{2x+y} - x\); \(f_2 = x^2 - y\)</p>
+          <p>Jacobian: \(\mathbf{J} = \begin{bmatrix} 2e^{2x+y} - 1 & e^{2x+y} \\ 2x & -1 \end{bmatrix}\)</p>
+
+          <p><b>Iteration 1:</b> ที่ \((0, 0)\):</p>
+          <p>\(\mathbf{f}(0, 0) = \begin{bmatrix} 1 \\ 0 \end{bmatrix}\); \(\mathbf{J}_0 = \begin{bmatrix} 1 & 1 \\ 0 & -1 \end{bmatrix}\)</p>
+          <p>\(\det(\mathbf{J}_0) = -1\); \(\mathbf{J}_0^{-1} = \begin{bmatrix} -1 & -1 \\ 0 & -1 \end{bmatrix} \cdot \frac{1}{-1} = \begin{bmatrix} 1 & 1 \\ 0 & 1 \end{bmatrix}\)</p>
+
+          <p>Wait, ให้คำนวณใหม่ให้ถูก: \(\mathbf{J}_0^{-1} = \frac{1}{-1}\begin{bmatrix} -1 & -1 \\ 0 & 1 \end{bmatrix} = \begin{bmatrix} 1 & 1 \\ 0 & -1 \end{bmatrix}\)</p>
+          <p>\(\begin{bmatrix} x_1 \\ y_1 \end{bmatrix} = \begin{bmatrix} 0 \\ 0 \end{bmatrix} - \begin{bmatrix} 1 & 1 \\ 0 & -1 \end{bmatrix}\begin{bmatrix} 1 \\ 0 \end{bmatrix} = \begin{bmatrix} -1 \\ 0 \end{bmatrix}\)</p>
+          <p>Error (Euclidean): \(\sqrt{1 + 0} = 1\); Error (∞): \(\max\{1, 0\} = 1\)</p>
+
+          <p><b>Iteration 2:</b> ที่ \((-1, 0)\):</p>
+          <p>\(\mathbf{f}(-1, 0) = \begin{bmatrix} e^{-2} + 1 \\ 1 \end{bmatrix} = \begin{bmatrix} 1.1353 \\ 1 \end{bmatrix}\)</p>
+          <p>\(\mathbf{J}_1 = \begin{bmatrix} 2e^{-2} - 1 & e^{-2} \\ -2 & -1 \end{bmatrix} = \begin{bmatrix} -0.7293 & 0.1353 \\ -2 & -1 \end{bmatrix}\)</p>
+          <p>\(\det(\mathbf{J}_1) = 0.7293 + 0.2706 = 0.9999 \approx 1\); \(\mathbf{J}_1^{-1} = \begin{bmatrix} -1 & -0.1353 \\ 2 & -0.7293 \end{bmatrix}\)</p>
+          <p>\(\begin{bmatrix} x_2 \\ y_2 \end{bmatrix} = \begin{bmatrix} -1 \\ 0 \end{bmatrix} - \begin{bmatrix} -1 & -0.1353 \\ 2 & -0.7293 \end{bmatrix}\begin{bmatrix} 1.1353 \\ 1 \end{bmatrix} = \begin{bmatrix} 0.2707 \\ -1.5413 \end{bmatrix}\)</p>
+          <p>Error (Euclidean): \(\sqrt{(0.2707 - (-1))^2 + (-1.5413)^2} = 1.9975\)</p>
+          <p>Error (∞): \(\max\{1.2707, 1.5413\} = 1.5413\)</p>
+        </div>
+      </div>
+
+      <h3>2.5 Pseudo-code</h3>
+      <pre>INPUTS: x⁰, TOL, f(x), J(x)
+1: k = 1
+2: while error ≥ TOL do
+3:   Solve for h from J(x)·h = -f(x)
+4:   x ← x + h
+5:   k ← k + 1
+6: end while
+OUTPUT: x</pre>
+
+      <p><b>Stopping criteria:</b></p>
+      <ul>
+        <li>\(e_k = \|\mathbf{x}^{(k)} - \mathbf{x}^{(k-1)}\| < TOL\)</li>
+        <li>\(e_k = \|\mathbf{x}^{(k)} - \mathbf{x}^{(k-1)}\|/\|\mathbf{x}^{(k)}\| < TOL\)</li>
+        <li>\(e_k = \|\mathbf{f}(\mathbf{x}^{(k)})\| < TOL\)</li>
+      </ul>
+
+      <!-- ==================== FIXED-POINT ==================== -->
+      <h2>3. Fixed-Point Iteration for Systems</h2>
+      <p>แปลง \(\mathbf{f}(\mathbf{x}) = \mathbf{0}\) เป็น \(\mathbf{x} = \mathbf{g}(\mathbf{x})\):</p>
+      <div class="formula">
+        \[ \begin{aligned}
+        g_1(x_1, \ldots, x_n) &= x_1 \\
+        g_2(x_1, \ldots, x_n) &= x_2 \\
+        &\vdots \\
+        g_n(x_1, \ldots, x_n) &= x_n
+        \end{aligned} \]
+      </div>
+
+      <p><b>สูตร Update:</b></p>
+      <div class="formula">\[ \mathbf{x}^{(k)} = \mathbf{g}(\mathbf{x}^{(k-1)}) \]</div>
+
+      <h3>3.1 เงื่อนไข Convergence</h3>
+      <div class="card">
+        <p><b>Fixed-point iteration converge เมื่อ:</b></p>
+        <ol>
+          <li>\(g_1, \ldots, g_n\) และ partial derivatives \(\frac{\partial g_i}{\partial x_1}, \ldots, \frac{\partial g_i}{\partial x_n}\) ต่อเนื่องรอบ solution</li>
+          <li><b>เงื่อนไขหลัก:</b> \(\displaystyle\sum_{j=1}^{n} \left|\frac{\partial g_i}{\partial x_j}\right| \leq 1\) สำหรับทุก \(i = 1, \ldots, n\)</li>
+          <li>Initial \(\mathbf{x}^{(0)}\) ใกล้ solution เพียงพอ</li>
+        </ol>
+      </div>
+
+      <div class="example open">
+        <div class="example-header">
+          <span><span class="example-label">ตัวอย่าง 3.1</span> Convergent vs Divergent Iteration Functions</span>
+          <span class="chev">▶</span>
+        </div>
+        <div class="example-body">
+          <p><b>โจทย์:</b> ระบบ \(4x_1^2 - x_2^2 = 0; 4x_1 x_2^2 - x_1 = 1\); หา \(x_1 > 0, x_2 > 0\)</p>
+
+          <p><b>(I) NOT converge:</b></p>
+          <p>\(g_1(\mathbf{x}) = 4x_1^2 - x_2^2 + x_1\); \(g_2(\mathbf{x}) = 4x_1 x_2^2 - x_1 - 1 + x_2\)</p>
+
+          <p><b>(II) Converge ✅:</b></p>
+          <p>\(g_1(\mathbf{x}) = x_2/2\); \(g_2(\mathbf{x}) = \sqrt{(x_1 + 1)/(4x_1)}\)</p>
+
+          <p><b>วิธีตรวจ (II):</b> คำนวณ partial derivatives</p>
+          <p>\(\frac{\partial g_1}{\partial x_1} = 0, \frac{\partial g_1}{\partial x_2} = 1/2\) → sum = 1/2 ≤ 1 ✅</p>
+          <p>\(\frac{\partial g_2}{\partial x_1} = -\frac{1}{2}\sqrt{\frac{1}{4x_1(x_1+1)}} \cdot \frac{1}{x_1^2}\); ที่ point convergence sum จะ ≤ 1 ✅</p>
+        </div>
+      </div>
+
+      <div class="example open">
+        <div class="example-header">
+          <span><span class="example-label">ตัวอย่าง 3.2</span> Fixed-point สำหรับ \(4x_1^2 - x_2^2 = 0, 4x_1 x_2^2 - x_1 = 1\)</span>
+          <span class="chev">▶</span>
+        </div>
+        <div class="example-body">
+          <p><b>โจทย์:</b> ทำ 2 iterations, \(\mathbf{x}^{(0)} = [1, 1]^T\), iteration functions:</p>
+          <p>\(g_1(\mathbf{x}) = x_2/2\), \(g_2(\mathbf{x}) = \sqrt{(x_1+1)/(4x_1)}\)</p>
+
+          <p><b>Iteration 1:</b> \(\mathbf{x}^{(0)} = [1, 1]\)</p>
+          <ul>
+            <li>\(x_1^{(1)} = g_1(1, 1) = 1/2 = 0.5000\)</li>
+            <li>\(x_2^{(1)} = g_2(1, 1) = \sqrt{(1+1)/(4 \cdot 1)} = \sqrt{0.5} = 0.7071\)</li>
+          </ul>
+          <p>Abs Err (2-norm): \(\sqrt{(1-0.5)^2 + (1-0.7071)^2} = 0.5795\)</p>
+
+          <p><b>Iteration 2:</b> \(\mathbf{x}^{(1)} = [0.5, 0.7071]\)</p>
+          <ul>
+            <li>\(x_1^{(2)} = 0.7071/2 = 0.3536\)</li>
+            <li>\(x_2^{(2)} = \sqrt{(0.5+1)/(4 \cdot 0.5)} = \sqrt{1.5} = 0.8660\)</li>
+          </ul>
+          <p>Abs Err (2-norm): \(\sqrt{(0.5-0.3536)^2 + (0.7071-0.8660)^2} = 0.2161\)</p>
+
+          <div class="callout tip"><p style="margin:0;">💡 ต้องใช้ ~17 iterations เพื่อให้ error < \(10^{-4}\) — solution converge ไปที่ \([0.4491, 0.8981]^T\)</p></div>
+        </div>
+      </div>
+
+      <h3>3.2 Exercise (from HW4)</h3>
+      <div class="example">
+        <div class="example-header">
+          <span><span class="example-label">Exercise</span> ระบบ \(y - x^3 = 0, 4x^2 + 9y^2 = 36\)</span>
+          <span class="chev">▶</span>
+        </div>
+        <div class="example-body">
+          <p>ประมาณ solution ด้วย:</p>
+          <ol>
+            <li>Newton's method — 2 iterations, \(\mathbf{x}^{(0)} = [1, 2]^T\)</li>
+            <li>Fixed-point — 2 iterations, initial เดียวกัน, iteration functions:
+              <ul>
+                <li>\(g_1(x, y) = (4x - x^3 - y)/4\)</li>
+                <li>\(g_2(x, y) = -x^2/9 + (4y - y^2)/4 + 1\)</li>
+              </ul>
+            </li>
+          </ol>
+          <p>👉 ดูวิธีทำละเอียดใน <a href="../homework/hw4.html">HW4</a></p>
+        </div>
+      </div>
+
+      <!-- ==================== COMPARISON ==================== -->
+      <h2>4. เปรียบเทียบ Newton vs Fixed-Point</h2>
+      <div class="table-wrap">
+        <table>
+          <tr><th>คุณสมบัติ</th><th>Newton's Method</th><th>Fixed-Point</th></tr>
+          <tr><td>ต้องคำนวณ</td><td>Jacobian ทุก iteration</td><td>ไม่ต้องหา Jacobian</td></tr>
+          <tr><td>ความเร็ว</td><td>Quadratic (เร็ว)</td><td>Linear</td></tr>
+          <tr><td>Convergence</td><td>ถ้า initial ดี</td><td>\(\sum|\partial g_i/\partial x_j| \leq 1\)</td></tr>
+          <tr><td>ความซับซ้อน</td><td>สูง (ต้องแก้ linear system)</td><td>ต่ำ (แค่ประเมิน \(\mathbf{g}\))</td></tr>
+          <tr><td>ปัญหา</td><td>Jacobian singular / เล็ก</td><td>อาจ diverge ถ้า \(\mathbf{g}\) ไม่ดี</td></tr>
+        </table>
+      </div>
+
+      <!-- ==================== QUIZ ==================== -->
+      <h2>🧪 แบบทบทวนท้ายบท</h2>
+      <div class="quiz-container" data-quiz="ch5">
+        <h3>Quiz: Nonlinear Systems (10 ข้อ)</h3>
+
+        <div class="quiz-question" data-type="mc" data-answer="b">
+          <div class="q-text"><span class="q-number">1</span> Jacobian matrix ของ \(\mathbf{f}(x, y) = [x^2 + y; xy]^T\) คือ?</div>
+          <div class="q-options">
+            <label><input type="radio" name="q1" value="a"> \(\begin{bmatrix} 2x & 1 \\ x & y \end{bmatrix}\)</label>
+            <label><input type="radio" name="q1" value="b"> \(\begin{bmatrix} 2x & 1 \\ y & x \end{bmatrix}\)</label>
+            <label><input type="radio" name="q1" value="c"> \(\begin{bmatrix} x^2 & y \\ x & y \end{bmatrix}\)</label>
+            <label><input type="radio" name="q1" value="d"> \(\begin{bmatrix} 2x & y \\ x & 1 \end{bmatrix}\)</label>
+          </div>
+          <div class="q-explain">💡 \(\partial(x^2+y)/\partial x = 2x, \partial/\partial y = 1\); \(\partial(xy)/\partial x = y, \partial/\partial y = x\)</div>
+        </div>
+
+        <div class="quiz-question" data-type="mc" data-answer="c">
+          <div class="q-text"><span class="q-number">2</span> สูตร Newton สำหรับระบบ nonlinear คือ?</div>
+          <div class="q-options">
+            <label><input type="radio" name="q2" value="a"> \(\mathbf{x}^{(i+1)} = \mathbf{x}^{(i)} + \mathbf{J}\mathbf{f}\)</label>
+            <label><input type="radio" name="q2" value="b"> \(\mathbf{x}^{(i+1)} = \mathbf{J}^{-1}\mathbf{f}\)</label>
+            <label><input type="radio" name="q2" value="c"> \(\mathbf{x}^{(i+1)} = \mathbf{x}^{(i)} - \mathbf{J}_i^{-1}\mathbf{f}(\mathbf{x}^{(i)})\)</label>
+            <label><input type="radio" name="q2" value="d"> \(\mathbf{x}^{(i+1)} = \mathbf{g}(\mathbf{x}^{(i)})\)</label>
+          </div>
+          <div class="q-explain">💡 Newton (multivariable) คล้ายกับกรณี 1D แต่ใช้ Jacobian แทน derivative</div>
+        </div>
+
+        <div class="quiz-question" data-type="mc" data-answer="b">
+          <div class="q-text"><span class="q-number">3</span> \(\det \begin{bmatrix} 3 & 2 \\ 1 & 4 \end{bmatrix} = ?\)</div>
+          <div class="q-options">
+            <label><input type="radio" name="q3" value="a"> 5</label>
+            <label><input type="radio" name="q3" value="b"> 10</label>
+            <label><input type="radio" name="q3" value="c"> 12</label>
+            <label><input type="radio" name="q3" value="d"> 14</label>
+          </div>
+          <div class="q-explain">💡 \(ad - bc = 3 \cdot 4 - 2 \cdot 1 = 12 - 2 = 10\)</div>
+        </div>
+
+        <div class="quiz-question" data-type="mc" data-answer="a">
+          <div class="q-text"><span class="q-number">4</span> Inverse ของ \(\begin{bmatrix} 2 & 0 \\ 0 & 3 \end{bmatrix}\) คือ?</div>
+          <div class="q-options">
+            <label><input type="radio" name="q4" value="a"> \(\begin{bmatrix} 1/2 & 0 \\ 0 & 1/3 \end{bmatrix}\)</label>
+            <label><input type="radio" name="q4" value="b"> \(\begin{bmatrix} 2 & 0 \\ 0 & 3 \end{bmatrix}\)</label>
+            <label><input type="radio" name="q4" value="c"> \(\begin{bmatrix} -2 & 0 \\ 0 & -3 \end{bmatrix}\)</label>
+            <label><input type="radio" name="q4" value="d"> \(\begin{bmatrix} 3 & 0 \\ 0 & 2 \end{bmatrix}\)</label>
+          </div>
+          <div class="q-explain">💡 Diagonal matrix inverse: กลับด้าน (\(1/a_{ii}\)) บน diagonal</div>
+        </div>
+
+        <div class="quiz-question" data-type="mc" data-answer="d">
+          <div class="q-text"><span class="q-number">5</span> Fixed-point iteration สำหรับระบบ converge เมื่อ?</div>
+          <div class="q-options">
+            <label><input type="radio" name="q5" value="a"> \(\mathbf{g}(\mathbf{x}) > 0\)</label>
+            <label><input type="radio" name="q5" value="b"> Jacobian singular</label>
+            <label><input type="radio" name="q5" value="c"> \(|g_i(\mathbf{x})| < 1\)</label>
+            <label><input type="radio" name="q5" value="d"> \(\sum_j |\partial g_i/\partial x_j| \leq 1\) รอบ solution</label>
+          </div>
+          <div class="q-explain">💡 เงื่อนไข convergence คือผลรวมของ |partial derivatives| ในแต่ละแถวไม่เกิน 1</div>
+        </div>
+
+        <div class="quiz-question" data-type="mc" data-answer="b">
+          <div class="q-text"><span class="q-number">6</span> ในสมการ Newton \(\mathbf{J}_i \Delta\mathbf{x}^{(i)} = -\mathbf{f}(\mathbf{x}^{(i)})\), \(\Delta\mathbf{x}\) คือ?</div>
+          <div class="q-options">
+            <label><input type="radio" name="q6" value="a"> Solution เอง</label>
+            <label><input type="radio" name="q6" value="b"> Step update: \(\mathbf{x}^{(i+1)} = \mathbf{x}^{(i)} + \Delta\mathbf{x}\)</label>
+            <label><input type="radio" name="q6" value="c"> Residual</label>
+            <label><input type="radio" name="q6" value="d"> Error</label>
+          </div>
+          <div class="q-explain">💡 \(\Delta\mathbf{x}\) คือ step ที่ต้องบวกเข้ากับ \(\mathbf{x}^{(i)}\)</div>
+        </div>
+
+        <div class="quiz-question" data-type="mc" data-answer="a">
+          <div class="q-text"><span class="q-number">7</span> Newton's method โดยทั่วไปมี convergence order เท่าไร?</div>
+          <div class="q-options">
+            <label><input type="radio" name="q7" value="a"> Quadratic (order 2)</label>
+            <label><input type="radio" name="q7" value="b"> Linear (order 1)</label>
+            <label><input type="radio" name="q7" value="c"> Cubic (order 3)</label>
+            <label><input type="radio" name="q7" value="d"> Exponential</label>
+          </div>
+          <div class="q-explain">💡 Newton มี quadratic convergence — error ลดลงในอัตรากำลังสอง</div>
+        </div>
+
+        <div class="quiz-question" data-type="mc" data-answer="c">
+          <div class="q-text"><span class="q-number">8</span> การหา \(\Delta\mathbf{x}\) จาก \(\mathbf{J}\Delta\mathbf{x} = -\mathbf{f}\) สามารถใช้วิธีใด?</div>
+          <div class="q-options">
+            <label><input type="radio" name="q8" value="a"> Bisection</label>
+            <label><input type="radio" name="q8" value="b"> Fixed-point</label>
+            <label><input type="radio" name="q8" value="c"> Gaussian Elimination / LU / Cramer's Rule</label>
+            <label><input type="radio" name="q8" value="d"> Taylor series</label>
+          </div>
+          <div class="q-explain">💡 ระบบสมการเชิงเส้น — ใช้วิธีจากบทที่ 3-4</div>
+        </div>
+
+        <div class="quiz-question" data-type="num" data-answer="2" data-tol="0.01">
+          <div class="q-text"><span class="q-number">9</span> \(\mathbf{f}(x, y) = [x + y - 3; xy - 2]\); ที่ \((1, 2)\), \(f_1 = ?\)</div>
+          <input type="text" class="q-input" placeholder="ตัวเลข">
+          <div class="q-explain">💡 \(f_1(1, 2) = 1 + 2 - 3 = 0\); ถ้าถาม \(f_2\) = 1·2 − 2 = 0; ทั้งคู่ = 0 → \((1, 2)\) เป็น solution! ตอบข้อ 9: solution 2 แสดง \(y = 2\)</div>
+        </div>
+
+        <div class="quiz-question" data-type="mc" data-answer="b">
+          <div class="q-text"><span class="q-number">10</span> ข้อดีของ Fixed-point เหนือ Newton คือ?</div>
+          <div class="q-options">
+            <label><input type="radio" name="q10" value="a"> Converge เร็วกว่า</label>
+            <label><input type="radio" name="q10" value="b"> ไม่ต้องคำนวณ Jacobian (ง่ายกว่า)</label>
+            <label><input type="radio" name="q10" value="c"> การันตี converge เสมอ</label>
+            <label><input type="radio" name="q10" value="d"> ไม่ต้องใช้ initial guess</label>
+          </div>
+          <div class="q-explain">💡 Fixed-point ง่ายกว่า Newton เพราะไม่ต้องหา partial derivatives + แก้ linear system</div>
+        </div>
+
+        <div class="quiz-actions">
+          <button class="btn btn-primary quiz-submit">✅ ตรวจคำตอบ</button>
+          <button class="btn btn-secondary quiz-reset">🔄 เริ่มใหม่</button>
+        </div>
+        <div class="quiz-score"></div>
+      </div>
+
+      <div class="pager">
+        <a href="ch4-linear-iterative.html"><span class="label">← ก่อนหน้า</span><span class="title">บทที่ 4</span></a>
+        <a href="../homework/hw1.html"><span class="label">ถัดไป →</span><span class="title">การบ้าน HW1</span></a>
+      </div>
+    </div>
+  </main>
+</div>
+<script src="../assets/app.js"></script>
+</body>
+</html>

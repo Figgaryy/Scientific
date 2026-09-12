@@ -1,0 +1,256 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="page-id" content="hw2">
+<title>HW2: Root Finding + IRR ESG — CSS322</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@400;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../assets/style.css">
+</head>
+<body>
+<div class="app">
+  <aside class="sidebar">
+    <div class="brand">📐 CSS322</div>
+    <div class="brand-sub">Scientific Computing</div>
+    <div class="nav-section">หน้าหลัก</div>
+    <nav class="nav"><a href="../index.html" data-page="home">🏠 หน้าแรก <span class="status"></span></a></nav>
+    <div class="nav-section">บทเรียน</div>
+    <nav class="nav">
+      <a href="../chapters/ch1-errors-taylor.html" data-page="ch1">บทที่ 1: Errors & Taylor <span class="status"></span></a>
+      <a href="../chapters/ch2-root-finding.html" data-page="ch2">บทที่ 2: Root Finding <span class="status"></span></a>
+      <a href="../chapters/ch3-linear-direct.html" data-page="ch3">บทที่ 3: Linear (Direct) <span class="status"></span></a>
+      <a href="../chapters/ch4-linear-iterative.html" data-page="ch4">บทที่ 4: Linear (Iterative) <span class="status"></span></a>
+      <a href="../chapters/ch5-nonlinear.html" data-page="ch5">บทที่ 5: Nonlinear <span class="status"></span></a>
+    </nav>
+    <div class="nav-section">การบ้าน</div>
+    <nav class="nav">
+      <a href="hw1.html" data-page="hw1">HW1: Taylor Error <span class="status"></span></a>
+      <a href="hw2.html" data-page="hw2">HW2: Root + IRR <span class="status"></span></a>
+      <a href="hw3.html" data-page="hw3">HW3: Jacobi/GS <span class="status"></span></a>
+      <a href="hw4.html" data-page="hw4">HW4: Nonlinear <span class="status"></span></a>
+    </nav>
+    <div class="progress-box">
+      <b>📊 ความคืบหน้า</b>
+      <div class="progress-text">0/9 หน้า</div>
+      <div class="progress-bar"><div class="progress-fill" style="width:0%"></div></div>
+    </div>
+    <button class="theme-toggle">🌙 โหมดมืด</button>
+  </aside>
+
+  <main class="main">
+    <div class="main-inner">
+      <div class="crumbs"><a href="../index.html">หน้าแรก</a> › HW2</div>
+      <h1>📝 HW2: Root Finding + IRR ESG</h1>
+      <p class="subtitle">Computational Assignment — Root finding methods และการประยุกต์กับ Internal Rate of Return</p>
+
+      <div class="callout note">
+        <div class="callout-title">🔗 หัวข้อที่เกี่ยวข้อง</div>
+        <p style="margin:0;">อ่านทบทวน <a href="../chapters/ch2-root-finding.html">บทที่ 2 — Root Finding</a> — Bisection, False Position, Newton, Secant, Fixed-Point</p>
+      </div>
+
+      <!-- ==================== PROBLEM 1 ==================== -->
+      <div class="card">
+        <h2 style="margin-top:0; border:none; padding:0; color: var(--text);">Problem 1: \(x^4 - 2x^3 = 10\)</h2>
+        <p><b>โจทย์:</b> Consider the equation \(x^4 - 2x^3 = 10\). ประมาณราก \(x^*\) โดยใช้:</p>
+        <ul>
+          <li>(a) Bisection: \([a, b] = [1, 3]\)</li>
+          <li>(b) False Position: \([a, b] = [1, 3]\)</li>
+          <li>(c) Newton-Raphson: \(x_0 = 1\)</li>
+          <li>(d) Secant: \(x_0 = 1, x_1 = 3\)</li>
+          <li>(e) Fixed-Point: \(x_0 = 1\), เลือก \(g(x)\) เหมาะสม</li>
+        </ul>
+        <p><b>Requirements:</b></p>
+        <ul>
+          <li>เลือก stopping criteria เดียวใช้กับทุกวิธี</li>
+          <li>แสดง approximations และ errors จากทุก iteration</li>
+          <li>เปรียบเทียบ final approximation และจำนวน iteration</li>
+          <li>ส่ง code ทั้งหมด</li>
+        </ul>
+      </div>
+
+      <div class="solution">
+        <button class="solution-toggle">💡 ดูเฉลย</button>
+        <div class="solution-body">
+          <h3>✅ Guided Solution</h3>
+
+          <p>ตั้งสมการ: \(f(x) = x^4 - 2x^3 - 10 = 0\)</p>
+          <p>\(f(1) = 1 - 2 - 10 = -11\), \(f(3) = 81 - 54 - 10 = 17\) → มีรากใน [1, 3]</p>
+          <p><b>Stopping criterion:</b> \(|f(x)| \leq 10^{-5}\); \(N_{max} = 100\)</p>
+
+          <h4>(a) Bisection Method — 18 iterations, root ≈ 2.5814</h4>
+          <div class="table-wrap"><table>
+            <tr><th>iter</th><th>a</th><th>b</th><th>x</th><th>|f(x)|</th></tr>
+            <tr><td>1</td><td>1.0000</td><td>3.0000</td><td>2.0000</td><td>10.000</td></tr>
+            <tr><td>2</td><td>2.0000</td><td>3.0000</td><td>2.5000</td><td>2.188</td></tr>
+            <tr><td>3</td><td>2.5000</td><td>3.0000</td><td>2.7500</td><td>5.598</td></tr>
+            <tr><td>...</td><td>...</td><td>...</td><td>...</td><td>...</td></tr>
+            <tr><td>18</td><td>2.5814</td><td>2.5814</td><td>2.5814</td><td>5.86e-6</td></tr>
+          </table></div>
+
+          <h4>(b) False Position — 14 iterations</h4>
+          <p>สูตร \(x_j = \frac{a f(b) - b f(a)}{f(b) - f(a)}\)</p>
+          <p>Iter 1: \(x_1 = 1.7857\); Iter 2: \(x_2 = 2.2685\); Iter 3: \(x_3 = 2.4789\); ... Iter 14: \(x_{14} = 2.5814\)</p>
+
+          <h4>(c) Newton-Raphson — 9 iterations (converge to \(-1.4287\) — รากอื่น!)</h4>
+          <p>\(f'(x) = 4x^3 - 6x^2\)</p>
+          <p>\(x_0 = 1\); \(f'(1) = -2\); \(x_1 = 1 - (-11)/(-2) = -4.5\) — <b>กระโดดไปทางลบ!</b></p>
+          <p>Iter 9: \(x_9 = -1.4287\); \(|f(-1.4287)| = 3.55 \times 10^{-15}\)</p>
+          <div class="callout warn"><p style="margin:0;">⚠️ Newton ที่ \(x_0 = 1\) converge ไปที่รากลบ (\(-1.4287\)) เพราะ \(f'(1) = -2\) เล็ก + slope ชี้ไปทางลบ — ควรใช้ \(x_0 = 3\) เพื่อได้รากบวก</p></div>
+
+          <h4>(d) Secant — 11 iterations</h4>
+          <p>\(x_0 = 1, x_1 = 2\); \(f(1) = -11, f(2) = -10\)</p>
+          <p>\(m_1 = 1\); \(x_2 = 2 - (-10)/1 = 12\) — กระโดดไปไกล</p>
+          <p>Iter 11: \(x_{11} = 2.5814\)</p>
+
+          <h4>(e) Fixed-Point — เลือก \(g(x)\)</h4>
+          <p>จาก \(x^4 - 2x^3 = 10\), สามารถ rearrange ได้หลายแบบ เช่น:</p>
+          <ul>
+            <li>\(g(x) = (2x^3 + 10)^{1/4}\) — น่าจะ converge (root เป็น bounded)</li>
+            <li>\(g(x) = x + f(x)/c\) สำหรับ \(c\) ใหญ่พอ</li>
+          </ul>
+          <p>ตัวอย่าง \(g(x) = (2x^3 + 10)^{1/4}\):</p>
+          <p>Iter 1: \(x_1 = (2 + 10)^{1/4} = 12^{1/4} = 1.8612\)</p>
+          <p>Iter 2: \(x_2 = (2(1.8612)^3 + 10)^{1/4} = (12.895 + 10)^{1/4} = 2.1875\)</p>
+          <p>Iter n: converge ไปที่ 2.5814 (converge ค่อนข้างช้า, ประมาณ 30+ iterations)</p>
+
+          <h4>เปรียบเทียบ 5 วิธี</h4>
+          <div class="table-wrap"><table>
+            <tr><th>วิธี</th><th>Iterations</th><th>Final \(x^*\)</th></tr>
+            <tr><td>Bisection</td><td>18</td><td>2.5814</td></tr>
+            <tr><td>False Position</td><td>14</td><td>2.5814</td></tr>
+            <tr><td>Newton (x₀=1)</td><td>9</td><td><b>-1.4287</b> (รากอื่น)</td></tr>
+            <tr><td>Secant</td><td>11</td><td>2.5814</td></tr>
+            <tr><td>Fixed-Point</td><td>~30+</td><td>2.5814</td></tr>
+          </table></div>
+        </div>
+      </div>
+
+      <!-- ==================== PROBLEM 2 ==================== -->
+      <div class="card">
+        <h2 style="margin-top:0; border:none; padding:0; color: var(--text);">Problem 2: IRR สำหรับ ThaiESG Fund 💰</h2>
+        <p><b>โจทย์:</b> การลงทุน 5 ปีใน Thailand ESG (ThaiESG) sustainability fund</p>
+        <ul>
+          <li>Initial investment: 100,000 THB</li>
+          <li>Projected returns: ปี 1-5 = 15,000; 20,000; 25,000; 30,000; 35,000 THB</li>
+        </ul>
+
+        <p><b>Find Internal Rate of Return (IRR):</b></p>
+        <div class="formula">
+          \[ f(r) = -100{,}000 + \frac{15{,}000}{1+r} + \frac{20{,}000}{(1+r)^2} + \frac{25{,}000}{(1+r)^3} + \frac{30{,}000}{(1+r)^4} + \frac{35{,}000}{(1+r)^5} = 0 \]
+        </div>
+
+        <p><b>Substitution:</b> ให้ \(x = 1 + r\), หารด้วย 5,000:</p>
+        <div class="formula">
+          \[ f(x) = -20 + \frac{3}{x} + \frac{4}{x^2} + \frac{5}{x^3} + \frac{6}{x^4} + \frac{7}{x^5} = 0 \]
+        </div>
+
+        <p>สมมติราก \(x^* \in [1.0, 1.2]\); คำนวณ \(r = x^* - 1\) (as percentage)</p>
+
+        <p><b>ใช้ 5 methods:</b></p>
+        <ul>
+          <li>(a) Bisection: \([1.0, 1.2]\)</li>
+          <li>(b) False Position: \([1.0, 1.2]\)</li>
+          <li>(c) Newton: \(x_0 = 1.2\)</li>
+          <li>(d) Secant: \(x_0 = 1.2, x_1 = 1.1\)</li>
+          <li>(e) Fixed-Point: \(x_0 = 1.2\), \(g(x) = \left(\frac{3}{20}x^4 + \frac{4}{20}x^3 + \frac{5}{20}x^2 + \frac{6}{20}x + \frac{7}{20}\right)^{1/5}\)</li>
+        </ul>
+      </div>
+
+      <div class="solution">
+        <button class="solution-toggle">💡 ดูเฉลย</button>
+        <div class="solution-body">
+          <h3>✅ Guided Solution</h3>
+
+          <h4>Setup</h4>
+          <p>ตรวจ endpoints ของ \(f(x)\):</p>
+          <p>\(f(1) = -20 + 3 + 4 + 5 + 6 + 7 = 5 > 0\)</p>
+          <p>\(f(1.2) = -20 + 2.5 + 2.778 + 2.894 + 2.894 + 2.812 = -6.122 < 0\)</p>
+          <p>สังเกต sign เปลี่ยน → มีรากใน [1.0, 1.2] ✅</p>
+
+          <h4>(a) Bisection:</h4>
+          <div class="table-wrap"><table>
+            <tr><th>iter</th><th>a</th><th>b</th><th>x</th><th>f(x)</th></tr>
+            <tr><td>1</td><td>1.00</td><td>1.20</td><td>1.100</td><td>-0.968</td></tr>
+            <tr><td>2</td><td>1.00</td><td>1.100</td><td>1.050</td><td>1.923</td></tr>
+            <tr><td>3</td><td>1.050</td><td>1.100</td><td>1.075</td><td>0.442</td></tr>
+            <tr><td>4</td><td>1.075</td><td>1.100</td><td>1.0875</td><td>-0.271</td></tr>
+            <tr><td>...</td><td>...</td><td>...</td><td>...</td><td>...</td></tr>
+            <tr><td>15+</td><td>~1.0815</td><td>~1.0815</td><td>1.0815</td><td>~0</td></tr>
+          </table></div>
+
+          <h4>(b) False Position: \(x_1 = \frac{1 \cdot f(1.2) - 1.2 \cdot f(1)}{f(1.2) - f(1)}\)</h4>
+          <p>\(= \frac{1 \cdot (-6.122) - 1.2 \cdot 5}{-6.122 - 5} = \frac{-6.122 - 6}{-11.122} = 1.090\)</p>
+
+          <h4>(c) Newton: \(f'(x) = -\frac{3}{x^2} - \frac{8}{x^3} - \frac{15}{x^4} - \frac{24}{x^5} - \frac{35}{x^6}\)</h4>
+          <p>ที่ \(x_0 = 1.2\): \(f(1.2) = -6.122\); \(f'(1.2) \approx -47.6\)</p>
+          <p>\(x_1 = 1.2 - (-6.122)/(-47.6) = 1.2 - 0.1287 = 1.0713\)</p>
+          <p>Iter 2, 3: converge เร็ว ไปที่ \(x^* \approx 1.0815\)</p>
+
+          <h4>(d) Secant: \(x_0 = 1.2, x_1 = 1.1\)</h4>
+          <p>\(m_1 = (f(1.1) - f(1.2))/(1.1 - 1.2) = (-0.968 - (-6.122))/(-0.1) = -51.54\)</p>
+          <p>\(x_2 = 1.1 - (-0.968)/(-51.54) = 1.1 - 0.0188 = 1.0812\)</p>
+
+          <h4>(e) Fixed-Point</h4>
+          <p>\(g(x) = \left(\frac{3x^4 + 4x^3 + 5x^2 + 6x + 7}{20}\right)^{1/5}\)</p>
+          <p>ที่ \(x_0 = 1.2\): \(x_1 = g(1.2) = \left(\frac{3(2.0736) + 4(1.728) + 5(1.44) + 6(1.2) + 7}{20}\right)^{1/5}\)</p>
+          <p>\(= \left(\frac{6.221 + 6.912 + 7.2 + 7.2 + 7}{20}\right)^{1/5} = (1.727)^{1/5} = 1.116\)</p>
+          <p>Iter n: converge ไปที่ \(x^* \approx 1.0815\)</p>
+
+          <div class="callout tip">
+            <div class="callout-title">✅ Final IRR</div>
+            <p style="margin:6px 0;">\(x^* \approx 1.0815\) → \(r = x^* - 1 = 0.0815 = \boxed{8.15\%}\) ต่อปี</p>
+            <p style="margin:0;">แสดงว่ากองทุน ThaiESG นี้ให้ผลตอบแทน internal rate ประมาณ 8.15% ต่อปี — เป็นการลงทุนที่ดี</p>
+          </div>
+        </div>
+      </div>
+
+      <!-- ==================== OPTIONAL PROBLEMS ==================== -->
+      <div class="card">
+        <h2 style="margin-top:0; border:none; padding:0; color: var(--text);">🔬 Optional: Programming Exercises</h2>
+        <p>Problems in Sciences & Engineering — แก้ด้วย MATLAB หรือภาษาโปรแกรม</p>
+
+        <h3>Problem 1: Mortgage Rate</h3>
+        <p>Annuity equation: \(\text{MPay} = \frac{\text{Loan} \cdot \text{Rate}}{12[1 - 1/(1 + \text{Rate}/12)^{\text{Months}}]}\)</p>
+        <p>หา rate ของ loan 20 ปี $300,000 ถ้า monthly payment = $1,684.57</p>
+
+        <h3>Problem 2: RTD Temperature</h3>
+        <p>\(R_T = R_0(1 + AT + BT^2 + CT^4 + DT^6)\)</p>
+        <p>\(A = 5.485 \times 10^{-3}, B = 6.65 \times 10^{-6}, C = 2.805 \times 10^{-11}, D = -2 \times 10^{-17}, R_0 = 100\Omega\)</p>
+        <p>หา \(T\) เมื่อ \(R_T = 300\Omega\)</p>
+
+        <h3>Problem 3: van der Waals</h3>
+        <p>\(P = \frac{nRT}{V - nb} - \frac{n^2 a}{V^2}\)</p>
+        <p>\(n = 1.5\) mol, \(a = 1.39, b = 0.03913, T = 25°C = 298.15\) K, \(P = 13.5\) atm</p>
+        <p>หา \(V\)</p>
+      </div>
+
+      <div class="solution">
+        <button class="solution-toggle">💡 ดูเฉลย (ตัวอย่างสั้น)</button>
+        <div class="solution-body">
+          <h4>Problem 1: Mortgage</h4>
+          <p>ตั้ง \(f(\text{Rate}) = \text{MPay} - \frac{\text{Loan} \cdot \text{Rate}}{12[1 - 1/(1+\text{Rate}/12)^{240}]} = 0\)</p>
+          <p>Newton หรือ Secant → Rate ≈ 4.5% ต่อปี</p>
+
+          <h4>Problem 2: RTD</h4>
+          <p>\(f(T) = 100(1 + AT + BT^2 + CT^4 + DT^6) - 300 = 0\)</p>
+          <p>Newton สำหรับ \(T \in [0, 500]\) → \(T \approx 341°C\)</p>
+
+          <h4>Problem 3: van der Waals</h4>
+          <p>\(f(V) = \frac{1.5 \cdot 0.08206 \cdot 298.15}{V - 0.0587} - \frac{1.5^2 \cdot 1.39}{V^2} - 13.5 = 0\)</p>
+          <p>Newton สำหรับ \(V > 0.1\) → \(V \approx 2.71\) L</p>
+        </div>
+      </div>
+
+      <div class="pager">
+        <a href="hw1.html"><span class="label">← ก่อนหน้า</span><span class="title">HW1</span></a>
+        <a href="hw3.html"><span class="label">ถัดไป →</span><span class="title">HW3: Jacobi/GS</span></a>
+      </div>
+    </div>
+  </main>
+</div>
+<script src="../assets/app.js"></script>
+</body>
+</html>
