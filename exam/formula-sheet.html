@@ -1,0 +1,271 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="page-id" content="formula">
+<title>Formula Sheet — CSS322 Midterm</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@400;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../assets/style.css">
+<style>
+/* Print-optimized styles — Formula Sheet 2 A4 pages */
+@media print {
+  .sidebar, .no-print, .pager { display: none !important; }
+  .app { grid-template-columns: 1fr !important; }
+  .main { padding: 8mm !important; }
+  body { background: white !important; }
+  .fs-page {
+    page-break-after: always;
+    padding: 0;
+    max-width: 100%;
+  }
+  .fs-page:last-child { page-break-after: auto; }
+  h2, h3 { break-inside: avoid; }
+  .fs-block { break-inside: avoid; }
+}
+.fs-page {
+  background: white;
+  color: #1a1a1a;
+  padding: 20px;
+  margin: 12px 0;
+  border-radius: 8px;
+  border: 1px solid var(--border);
+  font-size: 0.88rem;
+  line-height: 1.5;
+}
+.fs-page h1, .fs-page h2, .fs-page h3, .fs-page h4 { color: #000; }
+.fs-header {
+  text-align: center;
+  padding: 8px 0;
+  border-bottom: 2px solid #c0392b;
+  margin-bottom: 12px;
+}
+.fs-header h2 { color: #c0392b; margin: 0; border: none; padding: 0; font-size: 1.3rem; }
+.fs-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+}
+.fs-block {
+  background: #fafaf7;
+  border-left: 3px solid #c0392b;
+  padding: 10px 14px;
+  border-radius: 0 4px 4px 0;
+  margin: 8px 0;
+}
+.fs-block h4 {
+  margin: 0 0 6px;
+  color: #c0392b;
+  font-size: 0.95rem;
+}
+.fs-block p, .fs-block ul { margin: 4px 0; font-size: 0.85rem; }
+.print-btn {
+  background: var(--accent);
+  color: white;
+  padding: 12px 24px;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  font-family: inherit;
+  font-size: 1rem;
+  font-weight: 600;
+  margin: 12px 0;
+}
+</style>
+</head>
+<body>
+<div class="app">
+  <aside class="sidebar">
+    <div class="brand">📐 CSS322</div>
+    <div class="brand-sub">Scientific Computing</div>
+    <div class="nav-section">หน้าหลัก</div>
+    <nav class="nav"><a href="../index.html" data-page="home">🏠 หน้าแรก <span class="status"></span></a></nav>
+    <div class="nav-section">📝 เตรียมสอบ</div>
+    <nav class="nav">
+      <a href="index.html" data-page="exam">📚 ห้องเตรียมสอบ <span class="status"></span></a>
+      <a href="study-guide.html" data-page="guide">📋 Study Guide <span class="status"></span></a>
+      <a href="formula-sheet.html" data-page="formula">📄 Formula Sheet <span class="status"></span></a>
+      <a href="mock1.html" data-page="mock1">📝 Mock Exam 1 <span class="status"></span></a>
+      <a href="mock2.html" data-page="mock2">📝 Mock Exam 2 <span class="status"></span></a>
+      <a href="mock3.html" data-page="mock3">📝 Mock Exam 3 <span class="status"></span></a>
+      <a href="mock4.html" data-page="mock4">📝 Mock Exam 4 <span class="status"></span></a>
+      <a href="mock5.html" data-page="mock5">📝 Mock Exam 5 <span class="status"></span></a>
+    </nav>
+    <button class="theme-toggle">🌙 โหมดมืด</button>
+  </aside>
+
+  <main class="main">
+    <div class="main-inner">
+      <div class="crumbs no-print"><a href="../index.html">หน้าแรก</a> › <a href="index.html">ห้องเตรียมสอบ</a> › Formula Sheet</div>
+      <h1 class="no-print">📄 Formula Sheet 2 A4 หน้า</h1>
+      <p class="subtitle no-print">พิมพ์ได้เลย — Semi-Open Book Exam อนุญาต 2 หน้า A4</p>
+
+      <div class="callout tip no-print">
+        <div class="callout-title">🖨️ วิธีพิมพ์</div>
+        <p style="margin:6px 0;">1. กด Ctrl+P (Windows) หรือ Cmd+P (Mac)</p>
+        <p style="margin:6px 0;">2. เลือก "Print 2 pages per sheet" หรือใช้ Portrait A4</p>
+        <p style="margin:6px 0;">3. เลือก "Background graphics" เพื่อได้สี</p>
+        <button class="print-btn" onclick="window.print()">🖨️ พิมพ์เลย (Ctrl+P)</button>
+      </div>
+
+      <!-- ==================== PAGE 1 ==================== -->
+      <div class="fs-page">
+        <div class="fs-header">
+          <h2>Formula Sheet — CSS322 Midterm (หน้า 1/2)</h2>
+          <div style="font-size:0.75rem;">Ch1 Taylor · Ch2 Roots · Ch3 Linear Iterative</div>
+        </div>
+
+        <div class="fs-grid">
+          <!-- Ch1 -->
+          <div class="fs-block">
+            <h4>Ch1: Taylor Series</h4>
+            <p>Taylor: \(f(x) = \sum_{k=0}^n \frac{f^{(k)}(c)}{k!}(x-c)^k + R_{n+1}(x)\)</p>
+            <p>Remainder: \(R_{n+1}(x) = \frac{f^{(n+1)}(\xi)}{(n+1)!}(x-c)^{n+1}\)</p>
+            <p>Max error: \(|R_{n+1}| \leq \frac{M|x-c|^{n+1}}{(n+1)!}\), \(M = \max |f^{(n+1)}(\xi)|\)</p>
+            <p>Common: \(e^x, \sin, \cos, \ln(1+x)\); \(c=0\) → Maclaurin</p>
+            <p>Errors: \(E_t = |x_\tau - \tilde x|\), \(\varepsilon_t = E_t/|x_\tau|\)</p>
+            <p>n-D.P.: \(|\text{err}| \leq 0.5 \times 10^{-n}\)</p>
+          </div>
+
+          <div class="fs-block">
+            <h4>Ch2: Bisection</h4>
+            <p>Condition: \(f(a)f(b) < 0\)</p>
+            <p>Update: \(\tilde x = (a+b)/2\)</p>
+            <p>Choose sub-interval by sign of \(f(a)f(\tilde x)\)</p>
+            <p># iter: \(n > \log_2\left(\frac{b-a}{TOL}\right)\)</p>
+            <p>Error bound: \(|x_\tau - \tilde x_n| < \frac{b-a}{2^n}\)</p>
+          </div>
+
+          <div class="fs-block">
+            <h4>Ch2: False Position</h4>
+            <p>Update: \(\tilde x = \frac{a f(b) - b f(a)}{f(b) - f(a)}\)</p>
+            <p>Same interval choice as Bisection</p>
+          </div>
+
+          <div class="fs-block">
+            <h4>Ch2: Newton-Raphson</h4>
+            <p>\(x_{j+1} = x_j - \frac{f(x_j)}{f'(x_j)}\)</p>
+            <p>Converge if: \(f, f', f''\) cont., \(f'(x_\tau) \neq 0\), \(x_0\) close</p>
+          </div>
+
+          <div class="fs-block">
+            <h4>Ch2: Secant</h4>
+            <p>\(m_j = \frac{f(x_j) - f(x_{j-1})}{x_j - x_{j-1}}\)</p>
+            <p>\(x_{j+1} = x_j - \frac{f(x_j)}{m_j}\)</p>
+            <p>No derivative needed (2 initial values)</p>
+          </div>
+
+          <div class="fs-block">
+            <h4>Ch2: Fixed-Point</h4>
+            <p>Rewrite \(f(x)=0\) as \(x = g(x)\)</p>
+            <p>\(x_{i+1} = g(x_i)\)</p>
+            <p>Converge if: \(|g'(x)| \leq k < 1\) near root</p>
+            <p>Error: \(|x_n - x^*| \leq \frac{k^n}{1-k}|x_1 - x_0|\)</p>
+          </div>
+
+          <div class="fs-block" style="grid-column: 1 / 3;">
+            <h4>Ch3: Jacobi Method</h4>
+            <p>Split: \(A = D + L + U\) (L strictly lower, U strictly upper)</p>
+            <p>Component: \(x_i^{(k+1)} = \frac{1}{a_{ii}}\left(b_i - \sum_{j \neq i} a_{ij}x_j^{(k)}\right)\)</p>
+            <p>Matrix: \(T_J = -D^{-1}(L+U), \; c_J = D^{-1}b\); \(x^{(k)} = T_J x^{(k-1)} + c_J\)</p>
+          </div>
+
+          <div class="fs-block" style="grid-column: 1 / 3;">
+            <h4>Ch3: Gauss-Seidel</h4>
+            <p>Component: \(x_i^{(k+1)} = \frac{1}{a_{ii}}\left(b_i - \sum_{j<i} a_{ij}x_j^{(k+1)} - \sum_{j>i} a_{ij}x_j^{(k)}\right)\)</p>
+            <p>Matrix: \(T_{GS} = -(D+L)^{-1}U, \; c_{GS} = (D+L)^{-1}b\)</p>
+          </div>
+
+          <div class="fs-block" style="grid-column: 1 / 3;">
+            <h4>Ch3: SOR (concept)</h4>
+            <p>\(x_i^{(k)} = (1-\omega)x_i^{(k-1)} + \frac{\omega}{a_{ii}}\left(b_i - \sum_{j<i} a_{ij}x_j^{(k)} - \sum_{j>i} a_{ij}x_j^{(k-1)}\right)\)</p>
+            <p>Matrix: \(T_\omega = (D + \omega L)^{-1}[(1-\omega)D - \omega U], \; c_\omega = \omega(D+\omega L)^{-1}b\)</p>
+            <p>\(\omega = 1\) → Gauss-Seidel; \(0 < \omega < 1\) under; \(1 < \omega < 2\) over</p>
+            <p>Kahan: converge → \(0 < \omega < 2\); Ostrowski-Reich: A pos.def. + \(0<\omega<2\) → converge</p>
+          </div>
+
+          <div class="fs-block" style="grid-column: 1 / 3;">
+            <h4>Norms & Convergence</h4>
+            <p>\(\|x\|_1 = \sum |x_i|\); \(\|x\|_2 = \sqrt{\sum x_i^2}\); \(\|x\|_\infty = \max |x_i|\)</p>
+            <p>\(\|A\|_\infty = \max_i \sum_j |a_{ij}|\); \(\|A\|_1 = \max_j \sum_i |a_{ij}|\)</p>
+            <p><b>Diagonally dominant:</b> \(|a_{ii}| > \sum_{j\neq i} |a_{ij}| \; \forall i\) → Jacobi/GS converge เสมอ</p>
+            <p>Stop: \(\|x^{(k)} - x^{(k-1)}\| < TOL\) หรือ \(\|Ax^{(k)} - b\| < TOL\)</p>
+          </div>
+        </div>
+      </div>
+
+      <!-- ==================== PAGE 2 ==================== -->
+      <div class="fs-page">
+        <div class="fs-header">
+          <h2>Formula Sheet — CSS322 Midterm (หน้า 2/2)</h2>
+          <div style="font-size:0.75rem;">Ch4 Nonlinear · Ch5 Regression · Useful Identities</div>
+        </div>
+
+        <div class="fs-grid">
+          <div class="fs-block" style="grid-column: 1 / 3;">
+            <h4>Ch4: Newton's Method for Systems</h4>
+            <p>System: \(f(x) = 0, \; x = [x_1, \ldots, x_n]^T\)</p>
+            <p>Jacobian: \(J(x) = \left[\frac{\partial f_i}{\partial x_j}\right]\)</p>
+            <p>Update: \(x^{(i+1)} = x^{(i)} - J_i^{-1} f(x^{(i)})\), หรือ \(J_i \Delta x = -f(x^{(i)}), x^{(i+1)} = x^{(i)} + \Delta x\)</p>
+            <p><b>Inverse 2×2:</b> \(\begin{bmatrix}a&b\\c&d\end{bmatrix}^{-1} = \frac{1}{ad-bc}\begin{bmatrix}d&-b\\-c&a\end{bmatrix}\)</p>
+            <p><b>Cramer 2×2:</b> \(\Delta x_1 = \frac{b_1 a_{22} - b_2 a_{12}}{a_{11} a_{22} - a_{21} a_{12}}\), similar for \(\Delta x_2\)</p>
+          </div>
+
+          <div class="fs-block" style="grid-column: 1 / 3;">
+            <h4>Ch4: Fixed-Point for Systems</h4>
+            <p>Rewrite as \(x = g(x)\); update \(x^{(k)} = g(x^{(k-1)})\)</p>
+            <p><b>Converge condition:</b> \(\sum_{j=1}^n \left|\frac{\partial g_i}{\partial x_j}\right| \leq 1\) \(\forall i\) near solution</p>
+          </div>
+
+          <div class="fs-block" style="grid-column: 1 / 3;">
+            <h4>Ch5: Linear Least-Squares Regression \(f(x) = a_0 + a_1 x\)</h4>
+            <p>Solve \(\begin{bmatrix} n & S_x \\ S_x & S_{xx} \end{bmatrix} \begin{bmatrix} a_0 \\ a_1 \end{bmatrix} = \begin{bmatrix} S_y \\ S_{xy} \end{bmatrix}\)</p>
+            <p>\(a_1 = \frac{n S_{xy} - S_x S_y}{n S_{xx} - S_x^2}\), \(a_0 = \frac{S_{xx} S_y - S_{xy} S_x}{n S_{xx} - S_x^2} = \bar y - a_1 \bar x\)</p>
+            <p>\(S_x = \sum x_i, S_y = \sum y_i, S_{xx} = \sum x_i^2, S_{xy} = \sum x_i y_i\)</p>
+          </div>
+
+          <div class="fs-block" style="grid-column: 1 / 3;">
+            <h4>Ch5: Polynomial Regression (degree m)</h4>
+            <p>\(f(x) = a_0 + a_1 x + \cdots + a_m x^m\)</p>
+            <p>Solve \((m+1) \times (m+1)\) system: entry \((i,j) = \sum x_k^{i+j-2}\), RHS \((i) = \sum y_k x_k^{i-1}\)</p>
+            <p><b>Quadratic:</b> \(\begin{bmatrix} n & \sum x_i & \sum x_i^2 \\ \sum x_i & \sum x_i^2 & \sum x_i^3 \\ \sum x_i^2 & \sum x_i^3 & \sum x_i^4 \end{bmatrix} \mathbf{a} = \begin{bmatrix} \sum y_i \\ \sum x_i y_i \\ \sum x_i^2 y_i \end{bmatrix}\)</p>
+          </div>
+
+          <div class="fs-block">
+            <h4>Ch5: R² (Goodness-of-Fit)</h4>
+            <p>\(\bar y = \frac{1}{n}\sum y_i\)</p>
+            <p>\(SS_{tot} = \sum (y_i - \bar y)^2\)</p>
+            <p>\(SS_{res} = \sum (y_i - f(x_i))^2\)</p>
+            <p>\(R^2 = 1 - \frac{SS_{res}}{SS_{tot}}\)</p>
+          </div>
+
+          <div class="fs-block">
+            <h4>Ch5: Nonlinear Linearization</h4>
+            <p><b>Power</b> \(y = bx^m\): \(Y = \ln y, X = \ln x\); \(b = e^{a_0}, m = a_1\)</p>
+            <p><b>Exp</b> \(y = be^{mx}\): \(Y = \ln y, X = x\); \(b = e^{a_0}, m = a_1\)</p>
+            <p><b>Recip</b> \(y = \frac{1}{mx+b}\): \(Y=1/y, X=x\); \(b = a_0, m = a_1\)</p>
+            <p><b>Recip 2</b> \(y = \frac{x}{mx+b}\): \(Y=1/y, X=1/x\); \(b = a_1, m = a_0\)</p>
+          </div>
+
+          <div class="fs-block" style="grid-column: 1 / 3;">
+            <h4>🔧 Useful Identities & Values</h4>
+            <p><b>Common Derivatives:</b> \((\sin x)' = \cos x\), \((\cos x)' = -\sin x\), \((e^x)' = e^x\), \((\ln x)' = 1/x\), \((x^n)' = n x^{n-1}\)</p>
+            <p><b>Values:</b> \(e^0=1, e^{-0.1} \approx 0.9048, e^{0.1} \approx 1.1052, \ln 2 \approx 0.693, \pi \approx 3.1416\)</p>
+            <p><b>Sums:</b> \(\sum_{k=1}^n k = n(n+1)/2\), \(\sum_{k=1}^n k^2 = n(n+1)(2n+1)/6\)</p>
+            <p><b>Factorials:</b> \(0!=1, 1!=1, 2!=2, 3!=6, 4!=24, 5!=120, 6!=720, 7!=5040\)</p>
+          </div>
+        </div>
+      </div>
+
+      <div class="pager no-print">
+        <a href="study-guide.html"><span class="label">← ก่อนหน้า</span><span class="title">Study Guide</span></a>
+        <a href="mock1.html"><span class="label">ถัดไป →</span><span class="title">Mock Exam 1</span></a>
+      </div>
+    </div>
+  </main>
+</div>
+<script src="../assets/app.js"></script>
+</body>
+</html>

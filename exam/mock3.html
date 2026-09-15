@@ -1,0 +1,238 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="page-id" content="mock3">
+<title>Mock Exam 3 (ปานกลาง) — CSS322</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@400;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../assets/style.css">
+<link rel="stylesheet" href="exam-style.css">
+</head>
+<body>
+<div class="app">
+  <aside class="sidebar">
+    <div class="brand">📐 CSS322</div>
+    <div class="brand-sub">Scientific Computing</div>
+    <div class="nav-section">หน้าหลัก</div>
+    <nav class="nav"><a href="../index.html" data-page="home">🏠 หน้าแรก <span class="status"></span></a></nav>
+    <div class="nav-section">📝 เตรียมสอบ</div>
+    <nav class="nav">
+      <a href="index.html" data-page="exam">📚 ห้องเตรียมสอบ <span class="status"></span></a>
+      <a href="study-guide.html" data-page="guide">📋 Study Guide <span class="status"></span></a>
+      <a href="formula-sheet.html" data-page="formula">📄 Formula Sheet <span class="status"></span></a>
+      <a href="mock1.html" data-page="mock1">📝 Mock Exam 1 <span class="status"></span></a>
+      <a href="mock2.html" data-page="mock2">📝 Mock Exam 2 <span class="status"></span></a>
+      <a href="mock3.html" data-page="mock3">📝 Mock Exam 3 <span class="status"></span></a>
+      <a href="mock4.html" data-page="mock4">📝 Mock Exam 4 <span class="status"></span></a>
+      <a href="mock5.html" data-page="mock5">📝 Mock Exam 5 <span class="status"></span></a>
+    </nav>
+    <button class="theme-toggle">🌙 โหมดมืด</button>
+  </aside>
+
+  <main class="main">
+    <div class="main-inner">
+      <div class="crumbs"><a href="../index.html">หน้าแรก</a> › <a href="index.html">ห้องเตรียมสอบ</a> › Mock Exam 3</div>
+      <h1>📝 Mock Exam 3 <span class="difficulty-badge diff-medium">ปานกลาง 🟡</span></h1>
+      <p class="subtitle">โจทย์ระดับปานกลาง — ผสม concept + calculation · 7 ข้อ · 2 ชั่วโมง</p>
+
+      <div class="instructions">
+        <h3>📋 คำสั่ง</h3>
+        <ul>
+          <li><b>7 ข้อ · 2 ชั่วโมง</b> — ครอบคลุมทุกบท</li>
+          <li>เพิ่มโจทย์ที่ต้องใช้ conceptual understanding + computation ร่วมกัน</li>
+        </ul>
+      </div>
+
+      <div class="exam-header-box">
+        <div><h2>⏱️ Mock Exam 3</h2><small>Time Remaining</small></div>
+        <div id="exam-timer">02:00:00</div>
+      </div>
+
+      <div style="text-align:center;margin:20px 0;">
+        <button id="exam-start" class="btn btn-primary" style="padding:14px 32px;font-size:1.1rem;">▶️ เริ่มทำข้อสอบ</button>
+      </div>
+
+      <div id="exam-result"></div>
+
+      <div class="exam-problems">
+        <!-- ==================== Q1: Taylor ==================== -->
+        <div class="exam-question" data-type="num" data-answer="0.7408" data-tol="0.001">
+          <span class="q-num">Q1</span> <h3>Ch1 · Taylor Approximation</h3> <span class="exam-points">15 คะแนน</span>
+          <p>ใช้ Taylor polynomial degree 4 ของ \(f(x) = e^x\) รอบ 0 เพื่อประมาณ \(e^{-0.3}\) — คำตอบเท่ากับเท่าใด? (4 D.P. Rounding)</p>
+          <p><b>คำตอบ:</b> <input type="text" class="exam-input" placeholder="ทศนิยม 4 ตำแหน่ง"></p>
+
+          <div class="exam-solution">
+            <h4>✅ เฉลย</h4>
+            <p>\(p_4(-0.3) = 1 + (-0.3) + (-0.3)^2/2 + (-0.3)^3/6 + (-0.3)^4/24\)</p>
+            <p>\(= 1 - 0.3 + 0.045 - 0.0045 + 0.000338 = 0.7408\)</p>
+            <p>ค่าจริง \(e^{-0.3} = 0.7408\) — Taylor 4 term ประมาณได้แม่นยำมาก</p>
+          </div>
+        </div>
+
+        <!-- ==================== Q2: Secant ==================== -->
+        <div class="exam-question" data-type="num" data-answer="0.7391" data-tol="0.01">
+          <span class="q-num">Q2</span> <h3>Ch2 · Secant Method</h3> <span class="exam-points">15 คะแนน</span>
+          <p>ใช้ Secant method หา root ของ \(f(x) = \cos(x) - x = 0\) ด้วย \(x_0 = 0, x_1 = 1\) — ทำ 3 iterations, หา \(x_4\) (ทศนิยม 4 ตำแหน่ง)</p>
+          <p><b>คำตอบ:</b> <input type="text" class="exam-input" placeholder="ตัวเลข"></p>
+
+          <div class="exam-solution">
+            <h4>✅ เฉลย</h4>
+            <p>\(f(0) = 1, f(1) = \cos(1) - 1 = 0.5403 - 1 = -0.4597\)</p>
+            <p><b>Iter 1:</b> \(m_1 = (-0.4597 - 1)/1 = -1.4597\); \(x_2 = 1 - (-0.4597)/(-1.4597) = 1 - 0.3149 = 0.6851\)</p>
+            <p>\(f(0.6851) = \cos(0.6851) - 0.6851 = 0.7743 - 0.6851 = 0.0892\)</p>
+            <p><b>Iter 2:</b> \(m_2 = (0.0892 - (-0.4597))/(0.6851 - 1) = 0.5489/(-0.3149) = -1.7431\)</p>
+            <p>\(x_3 = 0.6851 - 0.0892/(-1.7431) = 0.6851 + 0.0512 = 0.7363\)</p>
+            <p>\(f(0.7363) = \cos(0.7363) - 0.7363 = 0.7413 - 0.7363 = 0.0050\)</p>
+            <p><b>Iter 3:</b> \(m_3 = (0.0050 - 0.0892)/(0.7363 - 0.6851) = -0.0842/0.0512 = -1.6445\)</p>
+            <p>\(x_4 = 0.7363 - 0.0050/(-1.6445) = 0.7363 + 0.0030 = 0.7393\)</p>
+            <p>ใกล้ค่าจริง 0.7391 — <b>\(x_4 \approx 0.7391\)</b></p>
+          </div>
+        </div>
+
+        <!-- ==================== Q3: Conceptual comparison ==================== -->
+        <div class="exam-question" data-type="mc" data-answer="c">
+          <span class="q-num">Q3</span> <h3>Ch2 · Method Comparison (Concept)</h3> <span class="exam-points">10 คะแนน</span>
+          <p>ในการหา root ของ \(f(x)\) ที่ converge เร็วที่สุด (order 2 quadratic convergence) คือวิธีใด?</p>
+          <div class="exam-mc">
+            <label><input type="radio" name="q3" value="a"> Bisection</label>
+            <label><input type="radio" name="q3" value="b"> False Position</label>
+            <label><input type="radio" name="q3" value="c"> Newton-Raphson (ต้องการ f'(x))</label>
+            <label><input type="radio" name="q3" value="d"> Fixed-Point (ขึ้นกับ g)</label>
+          </div>
+
+          <div class="exam-solution">
+            <h4>✅ เฉลย</h4>
+            <p>Newton-Raphson มี <b>quadratic convergence</b> (order 2) เมื่อ root มี multiplicity = 1</p>
+            <p>Secant มี order ≈ 1.618 (superlinear); Bisection/False Position มี linear convergence</p>
+            <p>Fixed-Point convergence ขึ้นกับค่า \(k = |g'(x^*)|\); ถ้า \(k = 0\) → quadratic (คือ Newton)</p>
+          </div>
+        </div>
+
+        <!-- ==================== Q4: Diagonally dominant check + Jacobi ==================== -->
+        <div class="exam-question">
+          <span class="q-num">Q4</span> <h3>Ch3 · Jacobi + Diagonally Dominant</h3> <span class="exam-points">15 คะแนน</span>
+          <p>พิจารณา \(A = \begin{bmatrix} 5 & 2 & 1 \\ 1 & 6 & 2 \\ 2 & 1 & 4 \end{bmatrix}\), \(b = [8, 9, 7]^T\)</p>
+
+          <div class="exam-part" data-type="mc" data-answer="a">
+            <label>(a) A diagonally dominant?</label>
+            <div class="exam-mc" style="display:inline-block;">
+              <label style="display:inline-block;"><input type="radio" name="q4a" value="a"> ใช่ ทุก row \(|a_{ii}| > \sum |a_{ij}|\)</label>
+              <label style="display:inline-block;"><input type="radio" name="q4a" value="b"> ไม่ ใช่</label>
+            </div>
+          </div>
+
+          <div class="exam-part" data-type="num" data-answer="1.6" data-tol="0.05">
+            <label>(b) \(x_1^{(1)}\) จาก \(x^{(0)} = [0,0,0]\), Jacobi =</label>
+            <input type="text" class="exam-input" placeholder="ตัวเลข">
+          </div>
+
+          <div class="exam-solution">
+            <h4>✅ เฉลย</h4>
+            <p><b>(a) Check diagonally dominant:</b></p>
+            <p>Row 1: |5| > |2|+|1| = 3 ✅</p>
+            <p>Row 2: |6| > |1|+|2| = 3 ✅</p>
+            <p>Row 3: |4| > |2|+|1| = 3 ✅</p>
+            <p>→ Diagonally dominant → Jacobi converge เสมอ</p>
+
+            <p><b>(b)</b> \(x_1^{(1)} = (8 - 0 - 0)/5 = 1.6\)</p>
+          </div>
+        </div>
+
+        <!-- ==================== Q5: Newton system ==================== -->
+        <div class="exam-question">
+          <span class="q-num">Q5</span> <h3>Ch4 · Newton for \(x^2 + y^2 = 4, xy = 1\)</h3> <span class="exam-points">15 คะแนน</span>
+          <p>\((x_0, y_0) = (2, 0.5)\); ทำ 1 iteration</p>
+
+          <div class="exam-part" data-type="num" data-answer="1.938" data-tol="0.02">
+            <label>(a) \(x_1 =\)</label>
+            <input type="text" class="exam-input" placeholder="ตัวเลข">
+          </div>
+          <div class="exam-part" data-type="num" data-answer="0.5313" data-tol="0.01">
+            <label>(b) \(y_1 =\)</label>
+            <input type="text" class="exam-input" placeholder="ตัวเลข">
+          </div>
+
+          <div class="exam-solution">
+            <h4>✅ เฉลย</h4>
+            <p>\(f_1 = x^2 + y^2 - 4, f_2 = xy - 1\); \(J = \begin{bmatrix} 2x & 2y \\ y & x \end{bmatrix}\)</p>
+            <p>ที่ (2, 0.5): \(f = [4 + 0.25 - 4, 1 - 1] = [0.25, 0]\); \(J = \begin{bmatrix} 4 & 1 \\ 0.5 & 2 \end{bmatrix}\)</p>
+            <p>\(\det = 8 - 0.5 = 7.5\); \(J^{-1} = \frac{1}{7.5}\begin{bmatrix} 2 & -1 \\ -0.5 & 4 \end{bmatrix}\)</p>
+            <p>\(J^{-1} f = \frac{1}{7.5}\begin{bmatrix} 2(0.25) - 0 \\ -0.5(0.25) + 0 \end{bmatrix} = \frac{1}{7.5}\begin{bmatrix} 0.5 \\ -0.125 \end{bmatrix} = \begin{bmatrix} 0.0667 \\ -0.0167 \end{bmatrix}\)</p>
+            <p>\(\begin{bmatrix} x_1 \\ y_1 \end{bmatrix} = \begin{bmatrix} 2 \\ 0.5 \end{bmatrix} - \begin{bmatrix} 0.0667 \\ -0.0167 \end{bmatrix} = \begin{bmatrix} 1.933 \\ 0.517 \end{bmatrix}\)</p>
+            <p>Solution จริง: \(x^* \approx 1.932, y^* \approx 0.518\)</p>
+          </div>
+        </div>
+
+        <!-- ==================== Q6: Power fit ==================== -->
+        <div class="exam-question">
+          <span class="q-num">Q6</span> <h3>Ch5 · Power Function Fit \(y = bx^m\)</h3> <span class="exam-points">15 คะแนน</span>
+          <p>Fit \(y = b x^m\) กับข้อมูล:</p>
+          <div class="table-wrap"><table>
+            <tr><th>x</th><td>1</td><td>2</td><td>4</td><td>8</td></tr>
+            <tr><th>y</th><td>2</td><td>4</td><td>8</td><td>16</td></tr>
+          </table></div>
+
+          <div class="exam-part" data-type="num" data-answer="2" data-tol="0.1">
+            <label>(a) \(b =\)</label>
+            <input type="text" class="exam-input" placeholder="ตัวเลข">
+          </div>
+          <div class="exam-part" data-type="num" data-answer="1" data-tol="0.05">
+            <label>(b) \(m =\)</label>
+            <input type="text" class="exam-input" placeholder="ตัวเลข">
+          </div>
+
+          <div class="exam-solution">
+            <h4>✅ เฉลย</h4>
+            <p>ตรวจดูข้อมูล — สังเกตว่า \(y = 2x\) fit ได้พอดี ⇒ \(b = 2, m = 1\)</p>
+            <p><b>วิธีคำนวณด้วย log:</b></p>
+            <p>\(X = \ln x = [0, 0.693, 1.386, 2.079]\); \(Y = \ln y = [0.693, 1.386, 2.079, 2.773]\)</p>
+            <p>Linear regression: slope = 1, intercept = 0.693</p>
+            <p>\(m = 1\); \(b = e^{0.693} = 2\)</p>
+            <p><b>\(f(x) = 2x^1 = 2x\)</b></p>
+          </div>
+        </div>
+
+        <!-- ==================== Q7: SOR concept & computation ==================== -->
+        <div class="exam-question" data-type="mc" data-answer="b">
+          <span class="q-num">Q7</span> <h3>Ch3 · SOR Speed-up (Concept)</h3> <span class="exam-points">15 คะแนน</span>
+          <p>สำหรับ system Ax=b ที่ Gauss-Seidel converge ในกี่ iterations, SOR ที่ \(\omega = 1.5\) โดยทั่วไป:</p>
+          <div class="exam-mc">
+            <label><input type="radio" name="q7" value="a"> ช้ากว่า Gauss-Seidel เสมอ</label>
+            <label><input type="radio" name="q7" value="b"> เร็วกว่า Gauss-Seidel (converge น้อยกว่าจำนวน iterations)</label>
+            <label><input type="radio" name="q7" value="c"> เท่ากับ Gauss-Seidel</label>
+            <label><input type="radio" name="q7" value="d"> ไม่ converge</label>
+          </div>
+
+          <div class="exam-solution">
+            <h4>✅ เฉลย</h4>
+            <p>SOR ที่ \(\omega \in (1, 2)\) เรียกว่า over-relaxation — โดยทั่วไป <b>เร็วกว่า</b> Gauss-Seidel ถ้าเลือก \(\omega\) เหมาะสม</p>
+            <p>ตัวอย่างจากบทที่ 4: Tridiagonal system 5×5</p>
+            <ul>
+              <li>Jacobi: 42 iterations</li>
+              <li>Gauss-Seidel (\(\omega = 1\)): 23 iterations</li>
+              <li><b>SOR \(\omega = 1.5\): 12 iterations</b> ← เร็วสุด</li>
+              <li>SOR \(\omega = 2\): Diverge</li>
+            </ul>
+          </div>
+        </div>
+
+        <div class="exam-actions">
+          <button id="exam-submit" class="btn btn-primary" style="display:none;">✅ ส่งข้อสอบ + ตรวจคะแนน</button>
+          <button id="exam-reset" class="btn btn-secondary">🔄 เริ่มใหม่</button>
+        </div>
+      </div>
+
+      <div class="pager">
+        <a href="mock2.html"><span class="label">← ก่อนหน้า</span><span class="title">Mock Exam 2</span></a>
+        <a href="mock4.html"><span class="label">ถัดไป →</span><span class="title">Mock Exam 4</span></a>
+      </div>
+    </div>
+  </main>
+</div>
+<script src="../assets/app.js"></script>
+<script src="exam-engine.js"></script>
+</body>
+</html>

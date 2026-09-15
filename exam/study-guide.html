@@ -1,0 +1,243 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="page-id" content="guide">
+<title>Study Guide — CSS322 Midterm</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@400;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../assets/style.css">
+<style>
+.day-plan {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 16px;
+  margin: 12px 0;
+  border-left: 4px solid var(--accent);
+}
+.day-plan h4 { margin: 0 0 8px; color: var(--accent); }
+.trick-box {
+  background: linear-gradient(135deg, #f5f3ec, #e8e5d8);
+  border-radius: 8px;
+  padding: 14px 18px;
+  margin: 12px 0;
+  border-left: 4px solid var(--success);
+}
+:root[data-theme="dark"] .trick-box {
+  background: linear-gradient(135deg, #2a2a2a, #333);
+}
+.checklist input[type="checkbox"] { width: 18px; height: 18px; margin-right: 8px; }
+.checklist li { margin: 6px 0; list-style: none; }
+</style>
+</head>
+<body>
+<div class="app">
+  <aside class="sidebar">
+    <div class="brand">📐 CSS322</div>
+    <div class="brand-sub">Scientific Computing</div>
+    <div class="nav-section">หน้าหลัก</div>
+    <nav class="nav"><a href="../index.html" data-page="home">🏠 หน้าแรก <span class="status"></span></a></nav>
+    <div class="nav-section">📝 เตรียมสอบ</div>
+    <nav class="nav">
+      <a href="index.html" data-page="exam">📚 ห้องเตรียมสอบ <span class="status"></span></a>
+      <a href="study-guide.html" data-page="guide">📋 Study Guide <span class="status"></span></a>
+      <a href="formula-sheet.html" data-page="formula">📄 Formula Sheet <span class="status"></span></a>
+      <a href="mock1.html" data-page="mock1">📝 Mock Exam 1 <span class="status"></span></a>
+      <a href="mock2.html" data-page="mock2">📝 Mock Exam 2 <span class="status"></span></a>
+      <a href="mock3.html" data-page="mock3">📝 Mock Exam 3 <span class="status"></span></a>
+      <a href="mock4.html" data-page="mock4">📝 Mock Exam 4 <span class="status"></span></a>
+      <a href="mock5.html" data-page="mock5">📝 Mock Exam 5 <span class="status"></span></a>
+    </nav>
+    <div class="nav-section">บทเรียน</div>
+    <nav class="nav">
+      <a href="../chapters/ch1-errors-taylor.html" data-page="ch1">บทที่ 1 <span class="status"></span></a>
+      <a href="../chapters/ch2-root-finding.html" data-page="ch2">บทที่ 2 <span class="status"></span></a>
+      <a href="../chapters/ch3-linear-direct.html" data-page="ch3">บทที่ 3 <span class="status"></span></a>
+      <a href="../chapters/ch4-linear-iterative.html" data-page="ch4">บทที่ 4 <span class="status"></span></a>
+      <a href="../chapters/ch5-nonlinear.html" data-page="ch5">บทที่ 5 <span class="status"></span></a>
+      <a href="../chapters/ch6-regression.html" data-page="ch6">บทที่ 6 <span class="status"></span></a>
+    </nav>
+    <button class="theme-toggle">🌙 โหมดมืด</button>
+  </aside>
+
+  <main class="main">
+    <div class="main-inner">
+      <div class="crumbs"><a href="../index.html">หน้าแรก</a> › <a href="index.html">ห้องเตรียมสอบ</a> › Study Guide</div>
+      <h1>📋 Study Guide สำหรับ Midterm CSS322</h1>
+      <p class="subtitle">แผนการอ่าน 14 วัน + Trick และ Pitfalls สำคัญของแต่ละบท</p>
+
+      <!-- ==================== 14-DAY PLAN ==================== -->
+      <h2>📅 แผนอ่าน 14 วันก่อนสอบ</h2>
+
+      <div class="day-plan">
+        <h4>Day 14-13: 🔤 บทที่ 1 — Taylor Series & Errors</h4>
+        <ul>
+          <li>อ่าน <a href="../chapters/ch1-errors-taylor.html">Ch1</a> — Taylor's Remainder Theorem</li>
+          <li>ทำแบบทดสอบท้ายบท 10 ข้อ</li>
+          <li>ทำ <a href="../homework/hw1.html">HW1</a></li>
+          <li>💡 Focus: หา max error, จำนวน terms ที่ต้องใช้</li>
+        </ul>
+      </div>
+
+      <div class="day-plan">
+        <h4>Day 12-10: 🎯 บทที่ 2 — Root Finding (บทสำคัญมาก 2 ข้อ!)</h4>
+        <ul>
+          <li>อ่าน <a href="../chapters/ch2-root-finding.html">Ch2</a> — ทั้ง 5 วิธี</li>
+          <li>ท่องจำสูตรทั้ง 5 วิธี</li>
+          <li>ฝึกทำ table iterations ให้คล่อง</li>
+          <li>ทำ <a href="../homework/hw2.html">HW2</a></li>
+          <li>💡 Focus: เทียบ methods, เลือกวิธีเหมาะสม, คำนวณ error ในแต่ละ iteration</li>
+        </ul>
+      </div>
+
+      <div class="day-plan">
+        <h4>Day 9-8: 🔷 บทที่ 3 — Linear Systems: Jacobi + Gauss-Seidel</h4>
+        <ul>
+          <li>อ่าน <a href="../chapters/ch4-linear-iterative.html">Ch4 (Iterative)</a></li>
+          <li>ฝึก matrix form: T, c สำหรับ Jacobi/GS/SOR</li>
+          <li>SOR concept: relaxation factor ω, ช่วง (0, 2)</li>
+          <li>ทำ <a href="../homework/hw3.html">HW3</a></li>
+          <li>💡 Focus: <b>diagonally dominant</b> = converge เสมอ; รู้จัก 3 types of stopping criterion</li>
+        </ul>
+      </div>
+
+      <div class="day-plan">
+        <h4>Day 7-5: ⚡ บทที่ 4 — Nonlinear Systems</h4>
+        <ul>
+          <li>อ่าน <a href="../chapters/ch5-nonlinear.html">Ch5 (Nonlinear)</a></li>
+          <li>ท่องจำ Jacobian matrix สำหรับ 2×2 และ 3×3</li>
+          <li>ฝึกหา inverse 2×2 ด้วยสูตร \(\frac{1}{ad-bc}\begin{bmatrix}d&-b\\-c&a\end{bmatrix}\)</li>
+          <li>Fixed-point: เงื่อนไข \(\sum |\partial g_i/\partial x_j| \leq 1\)</li>
+          <li>ทำ <a href="../homework/hw4.html">HW4</a></li>
+          <li>💡 Focus: Newton (iterative + Jacobian), Fixed-point (partial deriv)</li>
+        </ul>
+      </div>
+
+      <div class="day-plan">
+        <h4>Day 4-3: 📊 บทที่ 5 (สอบ) — Least-Squares Regression</h4>
+        <ul>
+          <li>อ่าน <a href="../chapters/ch6-regression.html">Ch6</a></li>
+          <li>ท่องจำสูตร \(a_0, a_1\) ของ linear regression</li>
+          <li>Polynomial regression: 3×3 matrix system</li>
+          <li>Linearization: power, exp, reciprocal</li>
+          <li>คำนวณ R² จาก \(SS_{res}, SS_{tot}\)</li>
+          <li>💡 Focus: จำได้ว่า Y, X = อะไร สำหรับแต่ละ nonlinear form</li>
+        </ul>
+      </div>
+
+      <div class="day-plan">
+        <h4>Day 2: 📝 Mock Exams 1-2</h4>
+        <ul>
+          <li>ทำ <a href="mock1.html">Mock Exam 1</a> (จับเวลา 2 ชม.)</li>
+          <li>ทำ <a href="mock2.html">Mock Exam 2</a></li>
+          <li>ทบทวนข้อที่ผิด</li>
+          <li>อัปเดต Formula Sheet ส่วนที่ยังจำไม่ได้</li>
+        </ul>
+      </div>
+
+      <div class="day-plan">
+        <h4>Day 1: 📝 Mock Exams 3-5 (สุดท้าย!)</h4>
+        <ul>
+          <li>ทำ <a href="mock3.html">Mock 3</a>, <a href="mock4.html">Mock 4</a>, <a href="mock5.html">Mock 5</a></li>
+          <li>Print Formula Sheet 2 หน้า A4 และเตรียมเข้าห้องสอบ</li>
+          <li>เตรียมเครื่องคิดเลข ปากกา บัตรนักศึกษา</li>
+          <li>💤 นอน 7-8 ชั่วโมง</li>
+        </ul>
+      </div>
+
+      <!-- ==================== TRICKS ==================== -->
+      <h2>💡 Trick & Pitfalls สำคัญ</h2>
+
+      <div class="trick-box">
+        <h4>🔤 บทที่ 1: Taylor's Remainder</h4>
+        <ul>
+          <li><b>Trick:</b> ในการหา max error ให้ bound \(|f^{(n+1)}(\xi)|\) ด้วย max ในช่วง — สำหรับ \(\sin, \cos\) → bound = 1; สำหรับ \(e^x\) กับ \(x > 0\) → bound = \(e^x\); กับ \(x < 0\) → bound = 1</li>
+          <li><b>Pitfall:</b> อย่าลืม factorial \((n+1)!\); ข้อสอบชอบเปลี่ยน degree (n) กับ number of terms (n+1)</li>
+          <li><b>Formula:</b> \(|R_{n+1}(x)| \leq \frac{M}{(n+1)!}|x-c|^{n+1}\) โดย \(M = \max |f^{(n+1)}(\xi)|\)</li>
+        </ul>
+      </div>
+
+      <div class="trick-box">
+        <h4>🎯 บทที่ 2: Root Finding</h4>
+        <ul>
+          <li><b>Trick:</b> Bisection # iterations: \(n > \log_2\left(\frac{b-a}{TOL}\right)\)</li>
+          <li><b>Trick:</b> Newton ต้อง \(f'(x)\) ที่มีอนุพันธ์อยู่ใน initial guess</li>
+          <li><b>Trick:</b> False Position vs Bisection ต่างที่สูตร: \(x = \frac{a f(b) - b f(a)}{f(b) - f(a)}\)</li>
+          <li><b>Pitfall:</b> Newton อาจ diverge ถ้า \(f'(x_j) \approx 0\); Fixed-point ต้องตรวจ \(|g'(x)| < 1\) รอบราก</li>
+          <li><b>Pitfall:</b> Residual = \(|f(\tilde{x})|\), Abs error = \(|\tilde{x}_j - \tilde{x}_{j-1}|\) — <b>ไม่เหมือนกัน</b>!</li>
+        </ul>
+      </div>
+
+      <div class="trick-box">
+        <h4>🔷 บทที่ 3: Linear Iterative</h4>
+        <ul>
+          <li><b>Trick:</b> Jacobi ใช้ \(x^{(k)}\) ทั้งหมด; Gauss-Seidel ใช้ \(x^{(k+1)}\) ทันทีเมื่อคำนวณได้</li>
+          <li><b>Trick:</b> \(T_J = -D^{-1}(L+U)\); \(T_{GS} = -(D+L)^{-1}U\); \(T_\omega = (D+\omega L)^{-1}[(1-\omega)D - \omega U]\)</li>
+          <li><b>Trick:</b> ถ้าโจทย์ให้ SOR ω = 1 → เท่ากับ Gauss-Seidel</li>
+          <li><b>Pitfall:</b> เขียน L (strictly lower) และ U (strictly upper) — <b>ไม่รวม diagonal</b></li>
+        </ul>
+      </div>
+
+      <div class="trick-box">
+        <h4>⚡ บทที่ 4: Nonlinear Systems</h4>
+        <ul>
+          <li><b>Trick:</b> Newton สำหรับระบบ: \(J \Delta x = -f\) แล้วบวก step \(x^{(k+1)} = x^{(k)} + \Delta x\)</li>
+          <li><b>Trick:</b> Inverse 2×2: \(\frac{1}{\det}\begin{bmatrix}d&-b\\-c&a\end{bmatrix}\) จำให้ขึ้นใจ</li>
+          <li><b>Trick:</b> Cramer's Rule ง่ายสำหรับ 2×2, 3×3 — ประหยัดเวลาสอบ</li>
+          <li><b>Pitfall:</b> Fixed-point ที่ divergence — ต้องเลือก g(x) ที่มี \(|\partial g/\partial x| + |\partial g/\partial y| < 1\)</li>
+        </ul>
+      </div>
+
+      <div class="trick-box">
+        <h4>📊 บทที่ 5 (สอบ) / บทที่ 6 (จริง): Regression</h4>
+        <ul>
+          <li><b>Trick:</b> จำสูตรสำเร็จ \(a_1 = \frac{nS_{xy} - S_x S_y}{n S_{xx} - S_x^2}\); \(a_0 = \bar{y} - a_1 \bar{x}\)</li>
+          <li><b>Trick:</b> Nonlinear form → Linear: <b>Power ใช้ ln ทั้งสองข้าง</b>, <b>Exp ใช้ ln เฉพาะ y</b>, <b>Reciprocal ใช้ 1/y</b></li>
+          <li><b>Trick:</b> R² = 1 - SSres/SStot; ค่าใกล้ 1 → fit ดี</li>
+          <li><b>Pitfall:</b> Quadratic regression = 3×3 matrix system (m+1 = 3); อย่าใช้แค่สูตร a₀, a₁</li>
+        </ul>
+      </div>
+
+      <!-- ==================== CHECKLIST ==================== -->
+      <h2>✅ Checklist ก่อนเข้าห้องสอบ</h2>
+      <div class="card">
+        <ul class="checklist">
+          <li><label><input type="checkbox"> Formula Sheet 2 หน้า A4 (พิมพ์ 2 ด้าน)</label></li>
+          <li><label><input type="checkbox"> เครื่องคิดเลข (ที่คำนวณ log, exp ได้)</label></li>
+          <li><label><input type="checkbox"> ปากกา 2 ด้าม + ดินสอ + ยางลบ</label></li>
+          <li><label><input type="checkbox"> บัตรนักศึกษา / บัตรประชาชน</label></li>
+          <li><label><input type="checkbox"> ทำ Mock Exams ทั้ง 5 ชุดแล้ว</label></li>
+          <li><label><input type="checkbox"> ทบทวนข้อที่ผิดจาก mock exams</label></li>
+          <li><label><input type="checkbox"> อ่านทบทวน Formula Sheet ทั้งหมด</label></li>
+          <li><label><input type="checkbox"> ตรวจว่าเข้าใจ 5 methods ของ Ch2 ทั้งหมด</label></li>
+          <li><label><input type="checkbox"> จำ Jacobian formula 2×2 ได้แม่น</label></li>
+          <li><label><input type="checkbox"> จำ linearization forms ทั้ง 4 แบบ (Power, Exp, Recip ×2)</label></li>
+          <li><label><input type="checkbox"> นอนพอ ≥ 7 ชั่วโมง</label></li>
+          <li><label><input type="checkbox"> ทานอาหารเช้า / ก่อนสอบเบาๆ</label></li>
+        </ul>
+      </div>
+
+      <div class="callout tip" style="margin-top:24px;">
+        <div class="callout-title">🎯 กลยุทธ์ในห้องสอบ</div>
+        <ol style="margin:6px 0 0 20px;">
+          <li><b>สแกนข้อสอบทั้งหมด 5 นาทีแรก</b> — เลือกทำข้อที่มั่นใจก่อน</li>
+          <li><b>กระจายเวลา:</b> 8 ข้อ × 15 นาที = 120 นาที (พอดี 2 ชม.)</li>
+          <li><b>เขียน iteration table:</b> จัดตารางให้เรียบร้อย เป็น partial credit ได้แม้ทำไม่จบ</li>
+          <li><b>คิดเลขระวัง:</b> ใช้เครื่องคิดเลข double-check สำหรับ decimal</li>
+          <li><b>อย่าลืม:</b> เขียนสูตรก่อนแทนค่า → grader เข้าใจได้แม้ทำผิด</li>
+        </ol>
+      </div>
+
+      <div class="pager">
+        <a href="index.html"><span class="label">← ก่อนหน้า</span><span class="title">ห้องเตรียมสอบ</span></a>
+        <a href="formula-sheet.html"><span class="label">ถัดไป →</span><span class="title">Formula Sheet</span></a>
+      </div>
+    </div>
+  </main>
+</div>
+<script src="../assets/app.js"></script>
+</body>
+</html>

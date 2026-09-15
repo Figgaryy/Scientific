@@ -1,0 +1,620 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="page-id" content="ch6">
+<title>บทที่ 6: Least-Squares Regression — CSS322</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@400;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../assets/style.css">
+</head>
+<body>
+<div class="app">
+  <aside class="sidebar">
+    <div class="brand">📐 CSS322</div>
+    <div class="brand-sub">Scientific Computing</div>
+    <div class="nav-section">หน้าหลัก</div>
+    <nav class="nav"><a href="../index.html" data-page="home">🏠 หน้าแรก <span class="status"></span></a></nav>
+    <div class="nav-section">บทเรียน</div>
+    <nav class="nav">
+      <a href="ch1-errors-taylor.html" data-page="ch1">บทที่ 1: Errors & Taylor <span class="status"></span></a>
+      <a href="ch2-root-finding.html" data-page="ch2">บทที่ 2: Root Finding <span class="status"></span></a>
+      <a href="ch3-linear-direct.html" data-page="ch3">บทที่ 3: Linear (Direct) <span class="status"></span></a>
+      <a href="ch4-linear-iterative.html" data-page="ch4">บทที่ 4: Linear (Iterative) <span class="status"></span></a>
+      <a href="ch5-nonlinear.html" data-page="ch5">บทที่ 5: Nonlinear <span class="status"></span></a>
+      <a href="ch6-regression.html" data-page="ch6">บทที่ 6: Regression <span class="status"></span></a>
+    </nav>
+    <div class="nav-section">การบ้าน</div>
+    <nav class="nav">
+      <a href="../homework/hw1.html" data-page="hw1">HW1: Taylor Error <span class="status"></span></a>
+      <a href="../homework/hw2.html" data-page="hw2">HW2: Root + IRR <span class="status"></span></a>
+      <a href="../homework/hw3.html" data-page="hw3">HW3: Jacobi/GS <span class="status"></span></a>
+      <a href="../homework/hw4.html" data-page="hw4">HW4: Nonlinear <span class="status"></span></a>
+    </nav>
+    <div class="nav-section">📝 เตรียมสอบ</div>
+    <nav class="nav">
+      <a href="../exam/index.html" data-page="exam">📚 ห้องเตรียมสอบ Midterm <span class="status"></span></a>
+    </nav>
+    <div class="progress-box">
+      <b>📊 ความคืบหน้า</b>
+      <div class="progress-text">0/10 หน้า</div>
+      <div class="progress-bar"><div class="progress-fill" style="width:0%"></div></div>
+    </div>
+    <button class="theme-toggle">🌙 โหมดมืด</button>
+  </aside>
+
+  <main class="main">
+    <div class="main-inner">
+      <div class="crumbs"><a href="../index.html">หน้าแรก</a> › บทที่ 6</div>
+      <h1>บทที่ 6: Least-Squares Regression (Curve Fitting)</h1>
+      <p class="subtitle">การหาสมการที่ fit ข้อมูลด้วย Least-Squares Regression — Linear, Polynomial, Nonlinear</p>
+
+      <div class="callout note">
+        <div class="callout-title">🎯 เป้าหมายของบท</div>
+        <ul style="margin:6px 0 0 20px;">
+          <li>เข้าใจ 3 แบบ error measures (Sum, Absolute, Least-Squares)</li>
+          <li>ใช้ <b>Linear Least-Squares Regression</b> \(f(x) = a_0 + a_1 x\)</li>
+          <li>ใช้ <b>Polynomial Regression</b> degree 2, 3, … , m</li>
+          <li>คำนวณ <b>R² (R-squared)</b> เพื่อประเมิน goodness-of-fit</li>
+          <li>Fit ฟังก์ชัน <b>Nonlinear</b> โดยแปลงเป็นรูป linear (Power, Exponential, Reciprocal)</li>
+          <li>ใช้ <b>General basis functions</b> \(f(x) = a_0 g_0(x) + a_1 g_1(x) + \cdots\)</li>
+        </ul>
+      </div>
+
+      <!-- ==================== INTRO ==================== -->
+      <h2>1. Introduction</h2>
+      <p>ให้ data points \(n\) จุด: \((x_1, y_1), (x_2, y_2), \ldots, (x_n, y_n)\) จากการทดลอง</p>
+      <p><b>Curve fitting</b> = การหาสมการทางคณิตศาสตร์ที่ best fit ข้อมูล</p>
+
+      <ul>
+        <li>เป้าหมาย: หา \(f(x)\) ที่ \(f(x_i) \approx y_i\) — <b>ไม่ต้องเท่ากันเป๊ะ</b> (ต่างจาก interpolation)</li>
+        <li>เทคนิคนี้เรียกว่า <b>regression</b> — ใช้ในการทำนายและ forecasting</li>
+        <li>Regression หา \(f\) โดย minimize <b>residual</b> \(r_i = y_i - f(x_i)\)</li>
+      </ul>
+
+      <h3>1.1 3 แบบ Error Measures</h3>
+      <div class="grid-2">
+        <div class="card">
+          <h4>(I) Sum of residuals</h4>
+          <div class="formula">\[ E_0 = \sum_{i=1}^n r_i = \sum_{i=1}^n (y_i - f(x_i)) \]</div>
+          <p><b>ข้อเสีย:</b> \(r_i\) บวก/ลบ ตัดกัน — อาจ fit แย่แต่ \(E_0 = 0\)</p>
+        </div>
+        <div class="card">
+          <h4>(II) Sum of absolute values</h4>
+          <div class="formula">\[ E_a = \sum_{i=1}^n |r_i| = \sum_{i=1}^n |y_i - f(x_i)| \]</div>
+          <p><b>ข้อเสีย:</b> solution ไม่ unique (หลาย \(f\) ให้ \(E_a\) เท่ากันได้)</p>
+        </div>
+      </div>
+
+      <div class="card" style="margin-top:12px;">
+        <h4>(III) 🎯 Least-Squares Regression</h4>
+        <div class="formula">\[ E = \sum_{i=1}^n r_i^2 = \sum_{i=1}^n [y_i - f(x_i)]^2 \]</div>
+        <p>แก้ปัญหาทั้งสองใน (I) และ (II) — ให้ solution ที่ <b>unique</b></p>
+      </div>
+
+      <!-- ==================== LINEAR REGRESSION ==================== -->
+      <h2>2. Linear Least-Squares Regression</h2>
+      <p>เราต้องการหา \(f(x) = a_0 + a_1 x\) โดยหา \(a_0, a_1\) ที่ minimize:</p>
+      <div class="formula">\[ E = \sum_{i=1}^n (y_i - [a_1 x_i + a_0])^2 \]</div>
+
+      <p>จากเงื่อนไข \(\partial E / \partial a_0 = 0\) และ \(\partial E / \partial a_1 = 0\):</p>
+      <div class="formula">
+        \[ \frac{\partial E}{\partial a_0} = -2\sum_{i=1}^n (y_i - a_1 x_i - a_0) = 0 \]
+        \[ \frac{\partial E}{\partial a_1} = -2\sum_{i=1}^n (y_i - a_1 x_i - a_0)x_i = 0 \]
+      </div>
+
+      <p>ได้ระบบสมการ:</p>
+      <div class="formula">
+        \[ \begin{bmatrix} n & S_x \\ S_x & S_{xx} \end{bmatrix} \begin{bmatrix} a_0 \\ a_1 \end{bmatrix} = \begin{bmatrix} S_y \\ S_{xy} \end{bmatrix} \]
+      </div>
+
+      <div class="callout tip">
+        <div class="callout-title">📐 สูตรสำเร็จ (Formula)</div>
+        <div class="formula">
+          \[ a_1 = \frac{n S_{xy} - S_x S_y}{n S_{xx} - (S_x)^2}, \quad a_0 = \frac{S_{xx} S_y - S_{xy} S_x}{n S_{xx} - (S_x)^2} \]
+        </div>
+        <p style="margin:6px 0;">โดย:</p>
+        <ul style="margin: 0 0 0 20px;">
+          <li>\(S_x = \sum x_i\), \(S_y = \sum y_i\)</li>
+          <li>\(S_{xx} = \sum x_i^2\), \(S_{xy} = \sum x_i y_i\)</li>
+        </ul>
+      </div>
+
+      <div class="example open">
+        <div class="example-header">
+          <span><span class="example-label">ตัวอย่าง 2.1</span> Linear Regression พื้นฐาน</span>
+          <span class="chev">▶</span>
+        </div>
+        <div class="example-body">
+          <p><b>โจทย์:</b> data points:</p>
+          <div class="table-wrap"><table>
+            <tr><th>x</th><td>1</td><td>2</td><td>3</td><td>4</td><td>5</td></tr>
+            <tr><th>y</th><td>1</td><td>2</td><td>1.3</td><td>3.75</td><td>2.25</td></tr>
+          </table></div>
+
+          <p>หา \(f(x) = a_0 + a_1 x\)</p>
+          <p><b>Step 1: คำนวณ Sums</b> (\(n = 5\))</p>
+          <div class="table-wrap"><table>
+            <tr><th>\(i\)</th><th>\(x_i\)</th><th>\(y_i\)</th><th>\(x_i^2\)</th><th>\(x_i y_i\)</th></tr>
+            <tr><td>1</td><td>1</td><td>1.00</td><td>1</td><td>1.00</td></tr>
+            <tr><td>2</td><td>2</td><td>2.00</td><td>4</td><td>4.00</td></tr>
+            <tr><td>3</td><td>3</td><td>1.30</td><td>9</td><td>3.90</td></tr>
+            <tr><td>4</td><td>4</td><td>3.75</td><td>16</td><td>15.00</td></tr>
+            <tr><td>5</td><td>5</td><td>2.25</td><td>25</td><td>11.25</td></tr>
+            <tr><th>Σ</th><th>15</th><th>10.30</th><th>55</th><th>35.15</th></tr>
+          </table></div>
+          <p>\(S_x = 15, S_y = 10.30, S_{xx} = 55, S_{xy} = 35.15\)</p>
+
+          <p><b>Step 2: คำนวณ \(a_0, a_1\)</b></p>
+          <p>\(a_1 = \frac{5(35.15) - 15(10.30)}{5(55) - 15^2} = \frac{175.75 - 154.5}{275 - 225} = \frac{21.25}{50} = 0.425\)</p>
+          <p>\(a_0 = \frac{55(10.30) - 35.15(15)}{50} = \frac{566.5 - 527.25}{50} = \frac{39.25}{50} = 0.785\)</p>
+
+          <div class="callout tip"><p style="margin:0;"><b>คำตอบ:</b> \(f(x) = 0.785 + 0.425 x\)</p></div>
+        </div>
+      </div>
+
+      <div class="example">
+        <div class="example-header">
+          <span><span class="example-label">ตัวอย่าง 2.2</span> ความดัน-อุณหภูมิ (Applications)</span>
+          <span class="chev">▶</span>
+        </div>
+        <div class="example-body">
+          <p><b>โจทย์:</b> ข้อมูลทดลอง</p>
+          <div class="table-wrap"><table>
+            <tr><th>Temp (°C)</th><td>0</td><td>30</td><td>70</td><td>100</td></tr>
+            <tr><th>Pressure (atm)</th><td>0.94</td><td>1.05</td><td>1.17</td><td>1.28</td></tr>
+          </table></div>
+          <p>หา linear fit และประมาณ:</p>
+          <ol>
+            <li>Pressure เมื่อ Temp = 10°C</li>
+            <li>Temp เมื่อ Pressure = 1 atm</li>
+          </ol>
+
+          <p><b>Sums:</b> \(n = 4\), \(S_x = 200, S_y = 4.44, S_{xx} = 15800, S_{xy} = 259.9\)</p>
+          <p>\(a_1 = \frac{4(259.9) - 200(4.44)}{4(15800) - 200^2} = \frac{1039.6 - 888}{63200 - 40000} = \frac{151.6}{23200} = 0.006535\)</p>
+          <p>\(a_0 = \frac{15800(4.44) - 259.9(200)}{23200} = \frac{70152 - 51980}{23200} = 0.7833\)</p>
+
+          <p><b>Linear fit:</b> \(f(T) = 0.7833 + 0.006535 T\)</p>
+          <p>1. \(f(10) = 0.7833 + 0.06535 = 0.849\) atm</p>
+          <p>2. \(1 = 0.7833 + 0.006535 T \Rightarrow T = 33.16\) °C</p>
+        </div>
+      </div>
+
+      <!-- ==================== POLYNOMIAL REGRESSION ==================== -->
+      <h2>3. Polynomial Regression</h2>
+      <p>Polynomial degree \(m\):</p>
+      <div class="formula">\[ f(x) = a_0 + a_1 x + a_2 x^2 + \cdots + a_m x^m \]</div>
+
+      <p>Error function:</p>
+      <div class="formula">\[ E = \sum_{i=1}^n [y_i - (a_0 + a_1 x_i + a_2 x_i^2 + \cdots + a_m x_i^m)]^2 \]</div>
+
+      <p>ใช้เงื่อนไข \(\partial E / \partial a_k = 0\) สำหรับ \(k = 0, 1, \ldots, m\) → ได้ระบบเชิงเส้น \((m+1) \times (m+1)\):</p>
+
+      <div class="callout tip">
+        <div class="callout-title">📐 Quadratic (m = 2)</div>
+        <div class="formula">
+          \[ \begin{bmatrix} n & \sum x_i & \sum x_i^2 \\ \sum x_i & \sum x_i^2 & \sum x_i^3 \\ \sum x_i^2 & \sum x_i^3 & \sum x_i^4 \end{bmatrix} \begin{bmatrix} a_0 \\ a_1 \\ a_2 \end{bmatrix} = \begin{bmatrix} \sum y_i \\ \sum x_i y_i \\ \sum x_i^2 y_i \end{bmatrix} \]
+        </div>
+      </div>
+
+      <div class="callout note">
+        <div class="callout-title">📐 General degree \(m\)</div>
+        <p style="margin:6px 0;">Matrix \((m+1) \times (m+1)\) มี entries:</p>
+        <ul style="margin: 0 0 0 20px;">
+          <li>\((i, j)\) entry: \(\sum x_k^{i+j-2}\) (สังเกตว่า entry บนซ้ายคือ \(n = \sum x_k^0\))</li>
+          <li>Right side entry \(i\): \(\sum y_k x_k^{i-1}\)</li>
+        </ul>
+      </div>
+
+      <div class="example open">
+        <div class="example-header">
+          <span><span class="example-label">ตัวอย่าง 3.1</span> Linear + Quadratic Regression</span>
+          <span class="chev">▶</span>
+        </div>
+        <div class="example-body">
+          <p><b>โจทย์:</b> data</p>
+          <div class="table-wrap"><table>
+            <tr><th>x</th><td>-1</td><td>-0.5</td><td>0</td><td>0.5</td><td>1</td></tr>
+            <tr><th>y</th><td>-2.5</td><td>-7.5</td><td>0.5</td><td>0.25</td><td>-0.5</td></tr>
+          </table></div>
+
+          <p><b>(a) Linear:</b></p>
+          <p>\(f_1(x) = -0.6 + x\), \(E_1 = 3.0750\)</p>
+          <p>\(f_1(-1.4) = -2\), \(f_1(0.6) = 0\)</p>
+
+          <p><b>(b) Quadratic:</b></p>
+          <p>\(f_2(x) = 0.3286 + x - 1.8571 x^2\), \(E_2 = 0.0571\)</p>
+          <p>\(f_2(-1.4) = -4.7113\), \(f_2(0.6) = 0.2600\)</p>
+
+          <div class="callout tip"><p style="margin:0;">💡 Quadratic ให้ error น้อยกว่ามาก (0.057 vs 3.08) — เพราะข้อมูลไม่ linear จริง</p></div>
+        </div>
+      </div>
+
+      <div class="example">
+        <div class="example-header">
+          <span><span class="example-label">ตัวอย่าง 3.2</span> Linear + Quadratic กับข้อมูล oscillating</span>
+          <span class="chev">▶</span>
+        </div>
+        <div class="example-body">
+          <p><b>โจทย์:</b> data</p>
+          <div class="table-wrap"><table>
+            <tr><th>x</th><td>1</td><td>2</td><td>3</td><td>4</td><td>5</td></tr>
+            <tr><th>y</th><td>-25</td><td>23</td><td>-31</td><td>13</td><td>-45</td></tr>
+          </table></div>
+
+          <p><b>(a) Linear:</b> \(f(x) = 2 - 5x\)</p>
+          <p><b>(b) Quadratic:</b> \(f(x) = -55 + 43.8571 x - 8.1429 x^2\)</p>
+        </div>
+      </div>
+
+      <!-- ==================== R-SQUARED ==================== -->
+      <h2>4. Assess Goodness-of-Fit: \(R^2\)</h2>
+      <p>เพื่อวัดว่า \(f(x)\) fit ข้อมูลดีแค่ไหน ใช้ค่า \(R^2\) (coefficient of determination):</p>
+
+      <p><b>Residual:</b> \(e_i = y_i - f(x_i)\); ค่าเฉลี่ย: \(\bar{y} = \frac{1}{n}\sum y_i\)</p>
+
+      <div class="card">
+        <p><b>Sum of Squares:</b></p>
+        <p>• Total: \(SS_{tot} = \sum_{i=1}^n (y_i - \bar{y})^2\)</p>
+        <p>• Regression: \(SS_{reg} = \sum_{i=1}^n (f(x_i) - \bar{y})^2\)</p>
+        <p>• Residual: \(SS_{res} = \sum_{i=1}^n (y_i - f(x_i))^2 = \sum_{i=1}^n e_i^2\)</p>
+
+        <p><b>R-squared:</b></p>
+        <div class="formula">\[ R^2 = 1 - \frac{SS_{res}}{SS_{tot}} = \frac{SS_{tot} - SS_{res}}{SS_{tot}} \]</div>
+      </div>
+
+      <div class="grid-2">
+        <div class="card">
+          <h4>🎯 R² = 1</h4>
+          <p>Perfect fit — line ผ่านทุกจุดพอดี (\(SS_{res} = 0\))</p>
+        </div>
+        <div class="card">
+          <h4>❌ R² = 0</h4>
+          <p>Line ไม่ fit เลย (\(SS_{res} = SS_{tot}\)) — เท่ากับใช้ค่าเฉลี่ยแทน</p>
+        </div>
+      </div>
+
+      <div class="callout note">
+        <div class="callout-title">📌 Correlation Coefficient</div>
+        <p style="margin:0;">สำหรับ linear regression ใช้สัญลักษณ์ \(r^2\) แทน \(R^2\), และ \(r = \sqrt{r^2}\) เรียกว่า <b>correlation coefficient</b></p>
+      </div>
+
+      <div class="example open">
+        <div class="example-header">
+          <span><span class="example-label">ตัวอย่าง 4.1</span> เปรียบเทียบ Polynomials degree 0-4</span>
+          <span class="chev">▶</span>
+        </div>
+        <div class="example-body">
+          <p><b>โจทย์:</b> data</p>
+          <div class="table-wrap"><table>
+            <tr><th>x</th><td>-3</td><td>-1</td><td>0</td><td>1</td><td>2</td><td>3</td><td>4</td></tr>
+            <tr><th>y</th><td>8.4</td><td>0.2</td><td>0.5</td><td>0.8</td><td>-2.1</td><td>-7.4</td><td>-14.3</td></tr>
+          </table></div>
+
+          <p>\(n = 7, \bar{y} = -1.9857, SS_{tot} = 307.5486\)</p>
+
+          <div class="table-wrap"><table>
+            <tr><th>Degree \(m\)</th><th>Regression polynomial</th><th>\(SS_{res}\)</th><th>\(R^2\)</th></tr>
+            <tr><td>0</td><td>\(f_0(x) = -1.9857\)</td><td>307.5486</td><td>0</td></tr>
+            <tr><td>1</td><td>\(f_1(x) = 0.3820 - 2.7623 x\)</td><td>41.5790</td><td>0.8648</td></tr>
+            <tr><td>2</td><td>\(f_2(x) = 1.6344 - 2.4792 x - 0.2616 x^2\)</td><td>30.1737</td><td>0.9019</td></tr>
+            <tr><td>3</td><td>\(f_3(x) = 0.3023 - 0.3710 x + 0.0685 x^2 - 0.2296 x^3\)</td><td>2.9764</td><td>0.9903</td></tr>
+            <tr><td>4</td><td>\(f_4(x) = 0.7745 + 0.6020 x - 0.5025 x^2 - 0.3589 x^3 + 0.0528 x^4\)</td><td>0.1472</td><td>0.9995</td></tr>
+          </table></div>
+
+          <div class="callout tip"><p style="margin:0;">💡 ยิ่ง degree สูง → \(SS_{res}\) น้อย → \(R^2\) เข้าใกล้ 1 (fit ดีขึ้น) แต่ระวัง <b>overfitting</b></p></div>
+        </div>
+      </div>
+
+      <!-- ==================== GENERAL BASIS ==================== -->
+      <h2>5. Least-Squares with General Basis Functions</h2>
+      <p>สร้าง \(f\) เป็น linear combination ของ basis functions \(g_0, g_1, \ldots, g_m\):</p>
+      <div class="formula">\[ f(x) = a_0 g_0(x) + a_1 g_1(x) + \cdots + a_m g_m(x) \]</div>
+
+      <p>Normal equations (จาก \(\partial E/\partial a_k = 0\)):</p>
+      <div class="formula">
+        \[ \begin{bmatrix} \sum g_0^2 & \sum g_1 g_0 & \cdots & \sum g_m g_0 \\ \sum g_0 g_1 & \sum g_1^2 & \cdots & \sum g_m g_1 \\ \vdots & \vdots & \ddots & \vdots \\ \sum g_0 g_m & \sum g_1 g_m & \cdots & \sum g_m^2 \end{bmatrix} \begin{bmatrix} a_0 \\ a_1 \\ \vdots \\ a_m \end{bmatrix} = \begin{bmatrix} \sum y_i g_0 \\ \sum y_i g_1 \\ \vdots \\ \sum y_i g_m \end{bmatrix} \]
+      </div>
+
+      <div class="example open">
+        <div class="example-header">
+          <span><span class="example-label">ตัวอย่าง 5.1</span> Basis \(g_1 = x, g_2 = \cos^2(\pi x)\)</span>
+          <span class="chev">▶</span>
+        </div>
+        <div class="example-body">
+          <p><b>โจทย์:</b> data</p>
+          <div class="table-wrap"><table>
+            <tr><th>x</th><td>1</td><td>2</td><td>3</td><td>4</td></tr>
+            <tr><th>y</th><td>1</td><td>7</td><td>11</td><td>21</td></tr>
+          </table></div>
+
+          <p>Fit \(f(x) = c_1 x + c_2 [\cos(\pi x)]^2\)</p>
+          <p>\([\cos(\pi \cdot 1)]^2 = 1, [\cos(\pi \cdot 2)]^2 = 1, \ldots\) — จริงๆ \(\cos^2(\pi n) = 1\) สำหรับ integer \(n\)</p>
+          <p>Normal equations → <b>\(c_1 = 6.4, c_2 = -6.0\)</b></p>
+        </div>
+      </div>
+
+      <!-- ==================== NONLINEAR LINEARIZATION ==================== -->
+      <h2>6. Fit Nonlinear Function โดยแปลงเป็นรูป Linear</h2>
+
+      <h3>6.1 Power Function: \(y = b x^m\)</h3>
+      <p>เอา \(\ln\) ทั้งสองข้าง:</p>
+      <div class="formula">\[ \ln(y) = \ln(b) + m \ln(x) \]</div>
+      <p>ตั้ง \(Y = \ln(y), X = \ln(x)\):</p>
+      <div class="formula">\[ Y = a_0 + a_1 X \]</div>
+      <p>โดย \(a_0 = \ln(b), a_1 = m\) → \(\boxed{b = e^{a_0}, m = a_1}\)</p>
+
+      <div class="callout tip">
+        <div class="callout-title">📋 ขั้นตอน</div>
+        <ol style="margin:0 0 0 20px;">
+          <li>ตั้ง \(Y_i = \ln(y_i), X_i = \ln(x_i)\)</li>
+          <li>Linear regression กับ \((X_i, Y_i)\) → หา \(a_0, a_1\)</li>
+          <li>คำนวณ \(b = e^{a_0}, m = a_1\) → \(f(x) = b x^m\)</li>
+        </ol>
+      </div>
+
+      <div class="example open">
+        <div class="example-header">
+          <span><span class="example-label">ตัวอย่าง 6.1</span> Fit Power Function</span>
+          <span class="chev">▶</span>
+        </div>
+        <div class="example-body">
+          <p><b>โจทย์:</b> data</p>
+          <div class="table-wrap"><table>
+            <tr><th>x</th><td>1</td><td>2</td><td>3</td><td>4</td></tr>
+            <tr><th>y</th><td>1</td><td>7</td><td>11</td><td>21</td></tr>
+          </table></div>
+
+          <p>Fit \(y = b x^m\)</p>
+          <p><b>Step 1:</b> คำนวณ \(X_i = \ln(x_i), Y_i = \ln(y_i)\)</p>
+          <div class="table-wrap"><table>
+            <tr><th>\(X = \ln x\)</th><td>0</td><td>0.6931</td><td>1.0986</td><td>1.3863</td></tr>
+            <tr><th>\(Y = \ln y\)</th><td>0</td><td>1.9459</td><td>2.3979</td><td>3.0445</td></tr>
+          </table></div>
+
+          <p><b>Step 2:</b> Linear regression → \(a_0 = 0.3838, a_1 = 2.1524\)</p>
+          <p><b>Step 3:</b> \(b = e^{0.3838} = 1.468, m = 2.1524\)</p>
+
+          <div class="callout tip"><p style="margin:0;"><b>คำตอบ:</b> \(f(x) = 1.468 x^{2.1524}\)</p></div>
+        </div>
+      </div>
+
+      <h3>6.2 Exponential Function: \(y = b e^{mx}\)</h3>
+      <p>เอา \(\ln\):</p>
+      <div class="formula">\[ \ln(y) = \ln(b) + m x \]</div>
+      <p>ตั้ง \(Y = \ln(y), X = x\) → \(Y = a_0 + a_1 X\) โดย \(\boxed{b = e^{a_0}, m = a_1}\)</p>
+
+      <div class="callout note">
+        <div class="callout-title">📌 General base \(\alpha\)</div>
+        <p style="margin:0;">สำหรับ \(y = b \alpha^{mx}\): \(\log_\alpha(y) = \log_\alpha(b) + mx\) → \(b = \alpha^{a_0}, m = a_1\)</p>
+      </div>
+
+      <div class="example open">
+        <div class="example-header">
+          <span><span class="example-label">ตัวอย่าง 6.2</span> Fit Exponential Function</span>
+          <span class="chev">▶</span>
+        </div>
+        <div class="example-body">
+          <p><b>โจทย์:</b> data เดียวกับตัวอย่าง 6.1 — Fit \(y = b e^{mx}\)</p>
+          <p><b>Step 1:</b> \(X_i = x_i, Y_i = \ln(y_i)\)</p>
+          <div class="table-wrap"><table>
+            <tr><th>\(X\)</th><td>1</td><td>2</td><td>3</td><td>4</td></tr>
+            <tr><th>\(Y = \ln y\)</th><td>0</td><td>1.9459</td><td>2.3979</td><td>3.0445</td></tr>
+          </table></div>
+          <p><b>Step 2:</b> Linear regression → \(a_0 = -0.5493, a_1 = 0.9586\)</p>
+          <p><b>Step 3:</b> \(b = e^{-0.5493} = 0.5774, m = 0.9586\)</p>
+
+          <div class="callout tip"><p style="margin:0;"><b>คำตอบ:</b> \(f(x) = 0.5774 e^{0.9586 x}\)</p></div>
+        </div>
+      </div>
+
+      <h3>6.3 Reciprocal Functions</h3>
+
+      <div class="grid-2">
+        <div class="card">
+          <h4>(1) \(y = \frac{1}{mx + b}\)</h4>
+          <p>ตั้ง \(Y = 1/y\) → \(Y = b + mx\)</p>
+          <p>\(Y_i = 1/y_i, X_i = x_i\)</p>
+          <p>Regression → \(a_0, a_1\) → \(\boxed{b = a_0, m = a_1}\)</p>
+        </div>
+        <div class="card">
+          <h4>(2) \(y = \frac{x}{mx + b}\)</h4>
+          <p>ตั้ง \(Y = 1/y, X = 1/x\)</p>
+          <p>\(Y = \frac{mx + b}{x} = m + \frac{b}{x} = m + b X\)</p>
+          <p>Regression → \(\boxed{b = a_1, m = a_0}\)</p>
+        </div>
+      </div>
+
+      <!-- ==================== SUMMARY TABLE ==================== -->
+      <h2>7. สรุปสูตร Linearization</h2>
+      <div class="table-wrap">
+        <table>
+          <tr><th>ฟังก์ชัน</th><th>\(Y\)</th><th>\(X\)</th><th>เก็บ \(a_0\), \(a_1\)</th></tr>
+          <tr><td>\(y = bx^m\)</td><td>\(\ln y\)</td><td>\(\ln x\)</td><td>\(b = e^{a_0}, m = a_1\)</td></tr>
+          <tr><td>\(y = be^{mx}\)</td><td>\(\ln y\)</td><td>\(x\)</td><td>\(b = e^{a_0}, m = a_1\)</td></tr>
+          <tr><td>\(y = \frac{1}{mx+b}\)</td><td>\(1/y\)</td><td>\(x\)</td><td>\(b = a_0, m = a_1\)</td></tr>
+          <tr><td>\(y = \frac{x}{mx+b}\)</td><td>\(1/y\)</td><td>\(1/x\)</td><td>\(b = a_1, m = a_0\)</td></tr>
+          <tr><td>\(y = \alpha x e^{\beta x}\)</td><td>\(\ln(y/x)\)</td><td>\(x\)</td><td>\(\alpha = e^{a_0}, \beta = a_1\)</td></tr>
+        </table>
+      </div>
+
+      <!-- ==================== ADVANCED EXERCISES ==================== -->
+      <h2>8. Exercises ขั้นสูง</h2>
+
+      <div class="example open">
+        <div class="example-header">
+          <span><span class="example-label">Ex 8.1</span> Fit \(y = \alpha x e^{\beta x}\)</span>
+          <span class="chev">▶</span>
+        </div>
+        <div class="example-body">
+          <p><b>โจทย์:</b> data การเจริญเติบโต</p>
+          <div class="table-wrap"><table>
+            <tr><th>x</th><td>0.1</td><td>0.2</td><td>0.4</td><td>0.6</td><td>0.9</td><td>1.3</td><td>1.5</td><td>1.7</td><td>1.8</td></tr>
+            <tr><th>y</th><td>0.75</td><td>1.25</td><td>1.45</td><td>1.25</td><td>0.85</td><td>0.55</td><td>0.35</td><td>0.28</td><td>0.18</td></tr>
+          </table></div>
+          <p>จาก \(y = \alpha x e^{\beta x}\) → \(y/x = \alpha e^{\beta x}\) → \(\ln(y/x) = \ln(\alpha) + \beta x\)</p>
+          <p>ตั้ง \(Y = \ln(y/x), X = x\), linear regression → \(a_0 = \ln(\alpha), a_1 = \beta\)</p>
+          <p>คำนวณ \(\alpha \approx 8.7, \beta \approx -2.5\); \(R^2 \approx 0.98\)</p>
+        </div>
+      </div>
+
+      <div class="example">
+        <div class="example-header">
+          <span><span class="example-label">Ex 8.2</span> Growth rate \(k = \frac{k_{max} c^2}{c_s + c^2}\) (Monod)</span>
+          <span class="chev">▶</span>
+        </div>
+        <div class="example-body">
+          <p><b>โจทย์:</b> data</p>
+          <div class="table-wrap"><table>
+            <tr><th>c</th><td>0.5</td><td>0.8</td><td>1.5</td><td>2.5</td><td>4</td></tr>
+            <tr><th>k</th><td>1.1</td><td>2.4</td><td>5.3</td><td>7.6</td><td>8.9</td></tr>
+          </table></div>
+
+          <p><b>Linearization:</b> \(\frac{1}{k} = \frac{c_s + c^2}{k_{max} c^2} = \frac{1}{k_{max}} + \frac{c_s}{k_{max}} \cdot \frac{1}{c^2}\)</p>
+          <p>ตั้ง \(Y = 1/k, X = 1/c^2\) → \(Y = a_0 + a_1 X\)</p>
+          <p>โดย \(a_0 = 1/k_{max}, a_1 = c_s / k_{max}\)</p>
+          <p>Regression → \(k_{max} \approx 10.4, c_s \approx 1.8\); Predict at \(c = 2\): \(k = 10.4 \cdot 4 / (1.8 + 4) = 7.17\)</p>
+        </div>
+      </div>
+
+      <div class="example">
+        <div class="example-header">
+          <span><span class="example-label">Ex 8.3</span> Cyclic fatigue (log-log)</span>
+          <span class="chev">▶</span>
+        </div>
+        <div class="example-body">
+          <p><b>โจทย์:</b> Stress vs Cycles</p>
+          <div class="table-wrap"><table>
+            <tr><th>N</th><td>1</td><td>10</td><td>100</td><td>1000</td><td>10000</td><td>100000</td><td>1M</td></tr>
+            <tr><th>Stress (MPa)</th><td>1100</td><td>1000</td><td>925</td><td>800</td><td>625</td><td>550</td><td>420</td></tr>
+          </table></div>
+          <p>Log-log เป็น linear → power function \(S = b N^m\)</p>
+          <p>ตั้ง \(Y = \log S, X = \log N\), linear regression</p>
+          <p>ผลลัพธ์ประมาณ: \(m \approx -0.065, b \approx 1090\); \(S = 1090 N^{-0.065}\)</p>
+        </div>
+      </div>
+
+      <!-- ==================== QUIZ ==================== -->
+      <h2>🧪 แบบทบทวนท้ายบท</h2>
+      <div class="quiz-container" data-quiz="ch6">
+        <h3>Quiz: Least-Squares Regression (10 ข้อ)</h3>
+
+        <div class="quiz-question" data-type="mc" data-answer="c">
+          <div class="q-text"><span class="q-number">1</span> Least-Squares regression minimize อะไร?</div>
+          <div class="q-options">
+            <label><input type="radio" name="q1" value="a"> \(\sum r_i\)</label>
+            <label><input type="radio" name="q1" value="b"> \(\sum |r_i|\)</label>
+            <label><input type="radio" name="q1" value="c"> \(\sum r_i^2\)</label>
+            <label><input type="radio" name="q1" value="d"> \(\max |r_i|\)</label>
+          </div>
+          <div class="q-explain">💡 Least-Squares = sum of squares of residuals</div>
+        </div>
+
+        <div class="quiz-question" data-type="mc" data-answer="a">
+          <div class="q-text"><span class="q-number">2</span> ในสูตร \(a_1 = \frac{n S_{xy} - S_x S_y}{n S_{xx} - (S_x)^2}\), \(S_{xy}\) คือ?</div>
+          <div class="q-options">
+            <label><input type="radio" name="q2" value="a"> \(\sum x_i y_i\)</label>
+            <label><input type="radio" name="q2" value="b"> \(\sum (x_i + y_i)\)</label>
+            <label><input type="radio" name="q2" value="c"> \(\sum x_i \sum y_i\)</label>
+            <label><input type="radio" name="q2" value="d"> \(\sum x_i^2 y_i\)</label>
+          </div>
+          <div class="q-explain">💡 \(S_{xy} = \sum x_i y_i\) (ผลรวมของ product)</div>
+        </div>
+
+        <div class="quiz-question" data-type="num" data-answer="0.85" data-tol="0.02">
+          <div class="q-text"><span class="q-number">3</span> จากตัวอย่าง 2.2, \(f(T) = 0.7833 + 0.006535 T\); ประมาณ pressure ที่ \(T = 10\)°C (ทศนิยม 2 ตำแหน่ง)</div>
+          <input type="text" class="q-input" placeholder="ตัวเลข">
+          <div class="q-explain">💡 \(f(10) = 0.7833 + 0.06535 = 0.849 \approx 0.85\) atm</div>
+        </div>
+
+        <div class="quiz-question" data-type="mc" data-answer="b">
+          <div class="q-text"><span class="q-number">4</span> \(R^2 = 1\) หมายความว่า?</div>
+          <div class="q-options">
+            <label><input type="radio" name="q4" value="a"> \(SS_{tot} = 0\)</label>
+            <label><input type="radio" name="q4" value="b"> \(SS_{res} = 0\) — Perfect fit</label>
+            <label><input type="radio" name="q4" value="c"> Data linear เพียงเล็กน้อย</label>
+            <label><input type="radio" name="q4" value="d"> Data ไม่มีความหมาย</label>
+          </div>
+          <div class="q-explain">💡 \(R^2 = 1 - SS_{res}/SS_{tot} = 1 \Leftrightarrow SS_{res} = 0\) (regression fit ผ่านทุกจุด)</div>
+        </div>
+
+        <div class="quiz-question" data-type="mc" data-answer="c">
+          <div class="q-text"><span class="q-number">5</span> Fit \(y = bx^m\) โดยใช้ linear regression ต้องแปลงตัวแปรอย่างไร?</div>
+          <div class="q-options">
+            <label><input type="radio" name="q5" value="a"> \(Y = y, X = \ln x\)</label>
+            <label><input type="radio" name="q5" value="b"> \(Y = 1/y, X = 1/x\)</label>
+            <label><input type="radio" name="q5" value="c"> \(Y = \ln y, X = \ln x\)</label>
+            <label><input type="radio" name="q5" value="d"> \(Y = \ln y, X = x\)</label>
+          </div>
+          <div class="q-explain">💡 \(\ln(y) = \ln(b) + m \ln(x)\) → power ใช้ log ทั้งสองข้าง</div>
+        </div>
+
+        <div class="quiz-question" data-type="mc" data-answer="d">
+          <div class="q-text"><span class="q-number">6</span> Fit \(y = be^{mx}\) ใช้การแปลง?</div>
+          <div class="q-options">
+            <label><input type="radio" name="q6" value="a"> \(Y = y, X = \ln x\)</label>
+            <label><input type="radio" name="q6" value="b"> \(Y = \ln y, X = \ln x\)</label>
+            <label><input type="radio" name="q6" value="c"> \(Y = 1/y, X = x\)</label>
+            <label><input type="radio" name="q6" value="d"> \(Y = \ln y, X = x\)</label>
+          </div>
+          <div class="q-explain">💡 \(\ln(y) = \ln(b) + mx\) → เอา ln เฉพาะ y</div>
+        </div>
+
+        <div class="quiz-question" data-type="mc" data-answer="a">
+          <div class="q-text"><span class="q-number">7</span> จากตัวอย่าง 3.1 ระหว่าง linear \(f_1(x) = -0.6 + x\) และ quadratic \(f_2(x) = 0.3286 + x - 1.8571 x^2\), ตัวไหนดีกว่า?</div>
+          <div class="q-options">
+            <label><input type="radio" name="q7" value="a"> Quadratic (\(E = 0.057\) น้อยกว่า linear \(E = 3.08\))</label>
+            <label><input type="radio" name="q7" value="b"> Linear (ง่ายกว่า)</label>
+            <label><input type="radio" name="q7" value="c"> เท่ากัน</label>
+            <label><input type="radio" name="q7" value="d"> ประเมินไม่ได้</label>
+          </div>
+          <div class="q-explain">💡 \(E_2 \ll E_1\) → quadratic fit ดีกว่ามาก</div>
+        </div>
+
+        <div class="quiz-question" data-type="num" data-answer="15" data-tol="0.01">
+          <div class="q-text"><span class="q-number">8</span> จากตัวอย่าง 2.1 (\(x = [1,2,3,4,5], y = [1,2,1.3,3.75,2.25]\)), \(S_x = ?\)</div>
+          <input type="text" class="q-input" placeholder="ตัวเลข">
+          <div class="q-explain">💡 \(S_x = 1+2+3+4+5 = 15\)</div>
+        </div>
+
+        <div class="quiz-question" data-type="mc" data-answer="b">
+          <div class="q-text"><span class="q-number">9</span> ระบบสมการสำหรับ quadratic (m=2) มีขนาดกี่×กี่?</div>
+          <div class="q-options">
+            <label><input type="radio" name="q9" value="a"> 2×2</label>
+            <label><input type="radio" name="q9" value="b"> 3×3</label>
+            <label><input type="radio" name="q9" value="c"> 4×4</label>
+            <label><input type="radio" name="q9" value="d"> n×n</label>
+          </div>
+          <div class="q-explain">💡 มี 3 unknowns (\(a_0, a_1, a_2\)) → 3 equations → 3×3 matrix</div>
+        </div>
+
+        <div class="quiz-question" data-type="mc" data-answer="c">
+          <div class="q-text"><span class="q-number">10</span> ถ้า \(SS_{tot} = 100, SS_{res} = 25\), \(R^2 = ?\)</div>
+          <div class="q-options">
+            <label><input type="radio" name="q10" value="a"> 0.25</label>
+            <label><input type="radio" name="q10" value="b"> 4</label>
+            <label><input type="radio" name="q10" value="c"> 0.75</label>
+            <label><input type="radio" name="q10" value="d"> 125</label>
+          </div>
+          <div class="q-explain">💡 \(R^2 = 1 - 25/100 = 0.75\) → fit ค่อนข้างดี</div>
+        </div>
+
+        <div class="quiz-actions">
+          <button class="btn btn-primary quiz-submit">✅ ตรวจคำตอบ</button>
+          <button class="btn btn-secondary quiz-reset">🔄 เริ่มใหม่</button>
+        </div>
+        <div class="quiz-score"></div>
+      </div>
+
+      <div class="pager">
+        <a href="ch5-nonlinear.html"><span class="label">← ก่อนหน้า</span><span class="title">บทที่ 5</span></a>
+        <a href="../exam/index.html"><span class="label">ถัดไป →</span><span class="title">📚 เตรียมสอบ Midterm</span></a>
+      </div>
+    </div>
+  </main>
+</div>
+<script src="../assets/app.js"></script>
+</body>
+</html>

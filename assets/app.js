@@ -74,7 +74,7 @@
     const box = document.querySelector('.progress-fill');
     if (!box) return;
     const p = getProgress();
-    const totalPages = 9; // 5 chapters + 4 homework
+    const totalPages = 10; // 6 chapters + 4 homework
     const done = Object.keys(p.visited).length;
     const pct = Math.min(100, Math.round((done / totalPages) * 100));
     box.style.width = pct + '%';

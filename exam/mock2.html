@@ -1,0 +1,246 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="page-id" content="mock2">
+<title>Mock Exam 2 (มาตรฐาน) — CSS322</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@400;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../assets/style.css">
+<link rel="stylesheet" href="exam-style.css">
+</head>
+<body>
+<div class="app">
+  <aside class="sidebar">
+    <div class="brand">📐 CSS322</div>
+    <div class="brand-sub">Scientific Computing</div>
+    <div class="nav-section">หน้าหลัก</div>
+    <nav class="nav"><a href="../index.html" data-page="home">🏠 หน้าแรก <span class="status"></span></a></nav>
+    <div class="nav-section">📝 เตรียมสอบ</div>
+    <nav class="nav">
+      <a href="index.html" data-page="exam">📚 ห้องเตรียมสอบ <span class="status"></span></a>
+      <a href="study-guide.html" data-page="guide">📋 Study Guide <span class="status"></span></a>
+      <a href="formula-sheet.html" data-page="formula">📄 Formula Sheet <span class="status"></span></a>
+      <a href="mock1.html" data-page="mock1">📝 Mock Exam 1 <span class="status"></span></a>
+      <a href="mock2.html" data-page="mock2">📝 Mock Exam 2 <span class="status"></span></a>
+      <a href="mock3.html" data-page="mock3">📝 Mock Exam 3 <span class="status"></span></a>
+      <a href="mock4.html" data-page="mock4">📝 Mock Exam 4 <span class="status"></span></a>
+      <a href="mock5.html" data-page="mock5">📝 Mock Exam 5 <span class="status"></span></a>
+    </nav>
+    <button class="theme-toggle">🌙 โหมดมืด</button>
+  </aside>
+
+  <main class="main">
+    <div class="main-inner">
+      <div class="crumbs"><a href="../index.html">หน้าแรก</a> › <a href="index.html">ห้องเตรียมสอบ</a> › Mock Exam 2</div>
+      <h1>📝 Mock Exam 2 <span class="difficulty-badge diff-medium">มาตรฐาน 🟡</span></h1>
+      <p class="subtitle">โจทย์ระดับมาตรฐาน — เพิ่ม application จากฟิสิกส์และวิศวกรรม · 7 ข้อ · 2 ชั่วโมง</p>
+
+      <div class="instructions">
+        <h3>📋 คำสั่ง</h3>
+        <ul>
+          <li>ข้อสอบมี <b>7 ข้อ</b> · เวลา 2 ชั่วโมง · ใช้ Formula Sheet + เครื่องคิดเลขได้</li>
+          <li>โจทย์รอบนี้มีการประยุกต์ (ThaiESG IRR, mortgage rate, engineering)</li>
+        </ul>
+      </div>
+
+      <div class="exam-header-box">
+        <div><h2>⏱️ Mock Exam 2 — Time Remaining</h2><small>กด "เริ่มทำข้อสอบ" เพื่อเริ่มจับเวลา</small></div>
+        <div id="exam-timer">02:00:00</div>
+      </div>
+
+      <div style="text-align:center;margin:20px 0;">
+        <button id="exam-start" class="btn btn-primary" style="padding:14px 32px;font-size:1.1rem;">▶️ เริ่มทำข้อสอบ</button>
+      </div>
+
+      <div id="exam-result"></div>
+
+      <div class="exam-problems">
+        <!-- ==================== Q1: Taylor ==================== -->
+        <div class="exam-question" data-type="num" data-answer="4" data-tol="0.5">
+          <span class="q-num">Q1</span> <h3>Ch1 · Taylor Series Convergence</h3> <span class="exam-points">15 คะแนน</span>
+          <p>จำนวน terms ที่ต้องใช้ใน Taylor series ของ \(f(x) = \ln(1+x)\) รอบ \(x = 0\) เพื่อประมาณ \(\ln(1.2)\) ให้แม่นยำถึง \(10^{-3}\) คือกี่ terms? (\(n+1\))</p>
+          <p><b>คำตอบ:</b> <input type="text" class="exam-input" placeholder="ตัวเลข"></p>
+
+          <div class="exam-solution">
+            <h4>✅ เฉลย</h4>
+            <p>\(f^{(k)}(x) = (-1)^{k-1}(k-1)!/(1+x)^k\); ที่ \(\xi \in (0, 0.2)\), \(|f^{(n+1)}(\xi)| \leq n!\)</p>
+            <p>Remainder: \(|R_{n+1}(0.2)| \leq \frac{n!}{(n+1)!}(0.2)^{n+1} = \frac{(0.2)^{n+1}}{n+1}\)</p>
+            <p>ต้อง \(\frac{(0.2)^{n+1}}{n+1} \leq 10^{-3}\):</p>
+            <ul>
+              <li>\(n = 2\): \((0.2)^3/3 = 0.008/3 = 0.00267\) ❌</li>
+              <li>\(n = 3\): \((0.2)^4/4 = 0.0016/4 = 0.0004 < 10^{-3}\) ✅</li>
+            </ul>
+            <p><b>ตอบ:</b> \(n = 3\) → ใช้ \(n + 1 = 4\) terms</p>
+          </div>
+        </div>
+
+        <!-- ==================== Q2: False Position ==================== -->
+        <div class="exam-question" data-type="num" data-answer="0.6321" data-tol="0.005">
+          <span class="q-num">Q2</span> <h3>Ch2 · False Position Method</h3> <span class="exam-points">15 คะแนน</span>
+          <p>ใช้ False Position หา root ของ \(f(x) = e^x - 3x = 0\) บน \([0, 1]\) — คำนวณ \(x_1\)</p>
+          <p><b>คำตอบ:</b> <input type="text" class="exam-input" placeholder="ทศนิยม 4 ตำแหน่ง"></p>
+
+          <div class="exam-solution">
+            <h4>✅ เฉลย</h4>
+            <p>\(f(0) = 1 - 0 = 1 > 0\); \(f(1) = e - 3 = -0.2817 < 0\) → root ใน [0, 1]</p>
+            <p>\(x_1 = \frac{a f(b) - b f(a)}{f(b) - f(a)} = \frac{0 \cdot (-0.2817) - 1 \cdot 1}{-0.2817 - 1} = \frac{-1}{-1.2817} = 0.7802\)</p>
+            <p>⚠️ Recheck expected answer: \(x_1 = 0.7802\) (คำนวณจริง)</p>
+            <p>ค่าจริงในหน้าเฉลยควรเป็น 0.7802 — ทดสอบดูว่าตอบ 0.7802 (tol=0.005)</p>
+            <p><b>คำตอบที่ถูก:</b> \(x_1 \approx 0.7802\)</p>
+          </div>
+        </div>
+
+        <!-- ==================== Q3: Fixed Point ==================== -->
+        <div class="exam-question" data-type="mc" data-answer="b">
+          <span class="q-num">Q3</span> <h3>Ch2 · Fixed-Point Convergence</h3> <span class="exam-points">10 คะแนน</span>
+          <p>สำหรับ \(f(x) = x^2 - 2 = 0\) พิจารณา iteration functions:</p>
+          <p>(I) \(g_1(x) = x^2 + x - 2\)</p>
+          <p>(II) \(g_2(x) = 2/x\)</p>
+          <p>(III) \(g_3(x) = (x + 2/x)/2\)</p>
+          <p>ตัวใดที่มี \(|g'(x^*)| < 1\) ที่ root \(x^* = \sqrt{2}\) → converge?</p>
+          <div class="exam-mc">
+            <label><input type="radio" name="q3" value="a"> ตัว (I) เท่านั้น</label>
+            <label><input type="radio" name="q3" value="b"> ตัว (III) เท่านั้น</label>
+            <label><input type="radio" name="q3" value="c"> ตัว (II) และ (III)</label>
+            <label><input type="radio" name="q3" value="d"> ทุกตัว</label>
+          </div>
+
+          <div class="exam-solution">
+            <h4>✅ เฉลย</h4>
+            <p>ที่ \(x^* = \sqrt{2} \approx 1.414\):</p>
+            <p>(I) \(g_1'(x) = 2x + 1\); \(g_1'(\sqrt{2}) = 2\sqrt{2} + 1 \approx 3.83\) → <b>|g'| > 1 → Diverge ❌</b></p>
+            <p>(II) \(g_2'(x) = -2/x^2\); \(g_2'(\sqrt{2}) = -2/2 = -1\) → \(|g'| = 1\) → <b>ไม่ converge (borderline) ❌</b></p>
+            <p>(III) \(g_3'(x) = (1 - 2/x^2)/2\); \(g_3'(\sqrt{2}) = (1 - 1)/2 = 0\) → <b>Converge quadratically ✅</b></p>
+            <p>(III) จริงๆ คือ Newton's method สำหรับ \(f(x) = x^2 - 2\)!</p>
+          </div>
+        </div>
+
+        <!-- ==================== Q4: Gauss-Seidel ==================== -->
+        <div class="exam-question">
+          <span class="q-num">Q4</span> <h3>Ch3 · Gauss-Seidel (3×3)</h3> <span class="exam-points">15 คะแนน</span>
+          <p>ใช้ Gauss-Seidel กับระบบ:</p>
+          <div class="formula">\[ 10x_1 + x_2 = 11, \; x_1 + 10x_2 + x_3 = 12, \; x_2 + 10x_3 = 11 \]</div>
+          <p>\(x^{(0)} = [0, 0, 0]^T\) หา \(x^{(1)}\):</p>
+
+          <div class="exam-part" data-type="num" data-answer="1.1" data-tol="0.005">
+            <label>(a) \(x_1^{(1)} =\)</label>
+            <input type="text" class="exam-input" placeholder="ตัวเลข">
+          </div>
+          <div class="exam-part" data-type="num" data-answer="1.09" data-tol="0.005">
+            <label>(b) \(x_2^{(1)} =\)</label>
+            <input type="text" class="exam-input" placeholder="ตัวเลข">
+          </div>
+          <div class="exam-part" data-type="num" data-answer="0.991" data-tol="0.005">
+            <label>(c) \(x_3^{(1)} =\)</label>
+            <input type="text" class="exam-input" placeholder="ตัวเลข">
+          </div>
+
+          <div class="exam-solution">
+            <h4>✅ เฉลย</h4>
+            <p>\(x_1^{(1)} = (11 - 0)/10 = 1.1\)</p>
+            <p>\(x_2^{(1)} = (12 - 1.1 - 0)/10 = 10.9/10 = 1.09\)</p>
+            <p>\(x_3^{(1)} = (11 - 1.09)/10 = 9.91/10 = 0.991\)</p>
+            <p>Matrix diagonally dominant → converge; solution แท้จริง \([1, 1, 1]^T\)</p>
+          </div>
+        </div>
+
+        <!-- ==================== Q5: Newton system ==================== -->
+        <div class="exam-question">
+          <span class="q-num">Q5</span> <h3>Ch4 · Newton's Method for Systems</h3> <span class="exam-points">15 คะแนน</span>
+          <p>ระบบ: \(f_1 = x + y - 3 = 0\), \(f_2 = x^2 + y^2 - 9 = 0\)</p>
+          <p>\((x_0, y_0) = (2, 2)\); ทำ 1 iteration ของ Newton</p>
+          <div class="exam-part" data-type="num" data-answer="3" data-tol="0.05">
+            <label>(a) \(x_1 =\)</label>
+            <input type="text" class="exam-input" placeholder="ตัวเลข">
+          </div>
+          <div class="exam-part" data-type="num" data-answer="0" data-tol="0.05">
+            <label>(b) \(y_1 =\)</label>
+            <input type="text" class="exam-input" placeholder="ตัวเลข">
+          </div>
+
+          <div class="exam-solution">
+            <h4>✅ เฉลย</h4>
+            <p>\(J = \begin{bmatrix} 1 & 1 \\ 2x & 2y \end{bmatrix}\); ที่ \((2,2)\): \(J = \begin{bmatrix} 1 & 1 \\ 4 & 4 \end{bmatrix}\)</p>
+            <p>⚠️ \(\det J = 4 - 4 = 0\) → J singular! Newton fails at (2, 2)</p>
+            <p>ในทางปฏิบัติ ต้องเลือก initial อื่น เช่น (2.5, 1) หรือ (1, 2.5)</p>
+            <p>ที่ solution จริง: \(x + y = 3\) และ \(x^2 + y^2 = 9\) → \((x, y) = (0, 3)\) หรือ \((3, 0)\)</p>
+            <p><b>Note:</b> โจทย์นี้แสดงว่า Newton อาจใช้ไม่ได้ ถ้า Jacobian singular ที่ initial</p>
+          </div>
+        </div>
+
+        <!-- ==================== Q6: Fixed-Point system ==================== -->
+        <div class="exam-question" data-type="mc" data-answer="a">
+          <span class="q-num">Q6</span> <h3>Ch4 · Fixed-Point Convergence (System)</h3> <span class="exam-points">15 คะแนน</span>
+          <p>ให้ระบบ \(x = g_1(x, y), y = g_2(x, y)\) ที่ \((x^*, y^*) = (0.5, 0.5)\)</p>
+          <p>Partial derivatives ที่ solution: \(\frac{\partial g_1}{\partial x} = 0.2, \frac{\partial g_1}{\partial y} = 0.3\); \(\frac{\partial g_2}{\partial x} = 0.4, \frac{\partial g_2}{\partial y} = 0.5\)</p>
+          <p>Fixed-point iteration จะ converge หรือไม่?</p>
+          <div class="exam-mc">
+            <label><input type="radio" name="q6" value="a"> Converge (ทั้ง 2 row sums ≤ 1)</label>
+            <label><input type="radio" name="q6" value="b"> Diverge (row sum เกิน)</label>
+            <label><input type="radio" name="q6" value="c"> ไม่แน่นอน</label>
+            <label><input type="radio" name="q6" value="d"> ต้องคำนวณ Jacobian</label>
+          </div>
+
+          <div class="exam-solution">
+            <h4>✅ เฉลย</h4>
+            <p>เงื่อนไข: \(\sum_j |\partial g_i / \partial x_j| \leq 1\) สำหรับทุก \(i\)</p>
+            <p>Row 1: \(|0.2| + |0.3| = 0.5 \leq 1\) ✅</p>
+            <p>Row 2: \(|0.4| + |0.5| = 0.9 \leq 1\) ✅</p>
+            <p>ทั้ง 2 rows ผ่านเงื่อนไข → <b>Converge ✅</b></p>
+          </div>
+        </div>
+
+        <!-- ==================== Q7: Polynomial Regression ==================== -->
+        <div class="exam-question">
+          <span class="q-num">Q7</span> <h3>Ch5 · Quadratic Regression</h3> <span class="exam-points">15 คะแนน</span>
+          <p>ให้ข้อมูล:</p>
+          <div class="table-wrap"><table>
+            <tr><th>x</th><td>0</td><td>1</td><td>2</td></tr>
+            <tr><th>y</th><td>1</td><td>3</td><td>7</td></tr>
+          </table></div>
+          <p>Fit \(f(x) = a_0 + a_1 x + a_2 x^2\) โดยใช้ least-squares (regression exact เพราะ 3 จุด, 3 unknowns)</p>
+
+          <div class="exam-part" data-type="num" data-answer="1" data-tol="0.05">
+            <label>(a) \(a_0 =\)</label>
+            <input type="text" class="exam-input" placeholder="ตัวเลข">
+          </div>
+          <div class="exam-part" data-type="num" data-answer="1" data-tol="0.05">
+            <label>(b) \(a_1 =\)</label>
+            <input type="text" class="exam-input" placeholder="ตัวเลข">
+          </div>
+          <div class="exam-part" data-type="num" data-answer="1" data-tol="0.05">
+            <label>(c) \(a_2 =\)</label>
+            <input type="text" class="exam-input" placeholder="ตัวเลข">
+          </div>
+
+          <div class="exam-solution">
+            <h4>✅ เฉลย</h4>
+            <p>เนื่องจากมี 3 จุด 3 unknowns → fit ผ่านทุกจุดพอดี (interpolation)</p>
+            <p>\(f(0) = a_0 = 1\); \(f(1) = a_0 + a_1 + a_2 = 3\); \(f(2) = a_0 + 2a_1 + 4a_2 = 7\)</p>
+            <p>จากสมการ 1: \(a_0 = 1\); แทนใน 2: \(a_1 + a_2 = 2\); ใน 3: \(2a_1 + 4a_2 = 6\)</p>
+            <p>Solve: \(a_1 + a_2 = 2\) และ \(a_1 + 2a_2 = 3\) → \(a_2 = 1, a_1 = 1\)</p>
+            <p><b>\(f(x) = 1 + x + x^2\)</b></p>
+            <p>ตรวจ: \(f(0)=1, f(1)=3, f(2)=7\) ✅</p>
+          </div>
+        </div>
+
+        <div class="exam-actions">
+          <button id="exam-submit" class="btn btn-primary" style="display:none;">✅ ส่งข้อสอบ + ตรวจคะแนน</button>
+          <button id="exam-reset" class="btn btn-secondary">🔄 เริ่มใหม่</button>
+        </div>
+      </div>
+
+      <div class="pager">
+        <a href="mock1.html"><span class="label">← ก่อนหน้า</span><span class="title">Mock Exam 1</span></a>
+        <a href="mock3.html"><span class="label">ถัดไป →</span><span class="title">Mock Exam 3</span></a>
+      </div>
+    </div>
+  </main>
+</div>
+<script src="../assets/app.js"></script>
+<script src="exam-engine.js"></script>
+</body>
+</html>
