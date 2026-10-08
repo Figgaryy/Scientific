@@ -1,0 +1,316 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="page-id" content="ch10">
+<title>บทที่ 10: Numerical Integration — CSS322</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@400;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../assets/style.css">
+</head>
+<body>
+<div class="app">
+  <aside class="sidebar">
+    <div class="brand">📐 CSS322</div>
+    <div class="brand-sub">Scientific Computing</div>
+    <div class="nav-section">หน้าหลัก</div>
+    <nav class="nav"><a href="../index.html" data-page="home">🏠 หน้าแรก <span class="status"></span></a></nav>
+    <div class="nav-section">บทเรียน</div>
+    <nav class="nav">
+      <a href="ch1-errors-taylor.html" data-page="ch1">บทที่ 1 <span class="status"></span></a>
+      <a href="ch2-root-finding.html" data-page="ch2">บทที่ 2 <span class="status"></span></a>
+      <a href="ch3-linear-direct.html" data-page="ch3">บทที่ 3 <span class="status"></span></a>
+      <a href="ch4-linear-iterative.html" data-page="ch4">บทที่ 4 <span class="status"></span></a>
+      <a href="ch5-nonlinear.html" data-page="ch5">บทที่ 5 <span class="status"></span></a>
+      <a href="ch6-regression.html" data-page="ch6">บทที่ 6 <span class="status"></span></a>
+      <a href="ch7-interpolation.html" data-page="ch7">บทที่ 7 <span class="status"></span></a>
+      <a href="ch8-spline.html" data-page="ch8">บทที่ 8 <span class="status"></span></a>
+      <a href="ch9-numdiff.html" data-page="ch9">บทที่ 9 <span class="status"></span></a>
+      <a href="ch10-numintegrate.html" data-page="ch10">บทที่ 10: Num. Integ <span class="status"></span></a>
+      <a href="ch11-ode.html" data-page="ch11">บทที่ 11 <span class="status"></span></a>
+      <a href="ch12-eigenvalue.html" data-page="ch12">บทที่ 12 <span class="status"></span></a>
+      <a href="ch13-pagerank.html" data-page="ch13">บทที่ 13 <span class="status"></span></a>
+    </nav>
+    <div class="nav-section">การบ้าน</div>
+    <nav class="nav">
+      <a href="../homework/hw1.html" data-page="hw1">HW1 <span class="status"></span></a>
+      <a href="../homework/hw2.html" data-page="hw2">HW2 <span class="status"></span></a>
+      <a href="../homework/hw3.html" data-page="hw3">HW3 <span class="status"></span></a>
+      <a href="../homework/hw4.html" data-page="hw4">HW4 <span class="status"></span></a>
+      <a href="../homework/hw5.html" data-page="hw5">HW5 <span class="status"></span></a>
+    </nav>
+    <div class="nav-section">📝 เตรียมสอบ</div>
+    <nav class="nav">
+      <a href="../exam/index.html" data-page="exam">📚 ห้องเตรียมสอบ Midterm <span class="status"></span></a>
+    </nav>
+    <button class="theme-toggle">🌙 โหมดมืด</button>
+  </aside>
+
+  <main class="main">
+    <div class="main-inner">
+      <div class="crumbs"><a href="../index.html">หน้าแรก</a> › บทที่ 10</div>
+      <h1>บทที่ 10: Numerical Integration</h1>
+      <p class="subtitle">ประมาณค่า \(\int_a^b f(x) \, dx\) — Rectangular, Trapezoidal, Simpson's methods</p>
+
+      <div class="callout note">
+        <div class="callout-title">🎯 เป้าหมายของบท</div>
+        <ul style="margin:6px 0 0 20px;">
+          <li>ใช้ <b>Rectangle methods</b> (Left, Right, Midpoint) + composite versions</li>
+          <li>ใช้ <b>Trapezoidal method</b> (single + composite)</li>
+          <li>ใช้ <b>Simpson's 1/3 and 3/8 methods</b></li>
+          <li>วิเคราะห์ error และเลือกจำนวน subintervals \(N\)</li>
+        </ul>
+      </div>
+
+      <!-- Intro -->
+      <h2>1. Introduction</h2>
+      <p>ประมาณค่า definite integral:</p>
+      <div class="formula">\[ I(f) = \int_a^b f(x) \, dx \]</div>
+
+      <div class="grid-2">
+        <div class="card">
+          <h4>Close Methods</h4>
+          <p>ใช้ endpoints (รวม \(x_1, x_{N+1}\))</p>
+          <p>ตัวอย่าง: Trapezoidal, Simpson</p>
+        </div>
+        <div class="card">
+          <h4>Open Methods</h4>
+          <p>ไม่ใช้ endpoints</p>
+          <p>ตัวอย่าง: Midpoint</p>
+        </div>
+      </div>
+
+      <!-- Rectangle -->
+      <h2>2. Rectangular Methods</h2>
+      <p>แบ่ง \([a, b]\) เป็น \(N\) sub-intervals width \(h = (b-a)/N\); \(x_i = a + (i-1)h\)</p>
+
+      <div class="card">
+        <h4>Left Rectangle (Composite)</h4>
+        <div class="formula">\[ I(f) \approx h \sum_{i=1}^{N} f(x_i) \]</div>
+      </div>
+
+      <div class="card">
+        <h4>Right Rectangle</h4>
+        <div class="formula">\[ I(f) \approx h \sum_{i=1}^{N} f(x_{i+1}) \]</div>
+      </div>
+
+      <div class="card">
+        <h4>Midpoint ⭐</h4>
+        <div class="formula">\[ I(f) \approx h \sum_{i=1}^{N} f\left(\frac{x_i + x_{i+1}}{2}\right) \]</div>
+        <p>แม่นกว่า left/right rectangle</p>
+      </div>
+
+      <div class="example open">
+        <div class="example-header">
+          <span><span class="example-label">ตัวอย่าง 2.1</span> \(\int_0^2 (x^2 + 1) \, dx\)</span>
+          <span class="chev">▶</span>
+        </div>
+        <div class="example-body">
+          <p>\(N = 4, h = 0.5\); points: 0, 0.5, 1, 1.5, 2; midpoints: 0.25, 0.75, 1.25, 1.75</p>
+          <p><b>Left:</b> \(0.5(f(0) + f(0.5) + f(1) + f(1.5)) = 0.5(1 + 1.25 + 2 + 3.25) = 3.75\)</p>
+          <p><b>Midpoint:</b> \(0.5(f(0.25)+f(0.75)+f(1.25)+f(1.75)) = 0.5(1.0625+1.5625+2.5625+4.0625) = 4.625\)</p>
+          <p><b>Exact:</b> \(\int_0^2 (x^2+1)dx = 8/3 + 2 = 4.6667\) → <b>Midpoint ใกล้สุด ✅</b></p>
+        </div>
+      </div>
+
+      <!-- Trapezoidal -->
+      <h2>3. Trapezoidal Method</h2>
+      <p>ใช้พื้นที่ trapezoid แทน rectangle:</p>
+      <div class="formula">\[ \int_a^b f(x) \, dx \approx \frac{b-a}{2}[f(a) + f(b)] \]</div>
+
+      <h3>3.1 Composite Trapezoidal</h3>
+      <p>แบ่ง \(N\) sub-intervals width \(h\):</p>
+      <div class="formula">
+        \[ \int_a^b f(x) \, dx \approx \frac{h}{2}[f(a) + f(b)] + h \sum_{i=2}^{N} f(x_i) \]
+      </div>
+      <p>หรือเขียนเป็น:</p>
+      <div class="formula">
+        \[ \approx \frac{h}{2}[f(x_1) + 2f(x_2) + 2f(x_3) + \cdots + 2f(x_N) + f(x_{N+1})] \]
+      </div>
+
+      <h3>3.2 Accuracy</h3>
+      <div class="formula">\[ \text{Error} = -\frac{1}{12}(b-a)h^2 f''(\xi) = O(h^2) \]</div>
+
+      <div class="example open">
+        <div class="example-header">
+          <span><span class="example-label">ตัวอย่าง 3.1</span> จำนวน subintervals สำหรับ \(\int_{-1}^{1} \sin(x) dx\)</span>
+          <span class="chev">▶</span>
+        </div>
+        <div class="example-body">
+          <p>Error ≤ \(10^{-4}\); \(|f''(\xi)| = |\sin(\xi)| \leq 1\); \(b - a = 2\)</p>
+          <p>\(\frac{1}{12}(2)(h^2)(1) \leq 10^{-4}\) → \(h^2 \leq 6 \times 10^{-4}\) → \(h \leq 0.0245\)</p>
+          <p>\(N \geq 2/0.0245 \approx 81.65\) → <b>\(N = 82\)</b></p>
+        </div>
+      </div>
+
+      <!-- Simpson's -->
+      <h2>4. Simpson's Methods</h2>
+
+      <h3>4.1 Simpson's 1/3 Method ⭐</h3>
+      <p>ใช้ quadratic polynomial — \(N\) ต้องเป็น <b>เลขคู่</b></p>
+      <div class="formula">
+        \[ \int_a^b f(x) \, dx \approx \frac{h}{3}\left[f(a) + 4\sum_{i=2,4,6,\ldots}^{N} f(x_i) + 2\sum_{i=3,5,7,\ldots}^{N-1} f(x_i) + f(b)\right] \]
+      </div>
+      <p><b>Error:</b> \(O(h^4)\) — แม่นกว่า trapezoidal มาก</p>
+
+      <div class="callout tip">
+        <div class="callout-title">💡 Simpson's 1/3 Pattern</div>
+        <p style="margin:6px 0;">Coefficients ที่ \(f(x_i)\): <b>1, 4, 2, 4, 2, ..., 4, 2, 4, 1</b></p>
+        <p style="margin:0;">สลับ 4 (ที่ odd index เริ่มจาก 2) และ 2 (ที่ even index) → รวม 1 ที่หัว-ท้าย</p>
+      </div>
+
+      <div class="example open">
+        <div class="example-header">
+          <span><span class="example-label">ตัวอย่าง 4.1</span> Simpson's 1/3 สำหรับ \(\int_{-1}^{1} \sqrt{x^2+1} dx\), N = 10</span>
+          <span class="chev">▶</span>
+        </div>
+        <div class="example-body">
+          <p>\(h = 0.2\); 11 points: -1, -0.8, -0.6, ..., 0.8, 1</p>
+          <p>Pattern: 1, 4, 2, 4, 2, 4, 2, 4, 2, 4, 1</p>
+          <p>\(I \approx \frac{0.2}{3}[1.4142 + 4(1.2806) + 2(1.1662) + 4(1.0770) + 2(1.0198) + 4(1) + 2(1.0198) + 4(1.0770) + 2(1.1662) + 4(1.2806) + 1.4142]\)</p>
+          <p>\(= 0.0667 \cdot 34.432 = \boxed{2.2956}\) (Exact: 2.2958) ✅</p>
+        </div>
+      </div>
+
+      <h3>4.2 Simpson's 3/8 Method</h3>
+      <p>ใช้ cubic polynomial — \(N\) ต้องหารด้วย <b>3 ลงตัว</b></p>
+      <div class="formula">
+        \[ \int_a^b f(x) \, dx \approx \frac{3h}{8}\left[f(a) + 3\sum_{i \neq 3k} f(x_i) + 2\sum_{i = 3k} f(x_i) + f(b)\right] \]
+      </div>
+      <p>Pattern: <b>1, 3, 3, 2, 3, 3, 2, ..., 3, 3, 1</b></p>
+
+      <!-- Summary -->
+      <h2>5. สรุป Methods</h2>
+      <div class="table-wrap"><table>
+        <tr><th>Method</th><th>Formula per subinterval</th><th>Error</th><th>ต้องการ</th></tr>
+        <tr><td>Rectangle (Left/Right)</td><td>\(h \cdot f(x_i)\)</td><td>\(O(h)\)</td><td>-</td></tr>
+        <tr><td>Midpoint</td><td>\(h \cdot f((x_i+x_{i+1})/2)\)</td><td>\(O(h^2)\)</td><td>-</td></tr>
+        <tr><td>Trapezoidal</td><td>\(\frac{h}{2}(f_i + f_{i+1})\)</td><td>\(O(h^2)\)</td><td>-</td></tr>
+        <tr><td><b>Simpson's 1/3 ⭐</b></td><td>\(\frac{h}{3}(f_i + 4f_{i+1} + f_{i+2})\)</td><td>\(O(h^4)\)</td><td>\(N\) คู่</td></tr>
+        <tr><td>Simpson's 3/8</td><td>\(\frac{3h}{8}(f_i + 3f_{i+1} + 3f_{i+2} + f_{i+3})\)</td><td>\(O(h^4)\)</td><td>\(N\) หาร 3 ลงตัว</td></tr>
+      </table></div>
+
+      <!-- Quiz -->
+      <h2>🧪 แบบทบทวนท้ายบท</h2>
+      <div class="quiz-container" data-quiz="ch10">
+        <h3>Quiz: Numerical Integration (10 ข้อ)</h3>
+
+        <div class="quiz-question" data-type="mc" data-answer="c">
+          <div class="q-text"><span class="q-number">1</span> Trapezoidal method มี error order?</div>
+          <div class="q-options">
+            <label><input type="radio" name="q1" value="a"> \(O(h)\)</label>
+            <label><input type="radio" name="q1" value="b"> \(O(h)\)</label>
+            <label><input type="radio" name="q1" value="c"> \(O(h^2)\)</label>
+            <label><input type="radio" name="q1" value="d"> \(O(h^4)\)</label>
+          </div>
+          <div class="q-explain">💡 Trapezoidal error \(= -\frac{1}{12}(b-a)h^2 f''(\xi) = O(h^2)\)</div>
+        </div>
+
+        <div class="quiz-question" data-type="mc" data-answer="d">
+          <div class="q-text"><span class="q-number">2</span> Simpson's 1/3 มี error order?</div>
+          <div class="q-options">
+            <label><input type="radio" name="q2" value="a"> \(O(h)\)</label>
+            <label><input type="radio" name="q2" value="b"> \(O(h^2)\)</label>
+            <label><input type="radio" name="q2" value="c"> \(O(h^3)\)</label>
+            <label><input type="radio" name="q2" value="d"> \(O(h^4)\)</label>
+          </div>
+          <div class="q-explain">💡 Simpson's 1/3 มี \(O(h^4)\) — แม่นมาก</div>
+        </div>
+
+        <div class="quiz-question" data-type="mc" data-answer="b">
+          <div class="q-text"><span class="q-number">3</span> Simpson's 1/3 ต้องการ \(N\) เป็น?</div>
+          <div class="q-options">
+            <label><input type="radio" name="q3" value="a"> คี่</label>
+            <label><input type="radio" name="q3" value="b"> คู่</label>
+            <label><input type="radio" name="q3" value="c"> หารด้วย 3 ลงตัว</label>
+            <label><input type="radio" name="q3" value="d"> ไม่สำคัญ</label>
+          </div>
+          <div class="q-explain">💡 Simpson's 1/3 ใช้ 3 points per sub-pair → \(N\) ต้องคู่</div>
+        </div>
+
+        <div class="quiz-question" data-type="num" data-answer="4.625" data-tol="0.1">
+          <div class="q-text"><span class="q-number">4</span> จากตัวอย่าง 2.1 Midpoint rule ให้ค่า?</div>
+          <input type="text" class="q-input" placeholder="ตัวเลข">
+          <div class="q-explain">💡 4.625</div>
+        </div>
+
+        <div class="quiz-question" data-type="num" data-answer="82" data-tol="2">
+          <div class="q-text"><span class="q-number">5</span> จากตัวอย่าง 3.1 ต้องการ \(N = ?\)</div>
+          <input type="text" class="q-input" placeholder="ตัวเลข">
+          <div class="q-explain">💡 \(N \geq 81.65\) → 82</div>
+        </div>
+
+        <div class="quiz-question" data-type="mc" data-answer="a">
+          <div class="q-text"><span class="q-number">6</span> Composite Trapezoidal สูตรคือ?</div>
+          <div class="q-options">
+            <label><input type="radio" name="q6" value="a"> \(\frac{h}{2}[f(a) + 2\sum f(x_i) + f(b)]\)</label>
+            <label><input type="radio" name="q6" value="b"> \(h \sum f(x_i)\)</label>
+            <label><input type="radio" name="q6" value="c"> \(\frac{h}{3}[f(a) + 4\sum + f(b)]\)</label>
+            <label><input type="radio" name="q6" value="d"> \((b-a)f(x_0)\)</label>
+          </div>
+          <div class="q-explain">💡 Trapezoidal: endpoints คูณ 1, middle จุดคูณ 2, ทั้งหมด × h/2</div>
+        </div>
+
+        <div class="quiz-question" data-type="mc" data-answer="d">
+          <div class="q-text"><span class="q-number">7</span> ตัวใด<b>แม่นที่สุด</b>สำหรับ smooth function?</div>
+          <div class="q-options">
+            <label><input type="radio" name="q7" value="a"> Left rectangle</label>
+            <label><input type="radio" name="q7" value="b"> Right rectangle</label>
+            <label><input type="radio" name="q7" value="c"> Trapezoidal</label>
+            <label><input type="radio" name="q7" value="d"> Simpson's 1/3</label>
+          </div>
+          <div class="q-explain">💡 Simpson มี \(O(h^4)\) — แม่นสุด</div>
+        </div>
+
+        <div class="quiz-question" data-type="mc" data-answer="a">
+          <div class="q-text"><span class="q-number">8</span> Simpson's 1/3 pattern coefficients สำหรับ \(N = 4\) คือ?</div>
+          <div class="q-options">
+            <label><input type="radio" name="q8" value="a"> 1, 4, 2, 4, 1</label>
+            <label><input type="radio" name="q8" value="b"> 1, 2, 4, 2, 1</label>
+            <label><input type="radio" name="q8" value="c"> 1, 4, 4, 4, 1</label>
+            <label><input type="radio" name="q8" value="d"> 1, 1, 1, 1, 1</label>
+          </div>
+          <div class="q-explain">💡 Odd index (2, 4): coeff 4; even middle (3): coeff 2; endpoints: 1</div>
+        </div>
+
+        <div class="quiz-question" data-type="mc" data-answer="b">
+          <div class="q-text"><span class="q-number">9</span> ลด \(h\) ครึ่งหนึ่งใน Trapezoidal → error ลดเท่าใด?</div>
+          <div class="q-options">
+            <label><input type="radio" name="q9" value="a"> 1/2</label>
+            <label><input type="radio" name="q9" value="b"> 1/4 (เพราะ \(O(h^2)\))</label>
+            <label><input type="radio" name="q9" value="c"> 1/8</label>
+            <label><input type="radio" name="q9" value="d"> 1/16</label>
+          </div>
+          <div class="q-explain">💡 \(O(h^2)\): \((h/2)^2 = h^2/4\) → error × 1/4</div>
+        </div>
+
+        <div class="quiz-question" data-type="mc" data-answer="c">
+          <div class="q-text"><span class="q-number">10</span> Simpson's 3/8 ต้องการ \(N\) เป็น?</div>
+          <div class="q-options">
+            <label><input type="radio" name="q10" value="a"> คู่</label>
+            <label><input type="radio" name="q10" value="b"> คี่</label>
+            <label><input type="radio" name="q10" value="c"> หารด้วย 3 ลงตัว</label>
+            <label><input type="radio" name="q10" value="d"> \(= 3\)</label>
+          </div>
+          <div class="q-explain">💡 Simpson 3/8 ใช้ 4 points per 3 sub-intervals → \(N\) หาร 3 ลงตัว</div>
+        </div>
+
+        <div class="quiz-actions">
+          <button class="btn btn-primary quiz-submit">✅ ตรวจคำตอบ</button>
+          <button class="btn btn-secondary quiz-reset">🔄 เริ่มใหม่</button>
+        </div>
+        <div class="quiz-score"></div>
+      </div>
+
+      <div class="pager">
+        <a href="ch9-numdiff.html"><span class="label">← ก่อนหน้า</span><span class="title">บทที่ 9</span></a>
+        <a href="ch11-ode.html"><span class="label">ถัดไป →</span><span class="title">บทที่ 11: ODE</span></a>
+      </div>
+    </div>
+  </main>
+</div>
+<script src="../assets/app.js"></script>
+</body>
+</html>

@@ -1,0 +1,339 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="page-id" content="ch7">
+<title>บทที่ 7: Interpolation — CSS322</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@400;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../assets/style.css">
+</head>
+<body>
+<div class="app">
+  <aside class="sidebar">
+    <div class="brand">📐 CSS322</div>
+    <div class="brand-sub">Scientific Computing</div>
+    <div class="nav-section">หน้าหลัก</div>
+    <nav class="nav"><a href="../index.html" data-page="home">🏠 หน้าแรก <span class="status"></span></a></nav>
+    <div class="nav-section">บทเรียน</div>
+    <nav class="nav">
+      <a href="ch1-errors-taylor.html" data-page="ch1">บทที่ 1: Errors & Taylor <span class="status"></span></a>
+      <a href="ch2-root-finding.html" data-page="ch2">บทที่ 2: Root Finding <span class="status"></span></a>
+      <a href="ch3-linear-direct.html" data-page="ch3">บทที่ 3: Linear (Direct) <span class="status"></span></a>
+      <a href="ch4-linear-iterative.html" data-page="ch4">บทที่ 4: Linear (Iterative) <span class="status"></span></a>
+      <a href="ch5-nonlinear.html" data-page="ch5">บทที่ 5: Nonlinear <span class="status"></span></a>
+      <a href="ch6-regression.html" data-page="ch6">บทที่ 6: Regression <span class="status"></span></a>
+      <a href="ch7-interpolation.html" data-page="ch7">บทที่ 7: Interpolation 🆕 <span class="status"></span></a>
+      <a href="ch8-spline.html" data-page="ch8">บทที่ 8: Spline 🆕 <span class="status"></span></a>
+      <a href="ch9-numdiff.html" data-page="ch9">บทที่ 9: Num. Diff 🆕 <span class="status"></span></a>
+      <a href="ch10-numintegrate.html" data-page="ch10">บทที่ 10: Num. Integ 🆕 <span class="status"></span></a>
+      <a href="ch11-ode.html" data-page="ch11">บทที่ 11: ODE 🆕 <span class="status"></span></a>
+      <a href="ch12-eigenvalue.html" data-page="ch12">บทที่ 12: Eigenvalue 🆕 <span class="status"></span></a>
+      <a href="ch13-pagerank.html" data-page="ch13">บทที่ 13: PageRank 🆕 <span class="status"></span></a>
+    </nav>
+    <div class="nav-section">การบ้าน</div>
+    <nav class="nav">
+      <a href="../homework/hw1.html" data-page="hw1">HW1 <span class="status"></span></a>
+      <a href="../homework/hw2.html" data-page="hw2">HW2 <span class="status"></span></a>
+      <a href="../homework/hw3.html" data-page="hw3">HW3 <span class="status"></span></a>
+      <a href="../homework/hw4.html" data-page="hw4">HW4 <span class="status"></span></a>
+      <a href="../homework/hw5.html" data-page="hw5">HW5 🆕 <span class="status"></span></a>
+    </nav>
+    <div class="nav-section">📝 เตรียมสอบ</div>
+    <nav class="nav">
+      <a href="../exam/index.html" data-page="exam">📚 ห้องเตรียมสอบ Midterm <span class="status"></span></a>
+    </nav>
+    <button class="theme-toggle">🌙 โหมดมืด</button>
+  </aside>
+
+  <main class="main">
+    <div class="main-inner">
+      <div class="crumbs"><a href="../index.html">หน้าแรก</a> › บทที่ 7</div>
+      <h1>บทที่ 7: Interpolation (การประมาณค่าภายใน)</h1>
+      <p class="subtitle">ใช้ polynomial function เดียวที่ผ่านทุก data point เพื่อประมาณค่าระหว่างจุด — Lagrange และ Newton's Divided Difference</p>
+
+      <div class="callout note">
+        <div class="callout-title">🎯 เป้าหมายของบท</div>
+        <ul style="margin:6px 0 0 20px;">
+          <li>เข้าใจความแตกต่าง <b>Interpolation</b> (ผ่านทุกจุดเป๊ะ) vs <b>Regression</b> (fit โดยไม่ผ่านเป๊ะ)</li>
+          <li>ใช้ <b>Lagrange Interpolating Polynomial</b> สร้าง polynomial ผ่านทุกจุด</li>
+          <li>ใช้ <b>Newton's Divided Difference</b> — ง่ายต่อการเพิ่มจุดใหม่</li>
+          <li>เข้าใจ error bound และปัญหา Runge's phenomenon</li>
+        </ul>
+      </div>
+
+      <!-- Introduction -->
+      <h2>1. Introduction</h2>
+      <p>สำหรับ data points \(n\) จุด: \((x_1, y_1), \ldots, (x_n, y_n)\) ที่ \(x_i\) แตกต่างกันทั้งหมด</p>
+      <ul>
+        <li><b>Interpolation:</b> หา polynomial \(f(x)\) ที่ \(f(x_i) = y_i\) <b>ตรงเป๊ะ</b> ทุกจุด</li>
+        <li>Polynomial ที่ผ่าน \(n\) จุด มี degree \(= n - 1\)</li>
+        <li>ใช้ประมาณค่า \(y\) สำหรับ \(x\) ระหว่างจุดที่รู้</li>
+      </ul>
+
+      <div class="callout tip">
+        <div class="callout-title">📌 Theorem (Existence and Uniqueness)</div>
+        <p style="margin:0;">สำหรับ \(n\) data points ที่ \(x_i\) แตกต่างกัน → มี polynomial \(p_{n-1}\) ของ degree \(\leq n-1\) <b>เพียง 1 เดียว</b> ที่ \(p_{n-1}(x_i) = y_i\) สำหรับทุก \(i\)</p>
+      </div>
+
+      <h3>1.1 วิธีสร้างแบบตรง (Linear System)</h3>
+      <p>สมมติ \(f(x) = a_0 + a_1 x + a_2 x^2 + \cdots + a_{n-1} x^{n-1}\); แทน \(n\) จุด → ระบบเชิงเส้น \(n \times n\):</p>
+      <div class="formula">
+        \[ \begin{bmatrix} 1 & x_1 & x_1^2 & \cdots & x_1^{n-1} \\ 1 & x_2 & x_2^2 & \cdots & x_2^{n-1} \\ \vdots & & & & \vdots \\ 1 & x_n & x_n^2 & \cdots & x_n^{n-1} \end{bmatrix} \begin{bmatrix} a_0 \\ a_1 \\ \vdots \\ a_{n-1} \end{bmatrix} = \begin{bmatrix} y_1 \\ y_2 \\ \vdots \\ y_n \end{bmatrix} \]
+      </div>
+      <p>⚠️ Matrix นี้ (Vandermonde) อาจ singular เมื่อ \(n\) ใหญ่ → ใช้ Lagrange หรือ Newton แทน</p>
+
+      <!-- Lagrange -->
+      <h2>2. Lagrange Interpolating Polynomial</h2>
+      <p>สำหรับ \(n\) data points:</p>
+      <div class="formula">
+        \[ f(x) = \sum_{i=1}^{n} L_i(x) \, y_i \quad \text{โดย} \quad L_i(x) = \prod_{\substack{j=1 \\ j \neq i}}^{n} \frac{x - x_j}{x_i - x_j} \]
+      </div>
+
+      <div class="callout tip">
+        <div class="callout-title">💡 คุณสมบัติของ \(L_i(x)\)</div>
+        <p style="margin:0;">\(L_i(x_k) = \begin{cases} 1 & k = i \\ 0 & k \neq i \end{cases}\) → ทำให้ \(f(x_i) = y_i\) ตรงเป๊ะทุกจุด</p>
+      </div>
+
+      <h3>2.1 สำหรับ 2 จุด (First-order Lagrange)</h3>
+      <div class="formula">\[ f(x) = y_1 \frac{x - x_2}{x_1 - x_2} + y_2 \frac{x - x_1}{x_2 - x_1} \]</div>
+
+      <h3>2.2 สำหรับ 3 จุด (Second-order)</h3>
+      <div class="formula">\[ f(x) = y_1 \frac{(x-x_2)(x-x_3)}{(x_1-x_2)(x_1-x_3)} + y_2 \frac{(x-x_1)(x-x_3)}{(x_2-x_1)(x_2-x_3)} + y_3 \frac{(x-x_1)(x-x_2)}{(x_3-x_1)(x_3-x_2)} \]</div>
+
+      <div class="example open">
+        <div class="example-header">
+          <span><span class="example-label">ตัวอย่าง 2.1</span> Lagrange order 1 และ 2</span>
+          <span class="chev">▶</span>
+        </div>
+        <div class="example-body">
+          <p><b>โจทย์:</b> data: \((0, 1), (1, 2), (3, 8)\) — ประมาณ \(y\) ที่ \(x = 2\)</p>
+
+          <p><b>(a) Order 1 (ใช้ 2 จุดแรก \((0,1), (1,2)\)):</b></p>
+          <p>\(f(x) = 1 \cdot \frac{x-1}{0-1} + 2 \cdot \frac{x-0}{1-0} = -(x-1) + 2x = x + 1\)</p>
+          <p>\(f(2) = 3\)</p>
+
+          <p><b>(b) Order 2 (ใช้ทั้ง 3 จุด):</b></p>
+          <p>\(f(x) = 1 \cdot \frac{(x-1)(x-3)}{(0-1)(0-3)} + 2 \cdot \frac{(x-0)(x-3)}{(1-0)(1-3)} + 8 \cdot \frac{(x-0)(x-1)}{(3-0)(3-1)}\)</p>
+          <p>\(= \frac{(x-1)(x-3)}{3} - (x)(x-3) + \frac{4}{3}x(x-1)\)</p>
+          <p>\(f(2) = \frac{(1)(-1)}{3} - 2(-1) + \frac{4}{3}(2)(1) = -0.333 + 2 + 2.667 = 4.333\)</p>
+
+          <div class="callout tip"><p style="margin:0;">💡 Order 2 ใช้ information มากกว่า → ให้ค่าแม่นยำกว่า (ถ้า data มี curvature)</p></div>
+        </div>
+      </div>
+
+      <!-- Newton's Divided Difference -->
+      <h2>3. Newton's Interpolating Polynomial</h2>
+      <p>Form ทั่วไป (General form):</p>
+      <div class="formula">
+        \[ f(x) = \sum_{i=1}^{n} a_i \prod_{j=1}^{i-1} (x - x_j) \]
+      </div>
+      <p>ขยายได้:</p>
+      <div class="formula">
+        \[ f(x) = a_1 + a_2(x - x_1) + a_3(x-x_1)(x-x_2) + a_4(x-x_1)(x-x_2)(x-x_3) + \cdots \]
+      </div>
+
+      <div class="callout tip">
+        <div class="callout-title">💡 ข้อดีของ Newton เหนือ Lagrange</div>
+        <p style="margin:0;">เมื่อเพิ่ม data point ใหม่ → <b>ไม่ต้องคำนวณใหม่หมด</b> แค่เพิ่ม term เดียว (Lagrange ต้องสร้างใหม่ทั้งหมด)</p>
+      </div>
+
+      <h3>3.1 Divided Difference</h3>
+      <p>คำนวณ coefficients \(a_i\) จาก divided differences:</p>
+      <div class="formula">
+        \[ a_1 = y_1 = f[x_1] \]
+        \[ a_2 = f[x_1, x_2] = \frac{y_2 - y_1}{x_2 - x_1} \]
+        \[ a_3 = f[x_1, x_2, x_3] = \frac{f[x_2, x_3] - f[x_1, x_2]}{x_3 - x_1} \]
+        \[ a_{k+1} = f[x_1, x_2, \ldots, x_{k+1}] = \frac{f[x_2, \ldots, x_{k+1}] - f[x_1, \ldots, x_k]}{x_{k+1} - x_1} \]
+      </div>
+
+      <h3>3.2 Divided Difference Table</h3>
+      <p>วิธีจัดเรียงให้คำนวณสะดวก:</p>
+      <div class="table-wrap"><table>
+        <tr><th>\(x\)</th><th>\(y\)</th><th>1st div diff</th><th>2nd div diff</th><th>3rd div diff</th></tr>
+        <tr><td>\(x_1\)</td><td>\(y_1 = a_1\)</td><td></td><td></td><td></td></tr>
+        <tr><td></td><td></td><td>\(f[x_1,x_2] = a_2\)</td><td></td><td></td></tr>
+        <tr><td>\(x_2\)</td><td>\(y_2\)</td><td></td><td>\(f[x_1,x_2,x_3] = a_3\)</td><td></td></tr>
+        <tr><td></td><td></td><td>\(f[x_2,x_3]\)</td><td></td><td>\(a_4\)</td></tr>
+        <tr><td>\(x_3\)</td><td>\(y_3\)</td><td></td><td>\(f[x_2,x_3,x_4]\)</td><td></td></tr>
+        <tr><td></td><td></td><td>\(f[x_3,x_4]\)</td><td></td><td></td></tr>
+        <tr><td>\(x_4\)</td><td>\(y_4\)</td><td></td><td></td><td></td></tr>
+      </table></div>
+
+      <div class="example open">
+        <div class="example-header">
+          <span><span class="example-label">ตัวอย่าง 3.1</span> Newton Interpolation สำหรับ \(y = x^3\)</span>
+          <span class="chev">▶</span>
+        </div>
+        <div class="example-body">
+          <p><b>โจทย์:</b> data: \((0,0), (1,1), (2,8), (3,27), (4,64)\) ประมาณ \(y\) ที่ \(x = 2.5\)</p>
+
+          <p><b>Divided Difference Table:</b></p>
+          <div class="table-wrap"><table>
+            <tr><th>\(x\)</th><th>\(y\)</th><th>1st</th><th>2nd</th><th>3rd</th><th>4th</th></tr>
+            <tr><td>0</td><td>0</td><td>1</td><td>3</td><td>1</td><td>0</td></tr>
+            <tr><td>1</td><td>1</td><td>7</td><td>6</td><td>1</td><td></td></tr>
+            <tr><td>2</td><td>8</td><td>19</td><td>9</td><td></td><td></td></tr>
+            <tr><td>3</td><td>27</td><td>37</td><td></td><td></td><td></td></tr>
+            <tr><td>4</td><td>64</td><td></td><td></td><td></td><td></td></tr>
+          </table></div>
+
+          <p>Coefficients: \(a_1 = 0, a_2 = 1, a_3 = 3, a_4 = 1, a_5 = 0\)</p>
+          <p><b>Newton polynomial:</b></p>
+          <p>\(p(x) = 0 + 1(x) + 3(x)(x-1) + 1(x)(x-1)(x-2) + 0\)</p>
+          <p>\(= x + 3x^2 - 3x + x^3 - 3x^2 + 2x = x^3\) ✅ (ตรงกับ \(y = x^3\)!)</p>
+
+          <p><b>\(p(2.5) = 2.5^3 = 15.625\)</b></p>
+        </div>
+      </div>
+
+      <div class="example">
+        <div class="example-header">
+          <span><span class="example-label">ตัวอย่าง 3.2</span> เพิ่ม data point ใหม่ (Newton เหนือ Lagrange)</span>
+          <span class="chev">▶</span>
+        </div>
+        <div class="example-body">
+          <p><b>Part (a):</b> data: \((-2, -39), (0, 3), (1, 6)\) — สร้าง Newton polynomial</p>
+          <p>Divided diff: \(a_1 = -39, a_2 = (3-(-39))/(0-(-2)) = 21, a_3 = (3-21)/(1-(-2)) = -6\)</p>
+          <p>\(p_2(x) = -39 + 21(x+2) - 6(x+2)(x-0)\)</p>
+
+          <p><b>Part (b):</b> เพิ่ม \((3, 36)\) → แค่คำนวณ \(a_4\) เพิ่มอย่างเดียว!</p>
+          <p>\(a_4 = \ldots = 2\) (จาก divided diff ต่อ)</p>
+          <p>\(p_3(x) = p_2(x) + 2(x+2)(x)(x-1)\)</p>
+          <p>ประมาณ \(y(2) = p_3(2) = 3 + 42 - 48 + 16 = 13\)</p>
+        </div>
+      </div>
+
+      <!-- Accuracy -->
+      <h2>4. Accuracy of Polynomial Interpolation</h2>
+      <p>สำหรับ \(n\) equally spaced points บน \([a, b]\):</p>
+      <div class="formula">
+        \[ |f(z) - p_{n-1}(z)| \leq \frac{M_n}{4n} \left(\frac{b-a}{n-1}\right)^n \]
+      </div>
+      <p>โดย \(M_n = \max_{x \in [a,b]} |f^{(n)}(x)|\)</p>
+
+      <div class="callout warn">
+        <div class="callout-title">⚠️ Runge's Phenomenon</div>
+        <p style="margin:6px 0;">ตัวอย่างคลาสสิก: Interpolate \(f(x) = \frac{1}{1 + 25x^2}\) บน \([-1, 1]\) ด้วย degree สูง → <b>oscillate มากที่ขอบ</b></p>
+        <p style="margin:0;">→ High-degree interpolation อาจ worse กว่า low-degree! แก้ด้วย <b>Spline</b> (บทที่ 8)</p>
+      </div>
+
+      <!-- Quiz -->
+      <h2>🧪 แบบทบทวนท้ายบท</h2>
+      <div class="quiz-container" data-quiz="ch7">
+        <h3>Quiz: Interpolation (10 ข้อ)</h3>
+
+        <div class="quiz-question" data-type="mc" data-answer="c">
+          <div class="q-text"><span class="q-number">1</span> Interpolation ต่างจาก Regression อย่างไร?</div>
+          <div class="q-options">
+            <label><input type="radio" name="q1" value="a"> ใช้ linear เท่านั้น</label>
+            <label><input type="radio" name="q1" value="b"> ใช้ Lagrange เสมอ</label>
+            <label><input type="radio" name="q1" value="c"> Interpolation ผ่านทุกจุดเป๊ะ, Regression ไม่</label>
+            <label><input type="radio" name="q1" value="d"> ไม่ต่างกัน</label>
+          </div>
+          <div class="q-explain">💡 Interpolation: \(f(x_i) = y_i\) เป๊ะ; Regression: \(f(x_i) \approx y_i\)</div>
+        </div>
+
+        <div class="quiz-question" data-type="num" data-answer="4" data-tol="0.1">
+          <div class="q-text"><span class="q-number">2</span> Polynomial ผ่าน 5 data points มี degree เท่าใด?</div>
+          <input type="text" class="q-input" placeholder="ตัวเลข">
+          <div class="q-explain">💡 degree = n - 1 = 5 - 1 = 4</div>
+        </div>
+
+        <div class="quiz-question" data-type="num" data-answer="15.625" data-tol="0.1">
+          <div class="q-text"><span class="q-number">3</span> จากตัวอย่าง 3.1 (\(y = x^3\)) ประมาณ \(y(2.5)\) ด้วย Newton interpolation</div>
+          <input type="text" class="q-input" placeholder="ตัวเลข">
+          <div class="q-explain">💡 \(p(2.5) = 2.5^3 = 15.625\)</div>
+        </div>
+
+        <div class="quiz-question" data-type="mc" data-answer="a">
+          <div class="q-text"><span class="q-number">4</span> คุณสมบัติของ Lagrange function \(L_i(x_i)\) คือ?</div>
+          <div class="q-options">
+            <label><input type="radio" name="q4" value="a"> = 1 ที่ \(x_i\), = 0 ที่จุดอื่น</label>
+            <label><input type="radio" name="q4" value="b"> = 0 ที่ทุกจุด</label>
+            <label><input type="radio" name="q4" value="c"> = 1 ที่ทุกจุด</label>
+            <label><input type="radio" name="q4" value="d"> = \(y_i\)</label>
+          </div>
+          <div class="q-explain">💡 \(L_i(x_i) = 1\) และ \(L_i(x_k) = 0\) สำหรับ \(k \neq i\)</div>
+        </div>
+
+        <div class="quiz-question" data-type="mc" data-answer="b">
+          <div class="q-text"><span class="q-number">5</span> ข้อดีของ Newton's divided difference เหนือ Lagrange?</div>
+          <div class="q-options">
+            <label><input type="radio" name="q5" value="a"> แม่นยำกว่า</label>
+            <label><input type="radio" name="q5" value="b"> เพิ่ม data point ใหม่ได้ง่าย (แค่เพิ่ม term)</label>
+            <label><input type="radio" name="q5" value="c"> degree ต่ำกว่า</label>
+            <label><input type="radio" name="q5" value="d"> ใช้ divided difference ซึ่งคำนวณได้</label>
+          </div>
+          <div class="q-explain">💡 Newton: เพิ่ม term เดียว; Lagrange ต้องสร้างใหม่ทั้งหมด</div>
+        </div>
+
+        <div class="quiz-question" data-type="num" data-answer="2.5" data-tol="0.01">
+          <div class="q-text"><span class="q-number">6</span> First divided difference ของ \((1, 3), (3, 8)\) คือ?</div>
+          <input type="text" class="q-input" placeholder="ตัวเลข">
+          <div class="q-explain">💡 \(f[x_1, x_2] = (8-3)/(3-1) = 5/2 = 2.5\)</div>
+        </div>
+
+        <div class="quiz-question" data-type="mc" data-answer="c">
+          <div class="q-text"><span class="q-number">7</span> Runge's phenomenon คืออะไร?</div>
+          <div class="q-options">
+            <label><input type="radio" name="q7" value="a"> Error เพิ่มเมื่อ \(n\) น้อย</label>
+            <label><input type="radio" name="q7" value="b"> Lagrange ให้ค่าต่างจาก Newton</label>
+            <label><input type="radio" name="q7" value="c"> High-degree polynomial oscillate ที่ขอบ interval</label>
+            <label><input type="radio" name="q7" value="d"> Divided difference ไม่คงที่</label>
+          </div>
+          <div class="q-explain">💡 Runge: polynomial degree สูงเกินไปทำให้ swing มากที่ edges</div>
+        </div>
+
+        <div class="quiz-question" data-type="mc" data-answer="d">
+          <div class="q-text"><span class="q-number">8</span> วิธีไหนแก้ Runge's phenomenon ได้?</div>
+          <div class="q-options">
+            <label><input type="radio" name="q8" value="a"> ใช้ Lagrange</label>
+            <label><input type="radio" name="q8" value="b"> ใช้ Newton</label>
+            <label><input type="radio" name="q8" value="c"> ใช้ linear regression</label>
+            <label><input type="radio" name="q8" value="d"> ใช้ Spline (piecewise)</label>
+          </div>
+          <div class="q-explain">💡 Spline แบ่งเป็น piecewise polynomial degree ต่ำ → smooth และไม่ oscillate</div>
+        </div>
+
+        <div class="quiz-question" data-type="mc" data-answer="b">
+          <div class="q-text"><span class="q-number">9</span> สำหรับ 2 data points, Lagrange polynomial order 1 คือ?</div>
+          <div class="q-options">
+            <label><input type="radio" name="q9" value="a"> \(f(x) = a + bx + cx^2\)</label>
+            <label><input type="radio" name="q9" value="b"> \(f(x) = y_1 \frac{x-x_2}{x_1-x_2} + y_2 \frac{x-x_1}{x_2-x_1}\)</label>
+            <label><input type="radio" name="q9" value="c"> \(f(x) = y_1 + y_2 x\)</label>
+            <label><input type="radio" name="q9" value="d"> \(f(x) = (y_1 + y_2)/2\)</label>
+          </div>
+          <div class="q-explain">💡 Linear Lagrange — ค่าถ่วงด้วย weights ที่ทำให้ผ่าน 2 จุด</div>
+        </div>
+
+        <div class="quiz-question" data-type="mc" data-answer="a">
+          <div class="q-text"><span class="q-number">10</span> Vandermonde matrix สำหรับ interpolation มีปัญหาอะไร?</div>
+          <div class="q-options">
+            <label><input type="radio" name="q10" value="a"> Ill-conditioned ที่ \(n\) ใหญ่</label>
+            <label><input type="radio" name="q10" value="b"> ขนาดเล็กเกินไป</label>
+            <label><input type="radio" name="q10" value="c"> Symmetric</label>
+            <label><input type="radio" name="q10" value="d"> ไม่มีปัญหา</label>
+          </div>
+          <div class="q-explain">💡 Vandermonde ill-conditioned → ใช้ Lagrange/Newton แทน</div>
+        </div>
+
+        <div class="quiz-actions">
+          <button class="btn btn-primary quiz-submit">✅ ตรวจคำตอบ</button>
+          <button class="btn btn-secondary quiz-reset">🔄 เริ่มใหม่</button>
+        </div>
+        <div class="quiz-score"></div>
+      </div>
+
+      <div class="pager">
+        <a href="ch6-regression.html"><span class="label">← ก่อนหน้า</span><span class="title">บทที่ 6</span></a>
+        <a href="ch8-spline.html"><span class="label">ถัดไป →</span><span class="title">บทที่ 8: Spline</span></a>
+      </div>
+    </div>
+  </main>
+</div>
+<script src="../assets/app.js"></script>
+</body>
+</html>

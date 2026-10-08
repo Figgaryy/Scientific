@@ -1,0 +1,318 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="page-id" content="ch8">
+<title>บทที่ 8: Spline Interpolation — CSS322</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@400;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../assets/style.css">
+</head>
+<body>
+<div class="app">
+  <aside class="sidebar">
+    <div class="brand">📐 CSS322</div>
+    <div class="brand-sub">Scientific Computing</div>
+    <div class="nav-section">หน้าหลัก</div>
+    <nav class="nav"><a href="../index.html" data-page="home">🏠 หน้าแรก <span class="status"></span></a></nav>
+    <div class="nav-section">บทเรียน</div>
+    <nav class="nav">
+      <a href="ch1-errors-taylor.html" data-page="ch1">บทที่ 1: Errors & Taylor <span class="status"></span></a>
+      <a href="ch2-root-finding.html" data-page="ch2">บทที่ 2: Root Finding <span class="status"></span></a>
+      <a href="ch3-linear-direct.html" data-page="ch3">บทที่ 3: Linear (Direct) <span class="status"></span></a>
+      <a href="ch4-linear-iterative.html" data-page="ch4">บทที่ 4: Linear (Iterative) <span class="status"></span></a>
+      <a href="ch5-nonlinear.html" data-page="ch5">บทที่ 5: Nonlinear <span class="status"></span></a>
+      <a href="ch6-regression.html" data-page="ch6">บทที่ 6: Regression <span class="status"></span></a>
+      <a href="ch7-interpolation.html" data-page="ch7">บทที่ 7: Interpolation <span class="status"></span></a>
+      <a href="ch8-spline.html" data-page="ch8">บทที่ 8: Spline <span class="status"></span></a>
+      <a href="ch9-numdiff.html" data-page="ch9">บทที่ 9: Num. Diff <span class="status"></span></a>
+      <a href="ch10-numintegrate.html" data-page="ch10">บทที่ 10: Num. Integ <span class="status"></span></a>
+      <a href="ch11-ode.html" data-page="ch11">บทที่ 11: ODE <span class="status"></span></a>
+      <a href="ch12-eigenvalue.html" data-page="ch12">บทที่ 12: Eigenvalue <span class="status"></span></a>
+      <a href="ch13-pagerank.html" data-page="ch13">บทที่ 13: PageRank <span class="status"></span></a>
+    </nav>
+    <div class="nav-section">การบ้าน</div>
+    <nav class="nav">
+      <a href="../homework/hw1.html" data-page="hw1">HW1 <span class="status"></span></a>
+      <a href="../homework/hw2.html" data-page="hw2">HW2 <span class="status"></span></a>
+      <a href="../homework/hw3.html" data-page="hw3">HW3 <span class="status"></span></a>
+      <a href="../homework/hw4.html" data-page="hw4">HW4 <span class="status"></span></a>
+      <a href="../homework/hw5.html" data-page="hw5">HW5 <span class="status"></span></a>
+    </nav>
+    <div class="nav-section">📝 เตรียมสอบ</div>
+    <nav class="nav">
+      <a href="../exam/index.html" data-page="exam">📚 ห้องเตรียมสอบ Midterm <span class="status"></span></a>
+    </nav>
+    <button class="theme-toggle">🌙 โหมดมืด</button>
+  </aside>
+
+  <main class="main">
+    <div class="main-inner">
+      <div class="crumbs"><a href="../index.html">หน้าแรก</a> › บทที่ 8</div>
+      <h1>บทที่ 8: Spline Interpolation (Piecewise)</h1>
+      <p class="subtitle">ใช้หลาย polynomial degree ต่ำบน sub-intervals แทน polynomial เดียว degree สูง — แก้ Runge's phenomenon</p>
+
+      <div class="callout note">
+        <div class="callout-title">🎯 เป้าหมายของบท</div>
+        <ul style="margin:6px 0 0 20px;">
+          <li>เข้าใจแนวคิด <b>Piecewise polynomial</b> และ <b>knots</b></li>
+          <li>สร้าง <b>Linear Spline</b> (degree 1), <b>Quadratic Spline</b> (degree 2), <b>Cubic Spline</b> (degree 3)</li>
+          <li>ใช้ <b>Natural</b> และ <b>Clamped boundary conditions</b></li>
+          <li>แก้ระบบ tridiagonal สำหรับ cubic spline</li>
+        </ul>
+      </div>
+
+      <!-- Intro -->
+      <h2>1. Introduction</h2>
+      <p><b>Spline function</b> ของ degree \(k\): piecewise polynomial degree \(\leq k\) ที่</p>
+      <ul>
+        <li>ผ่านทุก data points (<b>knots</b>): \(a = x_1 < x_2 < \cdots < x_n = b\)</li>
+        <li>อนุพันธ์ \((k-1)\)-th ต่อเนื่องบน \([a, b]\)</li>
+      </ul>
+
+      <!-- Linear Spline -->
+      <h2>2. Linear Spline (degree 1)</h2>
+      <p>สำหรับ \(n\) data points → \(n - 1\) linear segments:</p>
+      <div class="formula">
+        \[ S_i(x) = y_i + \left(\frac{y_{i+1} - y_i}{x_{i+1} - x_i}\right)(x - x_i), \quad i = 1, \ldots, n-1 \]
+      </div>
+      <p>คือการต่อเส้นตรงระหว่างจุดต่อเนื่อง — เหมือน dot-to-dot</p>
+
+      <div class="example open">
+        <div class="example-header">
+          <span><span class="example-label">ตัวอย่าง 2.1</span> Linear Spline</span>
+          <span class="chev">▶</span>
+        </div>
+        <div class="example-body">
+          <p><b>โจทย์:</b> data: \((0,1), (1,-2), (3,4), (5,-6)\); ประมาณ \(y(2)\)</p>
+          <p>มี 3 linear segments:</p>
+          <p>\(S_1(x) = 1 + \frac{-2-1}{1-0}(x-0) = 1 - 3x\) สำหรับ \(x \in [0, 1]\)</p>
+          <p>\(S_2(x) = -2 + \frac{4-(-2)}{3-1}(x-1) = -2 + 3(x-1)\) สำหรับ \(x \in [1, 3]\)</p>
+          <p>\(S_3(x) = 4 + \frac{-6-4}{5-3}(x-3) = 4 - 5(x-3)\) สำหรับ \(x \in [3, 5]\)</p>
+
+          <p>\(x = 2 \in [1, 3]\) → \(S_2(2) = -2 + 3(1) = 1\)</p>
+        </div>
+      </div>
+
+      <!-- Quadratic Spline -->
+      <h2>3. Quadratic Spline (degree 2)</h2>
+      <p>สำหรับ \(n\) data points → \(n - 1\) quadratic segments:</p>
+      <div class="formula">\[ S_i(x) = a_i + b_i(x - x_i) + c_i(x - x_i)^2 \]</div>
+
+      <p><b>เงื่อนไข:</b> ต้องการ \(3(n-1)\) unknowns เงื่อนไข:</p>
+      <ol>
+        <li>\(S_i(x_i) = y_i\) และ \(S_i(x_{i+1}) = y_{i+1}\) → \(2(n-1)\) สมการ</li>
+        <li>\(S_i'(x_{i+1}) = S_{i+1}'(x_{i+1})\) → \(n-2\) สมการ (continuity ของ 1st derivative)</li>
+        <li>Boundary: ต้องเพิ่ม 1 เงื่อนไข (เช่น \(S_1''(x_1) = 0\) — Natural)</li>
+      </ol>
+
+      <h3>3.1 สูตรง่าย ๆ สำหรับคำนวณ</h3>
+      <p>ตั้ง \(z_i = S_i'(x_i)\); \(h_i = x_{i+1} - x_i\):</p>
+      <div class="formula">
+        \[ z_{i+1} = -z_i + 2\left(\frac{y_{i+1} - y_i}{h_i}\right) \]
+      </div>
+      <p>ด้วย \(z_1\) ที่ต้องกำหนด (Natural: \(z_1 = z_2\))</p>
+
+      <p><b>Polynomial สุดท้าย:</b></p>
+      <div class="formula">
+        \[ S_i(x) = y_i + z_i(x - x_i) + \left(\frac{z_{i+1} - z_i}{2 h_i}\right)(x - x_i)^2 \]
+      </div>
+
+      <div class="example open">
+        <div class="example-header">
+          <span><span class="example-label">ตัวอย่าง 3.1</span> Quadratic Spline</span>
+          <span class="chev">▶</span>
+        </div>
+        <div class="example-body">
+          <p><b>โจทย์:</b> data: \((1,2), (2,3), (3,5)\), \(S'(1) = 2\)</p>
+          <p>\(h_1 = 1, h_2 = 1\); \(z_1 = 2\) (given)</p>
+          <p>\(z_2 = -2 + 2(3-2)/1 = 0\); \(z_3 = -0 + 2(5-3)/1 = 4\)</p>
+          <p>\(S_1(x) = 2 + 2(x-1) + \frac{0-2}{2}(x-1)^2 = 2 + 2(x-1) - (x-1)^2\), \(x \in [1,2]\)</p>
+          <p>\(S_2(x) = 3 + 0(x-2) + \frac{4-0}{2}(x-2)^2 = 3 + 2(x-2)^2\), \(x \in [2,3]\)</p>
+        </div>
+      </div>
+
+      <!-- Cubic Spline -->
+      <h2>4. Cubic Spline (degree 3) ⭐</h2>
+      <p>Smoothest + accurate — <b>วิธีมาตรฐาน</b> สำหรับ interpolation</p>
+      <div class="formula">\[ S_i(x) = a_i + b_i(x - x_i) + c_i(x - x_i)^2 + d_i(x - x_i)^3 \]</div>
+
+      <p><b>เงื่อนไข (คง \(S, S', S''\) ต่อเนื่อง):</b></p>
+      <ol>
+        <li>\(S_i(x_i) = y_i, S_i(x_{i+1}) = y_{i+1}\) — ผ่านทุกจุด</li>
+        <li>\(S_i'(x_{i+1}) = S_{i+1}'(x_{i+1})\) — 1st derivative ต่อเนื่อง</li>
+        <li>\(S_i''(x_{i+1}) = S_{i+1}''(x_{i+1})\) — 2nd derivative ต่อเนื่อง</li>
+      </ol>
+
+      <h3>4.1 ระบบ Tridiagonal สำหรับหา \(z_i = S_i''(x_i)\)</h3>
+      <div class="formula">
+        \[ h_{i-1} z_{i-1} + 2(h_{i-1} + h_i) z_i + h_i z_{i+1} = 6\left(\frac{y_{i+1} - y_i}{h_i} - \frac{y_i - y_{i-1}}{h_{i-1}}\right) \]
+      </div>
+      <p>สำหรับ \(i = 2, \ldots, n-1\) → ได้ \(n - 2\) สมการ, \(n\) unknowns → ต้องการ 2 boundary conditions</p>
+
+      <h3>4.2 Boundary Conditions</h3>
+      <div class="grid-2">
+        <div class="card">
+          <h4>Natural Boundary</h4>
+          <p>\(S''(x_1) = S''(x_n) = 0\)</p>
+          <p>→ \(z_1 = 0, z_n = 0\)</p>
+          <p>⭐ <b>นิยมใช้ที่สุด</b></p>
+        </div>
+        <div class="card">
+          <h4>Clamped Boundary</h4>
+          <p>\(S'(x_1) = \alpha, S'(x_n) = \beta\)</p>
+          <p>ใช้เมื่อรู้ค่า \(f'(x)\) ที่ปลาย</p>
+        </div>
+      </div>
+
+      <h3>4.3 Coefficients หลังได้ \(z_i\)</h3>
+      <div class="formula">
+        \[ a_i = y_i, \quad c_i = \frac{z_i}{2}, \quad d_i = \frac{z_{i+1} - z_i}{6 h_i} \]
+        \[ b_i = \frac{y_{i+1} - y_i}{h_i} - h_i\left(\frac{z_{i+1}}{6} + \frac{z_i}{3}\right) \]
+      </div>
+
+      <div class="example open">
+        <div class="example-header">
+          <span><span class="example-label">ตัวอย่าง 4.1</span> Natural Cubic Spline</span>
+          <span class="chev">▶</span>
+        </div>
+        <div class="example-body">
+          <p><b>โจทย์:</b> data: \((1,2), (2,3), (3,5)\) — Natural cubic spline</p>
+          <p>\(h_1 = h_2 = 1\); Natural: \(z_1 = z_3 = 0\)</p>
+
+          <p><b>ระบบ:</b> สำหรับ \(i = 2\):</p>
+          <p>\(1 \cdot z_1 + 2(1+1) \cdot z_2 + 1 \cdot z_3 = 6\left(\frac{5-3}{1} - \frac{3-2}{1}\right)\)</p>
+          <p>\(4 z_2 = 6(1) = 6 \Rightarrow z_2 = 1.5\)</p>
+
+          <p><b>Coefficients:</b></p>
+          <p>\(S_1\) (\(i=1\)): \(a_1 = 2, c_1 = 0, d_1 = (1.5-0)/6 = 0.25\); \(b_1 = 1 - (1/6 + 0) = 0.75\)</p>
+          <p>\(S_1(x) = 2 + 0.75(x-1) + 0.25(x-1)^3\), \(x \in [1,2]\)</p>
+
+          <p>\(S_2\) (\(i=2\)): \(a_2 = 3, c_2 = 0.75, d_2 = (0-1.5)/6 = -0.25\); \(b_2 = 2 - (0 + 0.5) = 1.5\)</p>
+          <p>\(S_2(x) = 3 + 1.5(x-2) + 0.75(x-2)^2 - 0.25(x-2)^3\), \(x \in [2,3]\)</p>
+        </div>
+      </div>
+
+      <!-- Comparison -->
+      <h2>5. เปรียบเทียบ Spline Types</h2>
+      <div class="table-wrap"><table>
+        <tr><th>Spline</th><th>Degree</th><th>Continuity</th><th>Smoothness</th><th>ใช้เมื่อ</th></tr>
+        <tr><td>Linear</td><td>1</td><td>\(S\)</td><td>มี sharp corners</td><td>Quick approx</td></tr>
+        <tr><td>Quadratic</td><td>2</td><td>\(S, S'\)</td><td>Smooth-ish</td><td>Intermediate</td></tr>
+        <tr><td><b>Cubic ⭐</b></td><td>3</td><td>\(S, S', S''\)</td><td>Very smooth</td><td><b>Standard choice</b></td></tr>
+      </table></div>
+
+      <!-- Quiz -->
+      <h2>🧪 แบบทบทวนท้ายบท</h2>
+      <div class="quiz-container" data-quiz="ch8">
+        <h3>Quiz: Spline (10 ข้อ)</h3>
+
+        <div class="quiz-question" data-type="mc" data-answer="c">
+          <div class="q-text"><span class="q-number">1</span> Spline function degree \(k\) มี continuity ของ derivative ขั้นใด?</div>
+          <div class="q-options">
+            <label><input type="radio" name="q1" value="a"> 0</label>
+            <label><input type="radio" name="q1" value="b"> \(k\)</label>
+            <label><input type="radio" name="q1" value="c"> \(k - 1\)</label>
+            <label><input type="radio" name="q1" value="d"> \(k + 1\)</label>
+          </div>
+          <div class="q-explain">💡 Degree \(k\) spline มี continuous \((k-1)\)-th derivative</div>
+        </div>
+
+        <div class="quiz-question" data-type="num" data-answer="3" data-tol="0.1">
+          <div class="q-text"><span class="q-number">2</span> สำหรับ 4 data points, Linear spline มีกี่ segments?</div>
+          <input type="text" class="q-input" placeholder="ตัวเลข">
+          <div class="q-explain">💡 segments = n - 1 = 3</div>
+        </div>
+
+        <div class="quiz-question" data-type="mc" data-answer="b">
+          <div class="q-text"><span class="q-number">3</span> Natural cubic spline กำหนด boundary ว่า?</div>
+          <div class="q-options">
+            <label><input type="radio" name="q3" value="a"> \(S(x_1) = S(x_n) = 0\)</label>
+            <label><input type="radio" name="q3" value="b"> \(S''(x_1) = S''(x_n) = 0\)</label>
+            <label><input type="radio" name="q3" value="c"> \(S'(x_1) = S'(x_n) = 0\)</label>
+            <label><input type="radio" name="q3" value="d"> \(S'(x_1) = 1\)</label>
+          </div>
+          <div class="q-explain">💡 Natural: 2nd derivative ที่ปลาย = 0 → \(z_1 = z_n = 0\)</div>
+        </div>
+
+        <div class="quiz-question" data-type="num" data-answer="1" data-tol="0.1">
+          <div class="q-text"><span class="q-number">4</span> จากตัวอย่าง 2.1, Linear spline ที่ \(x=2\) ให้ค่า \(y = ?\)</div>
+          <input type="text" class="q-input" placeholder="ตัวเลข">
+          <div class="q-explain">💡 \(S_2(2) = -2 + 3(2-1) = 1\)</div>
+        </div>
+
+        <div class="quiz-question" data-type="mc" data-answer="d">
+          <div class="q-text"><span class="q-number">5</span> ทำไมเลือก Cubic Spline เป็นมาตรฐาน?</div>
+          <div class="q-options">
+            <label><input type="radio" name="q5" value="a"> ง่ายที่สุด</label>
+            <label><input type="radio" name="q5" value="b"> Degree ต่ำที่สุด</label>
+            <label><input type="radio" name="q5" value="c"> Error น้อยที่สุด</label>
+            <label><input type="radio" name="q5" value="d"> Smooth สูง (continuous ถึง 2nd derivative) + computationally feasible</label>
+          </div>
+          <div class="q-explain">💡 Cubic ให้ smoothness ที่ต้องการสำหรับ visual + physical realism</div>
+        </div>
+
+        <div class="quiz-question" data-type="num" data-answer="1.5" data-tol="0.1">
+          <div class="q-text"><span class="q-number">6</span> จากตัวอย่าง 4.1, \(z_2 = ?\) (natural cubic)</div>
+          <input type="text" class="q-input" placeholder="ตัวเลข">
+          <div class="q-explain">💡 ระบบ \(4 z_2 = 6\) → \(z_2 = 1.5\)</div>
+        </div>
+
+        <div class="quiz-question" data-type="mc" data-answer="a">
+          <div class="q-text"><span class="q-number">7</span> Cubic spline ระบบที่ต้องแก้คือ?</div>
+          <div class="q-options">
+            <label><input type="radio" name="q7" value="a"> Tridiagonal</label>
+            <label><input type="radio" name="q7" value="b"> Dense</label>
+            <label><input type="radio" name="q7" value="c"> Diagonal</label>
+            <label><input type="radio" name="q7" value="d"> Symmetric</label>
+          </div>
+          <div class="q-explain">💡 ระบบ cubic spline เป็น tridiagonal → แก้ได้เร็ว</div>
+        </div>
+
+        <div class="quiz-question" data-type="mc" data-answer="b">
+          <div class="q-text"><span class="q-number">8</span> Clamped boundary ใช้เมื่อ?</div>
+          <div class="q-options">
+            <label><input type="radio" name="q8" value="a"> ไม่รู้อะไรเลย</label>
+            <label><input type="radio" name="q8" value="b"> รู้ค่า \(f'(x)\) ที่ปลาย</label>
+            <label><input type="radio" name="q8" value="c"> รู้ \(f(x)\) ที่ปลาย</label>
+            <label><input type="radio" name="q8" value="d"> ไม่สำคัญ</label>
+          </div>
+          <div class="q-explain">💡 Clamped: \(S'(x_1) = f'(x_1), S'(x_n) = f'(x_n)\)</div>
+        </div>
+
+        <div class="quiz-question" data-type="mc" data-answer="c">
+          <div class="q-text"><span class="q-number">9</span> ข้อดีของ Spline เหนือ interpolation polynomial เดียว?</div>
+          <div class="q-options">
+            <label><input type="radio" name="q9" value="a"> คำนวณง่ายกว่า</label>
+            <label><input type="radio" name="q9" value="b"> ไม่ต้องแก้ระบบ</label>
+            <label><input type="radio" name="q9" value="c"> ไม่มี Runge's phenomenon</label>
+            <label><input type="radio" name="q9" value="d"> ใช้ data น้อยกว่า</label>
+          </div>
+          <div class="q-explain">💡 Spline แบ่งเป็น local pieces → ไม่ oscillate</div>
+        </div>
+
+        <div class="quiz-question" data-type="num" data-answer="9" data-tol="0.5">
+          <div class="q-text"><span class="q-number">10</span> Cubic spline สำหรับ 10 data points มีกี่ segments (cubic polynomials)?</div>
+          <input type="text" class="q-input" placeholder="ตัวเลข">
+          <div class="q-explain">💡 segments = n - 1 = 9</div>
+        </div>
+
+        <div class="quiz-actions">
+          <button class="btn btn-primary quiz-submit">✅ ตรวจคำตอบ</button>
+          <button class="btn btn-secondary quiz-reset">🔄 เริ่มใหม่</button>
+        </div>
+        <div class="quiz-score"></div>
+      </div>
+
+      <div class="pager">
+        <a href="ch7-interpolation.html"><span class="label">← ก่อนหน้า</span><span class="title">บทที่ 7</span></a>
+        <a href="ch9-numdiff.html"><span class="label">ถัดไป →</span><span class="title">บทที่ 9: Num. Diff</span></a>
+      </div>
+    </div>
+  </main>
+</div>
+<script src="../assets/app.js"></script>
+</body>
+</html>

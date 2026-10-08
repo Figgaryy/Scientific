@@ -1,0 +1,323 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="page-id" content="ch11">
+<title>บทที่ 11: Numerical ODE — CSS322</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@400;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../assets/style.css">
+</head>
+<body>
+<div class="app">
+  <aside class="sidebar">
+    <div class="brand">📐 CSS322</div>
+    <div class="brand-sub">Scientific Computing</div>
+    <div class="nav-section">หน้าหลัก</div>
+    <nav class="nav"><a href="../index.html" data-page="home">🏠 หน้าแรก <span class="status"></span></a></nav>
+    <div class="nav-section">บทเรียน</div>
+    <nav class="nav">
+      <a href="ch1-errors-taylor.html" data-page="ch1">บทที่ 1 <span class="status"></span></a>
+      <a href="ch2-root-finding.html" data-page="ch2">บทที่ 2 <span class="status"></span></a>
+      <a href="ch3-linear-direct.html" data-page="ch3">บทที่ 3 <span class="status"></span></a>
+      <a href="ch4-linear-iterative.html" data-page="ch4">บทที่ 4 <span class="status"></span></a>
+      <a href="ch5-nonlinear.html" data-page="ch5">บทที่ 5 <span class="status"></span></a>
+      <a href="ch6-regression.html" data-page="ch6">บทที่ 6 <span class="status"></span></a>
+      <a href="ch7-interpolation.html" data-page="ch7">บทที่ 7 <span class="status"></span></a>
+      <a href="ch8-spline.html" data-page="ch8">บทที่ 8 <span class="status"></span></a>
+      <a href="ch9-numdiff.html" data-page="ch9">บทที่ 9 <span class="status"></span></a>
+      <a href="ch10-numintegrate.html" data-page="ch10">บทที่ 10 <span class="status"></span></a>
+      <a href="ch11-ode.html" data-page="ch11">บทที่ 11: ODE <span class="status"></span></a>
+      <a href="ch12-eigenvalue.html" data-page="ch12">บทที่ 12 <span class="status"></span></a>
+      <a href="ch13-pagerank.html" data-page="ch13">บทที่ 13 <span class="status"></span></a>
+    </nav>
+    <div class="nav-section">การบ้าน</div>
+    <nav class="nav">
+      <a href="../homework/hw1.html" data-page="hw1">HW1 <span class="status"></span></a>
+      <a href="../homework/hw2.html" data-page="hw2">HW2 <span class="status"></span></a>
+      <a href="../homework/hw3.html" data-page="hw3">HW3 <span class="status"></span></a>
+      <a href="../homework/hw4.html" data-page="hw4">HW4 <span class="status"></span></a>
+      <a href="../homework/hw5.html" data-page="hw5">HW5 <span class="status"></span></a>
+    </nav>
+    <div class="nav-section">📝 เตรียมสอบ</div>
+    <nav class="nav">
+      <a href="../exam/index.html" data-page="exam">📚 ห้องเตรียมสอบ Midterm <span class="status"></span></a>
+    </nav>
+    <button class="theme-toggle">🌙 โหมดมืด</button>
+  </aside>
+
+  <main class="main">
+    <div class="main-inner">
+      <div class="crumbs"><a href="../index.html">หน้าแรก</a> › บทที่ 11</div>
+      <h1>บทที่ 11: Numerical Methods for ODEs</h1>
+      <p class="subtitle">แก้สมการอนุพันธ์สามัญ (ODE) อันดับ 1 ด้วย Taylor, Euler, Midpoint, Modified Euler, Runge-Kutta</p>
+
+      <div class="callout note">
+        <div class="callout-title">🎯 เป้าหมายของบท</div>
+        <ul style="margin:6px 0 0 20px;">
+          <li>เข้าใจ initial value problem (IVP): \(y' = f(x, y), y(x_1) = y_1\)</li>
+          <li>ใช้ <b>Euler's Explicit/Implicit</b> methods</li>
+          <li>ใช้ <b>Midpoint</b> และ <b>Modified Euler</b> (Heun's method)</li>
+          <li>เข้าใจ <b>Taylor series method</b> order \(n\)</li>
+          <li>เข้าใจ <b>Runge-Kutta methods</b> (RK2, RK4)</li>
+        </ul>
+      </div>
+
+      <!-- Intro -->
+      <h2>1. Introduction</h2>
+      <p>Initial Value Problem (IVP):</p>
+      <div class="formula">
+        \[ \frac{dy}{dx} = f(x, y), \quad y(x_1) = y_1 \]
+      </div>
+      <p>ตัวอย่าง: \(y' = -2y, y(0) = 10\); หา \(y(x)\) สำหรับ \(x > 0\)</p>
+
+      <h3>1.1 ประเภทของวิธี</h3>
+      <ul>
+        <li><b>Explicit:</b> \(y_{i+1} = F(y_i)\) (ใช้ค่าปัจจุบัน)</li>
+        <li><b>Implicit:</b> \(y_{i+1} = F(y_i, y_{i+1})\) (ต้องแก้สมการ)</li>
+        <li><b>Single-step:</b> ใช้ \(y_i\) เพื่อหา \(y_{i+1}\)</li>
+        <li><b>Multi-step:</b> ใช้ \(y_{i-m+1}, \ldots, y_i\)</li>
+      </ul>
+
+      <!-- Summary of Error Orders -->
+      <h2>2. สรุป Methods และ Error Order</h2>
+      <div class="table-wrap"><table>
+        <tr><th>Method</th><th>Local Truncation Error</th><th>Global Truncation Error</th></tr>
+        <tr><td>Euler's Explicit</td><td>\(O(h^2)\)</td><td>\(O(h)\)</td></tr>
+        <tr><td>Euler's Implicit</td><td>\(O(h^2)\)</td><td>\(O(h)\)</td></tr>
+        <tr><td>Midpoint</td><td>\(O(h^3)\)</td><td>\(O(h^2)\)</td></tr>
+        <tr><td>Modified Euler (Heun)</td><td>\(O(h^3)\)</td><td>\(O(h^2)\)</td></tr>
+        <tr><td>Runge-Kutta order \(n\)</td><td>\(O(h^{n+1})\)</td><td>\(O(h^n)\)</td></tr>
+      </table></div>
+
+      <!-- Taylor Series Method -->
+      <h2>3. Taylor Series Method</h2>
+      <div class="formula">
+        \[ y_{i+1} = y_i + f(x_i, y_i) h + \frac{f'(x_i, y_i)}{2!}h^2 + \cdots + \frac{f^{(n-1)}(x_i, y_i)}{n!}h^n \]
+      </div>
+
+      <p>คำนวณ \(f', f'', \ldots\) จาก:</p>
+      <div class="formula">
+        \[ f'(x, y) = \frac{\partial f}{\partial x} + \frac{\partial f}{\partial y} \cdot \frac{dy}{dx} = f_x + f_y \cdot f \]
+      </div>
+
+      <!-- Euler Explicit -->
+      <h2>4. Euler's Explicit Method</h2>
+      <p>Special case ของ Taylor series order 1:</p>
+      <div class="formula">\[ y_{i+1} = y_i + f(x_i, y_i) \cdot h \]</div>
+
+      <div class="example open">
+        <div class="example-header">
+          <span><span class="example-label">ตัวอย่าง 4.1</span> Euler's Explicit สำหรับ \(y' = x + y + 1, y(0) = 0\)</span>
+          <span class="chev">▶</span>
+        </div>
+        <div class="example-body">
+          <p>\(h = 1\); \(f(x, y) = x + y + 1\)</p>
+          <p><b>Iteration:</b></p>
+          <p>\(y_2 = y_1 + f(0, 0)(1) = 0 + 1 = 1\)</p>
+          <p>\(y_3 = y_2 + f(1, 1)(1) = 1 + 3 = 4\)</p>
+          <p><b>Exact:</b> \(y(x) = 2e^x - x - 2\); \(y(1) = 2e - 3 = 2.4366\); \(y(2) = 2e^2 - 4 = 10.778\)</p>
+          <p>Error ที่ \(x = 1\): \(|y(1) - y_2| = 1.4366\); Error ที่ \(x = 2\): \(|10.778 - 4| = 6.778\)</p>
+        </div>
+      </div>
+
+      <!-- Euler Implicit -->
+      <h2>5. Euler's Implicit Method</h2>
+      <div class="formula">\[ y_{i+1} = y_i + f(x_{i+1}, y_{i+1}) \cdot h \]</div>
+      <p>⚠️ Implicit — ต้องแก้ \(y_{i+1}\) จากสมการ</p>
+
+      <div class="example">
+        <div class="example-header">
+          <span><span class="example-label">ตัวอย่าง 5.1</span> Implicit Euler สำหรับ \(y' = x + y + 1, y(0) = 0\)</span>
+          <span class="chev">▶</span>
+        </div>
+        <div class="example-body">
+          <p>\(y_{i+1} = y_i + (x_{i+1} + y_{i+1} + 1)h\)</p>
+          <p>แก้: \(y_{i+1}(1 - h) = y_i + (x_{i+1} + 1)h\) → \(y_{i+1} = \frac{y_i + h(x_{i+1} + 1)}{1 - h}\)</p>
+          <p>\(h = 0.5\): \(y_2 = (0 + 0.5(1.5))/(0.5) = 1.5\); \(y_3 = (1.5 + 0.5(2))/0.5 = 5\)</p>
+        </div>
+      </div>
+
+      <!-- Midpoint -->
+      <h2>6. Midpoint Method</h2>
+      <div class="formula">
+        \[ y_{i+1} = y_i + f(x_m, y_m) \cdot h \]
+        \[ \text{โดย } x_m = x_i + \frac{h}{2}, \quad y_m = y_i + \frac{h}{2} f(x_i, y_i) \]
+      </div>
+      <p>Error: \(O(h^2)\) — ดีกว่า Euler</p>
+
+      <!-- Modified Euler -->
+      <h2>7. Modified Euler's Method (Heun's)</h2>
+      <p>Predictor-Corrector:</p>
+      <ol>
+        <li><b>Predictor:</b> \(y_{i+1}^0 = y_i + h \cdot f(x_i, y_i)\) (Explicit Euler)</li>
+        <li><b>Corrector:</b> \(y_{i+1} = y_i + h \cdot \frac{f(x_i, y_i) + f(x_{i+1}, y_{i+1}^0)}{2}\)</li>
+      </ol>
+      <p>Error: \(O(h^2)\)</p>
+
+      <div class="example open">
+        <div class="example-header">
+          <span><span class="example-label">ตัวอย่าง 7.1</span> Modified Euler สำหรับ \(y' = x + y + 1, y(0) = 0\)</span>
+          <span class="chev">▶</span>
+        </div>
+        <div class="example-body">
+          <p>\(h = 1\); \(f(x, y) = x + y + 1\)</p>
+          <p><b>Step 1 (x = 0 → 1):</b></p>
+          <p>Predictor: \(y_2^0 = 0 + 1 \cdot f(0, 0) = 1\)</p>
+          <p>Corrector: \(y_2 = 0 + 1 \cdot \frac{f(0, 0) + f(1, 1)}{2} = \frac{1 + 3}{2} = 2\)</p>
+          <p>Error: \(|2.4366 - 2| = 0.4366\) ← ดีกว่า Euler 1.4366 มาก!</p>
+        </div>
+      </div>
+
+      <!-- Runge-Kutta -->
+      <h2>8. Runge-Kutta Methods</h2>
+
+      <h3>8.1 RK2 (Second-order Runge-Kutta)</h3>
+      <div class="formula">
+        \[ y_{i+1} = y_i + (c_1 K_1 + c_2 K_2) h \]
+        \[ K_1 = f(x_i, y_i), \quad K_2 = f(x_i + a_2 h, y_i + b_{21} K_1 h) \]
+      </div>
+      <p>Constraints: \(c_1 + c_2 = 1, c_2 a_2 = 1/2, c_2 b_{21} = 1/2\)</p>
+
+      <p><b>ค่าที่นิยม:</b></p>
+      <ul>
+        <li>\(c_1 = c_2 = 1/2, a_2 = b_{21} = 1\) → <b>Heun's</b> (= Modified Euler)</li>
+        <li>\(c_1 = 0, c_2 = 1, a_2 = b_{21} = 1/2\) → <b>Midpoint</b></li>
+      </ul>
+
+      <h3>8.2 RK4 (Fourth-order) ⭐</h3>
+      <p><b>วิธีมาตรฐานทองคำ</b> — error \(O(h^4)\):</p>
+      <div class="formula">
+        \[ y_{i+1} = y_i + \frac{h}{6}(K_1 + 2K_2 + 2K_3 + K_4) \]
+      </div>
+      <div class="formula">
+        \[ K_1 = f(x_i, y_i) \]
+        \[ K_2 = f(x_i + h/2, y_i + K_1 h/2) \]
+        \[ K_3 = f(x_i + h/2, y_i + K_2 h/2) \]
+        \[ K_4 = f(x_i + h, y_i + K_3 h) \]
+      </div>
+
+      <!-- Quiz -->
+      <h2>🧪 แบบทบทวนท้ายบท</h2>
+      <div class="quiz-container" data-quiz="ch11">
+        <h3>Quiz: Numerical ODE (10 ข้อ)</h3>
+
+        <div class="quiz-question" data-type="mc" data-answer="a">
+          <div class="q-text"><span class="q-number">1</span> Euler's Explicit formula คือ?</div>
+          <div class="q-options">
+            <label><input type="radio" name="q1" value="a"> \(y_{i+1} = y_i + f(x_i, y_i) h\)</label>
+            <label><input type="radio" name="q1" value="b"> \(y_{i+1} = y_i + f(x_{i+1}, y_{i+1}) h\)</label>
+            <label><input type="radio" name="q1" value="c"> \(y_{i+1} = y_i \cdot h\)</label>
+            <label><input type="radio" name="q1" value="d"> \(y_{i+1} = f(y_i)\)</label>
+          </div>
+          <div class="q-explain">💡 Euler Explicit ใช้ slope ที่ \((x_i, y_i)\)</div>
+        </div>
+
+        <div class="quiz-question" data-type="num" data-answer="1" data-tol="0.1">
+          <div class="q-text"><span class="q-number">2</span> \(y' = x + y + 1, y(0) = 0, h = 1\); Euler Explicit: \(y(1) = ?\)</div>
+          <input type="text" class="q-input" placeholder="ตัวเลข">
+          <div class="q-explain">💡 \(y_2 = 0 + f(0,0)(1) = 0 + 1 = 1\)</div>
+        </div>
+
+        <div class="quiz-question" data-type="mc" data-answer="b">
+          <div class="q-text"><span class="q-number">3</span> Global truncation error ของ Euler's Explicit?</div>
+          <div class="q-options">
+            <label><input type="radio" name="q3" value="a"> \(O(h^2)\)</label>
+            <label><input type="radio" name="q3" value="b"> \(O(h)\)</label>
+            <label><input type="radio" name="q3" value="c"> \(O(h^3)\)</label>
+            <label><input type="radio" name="q3" value="d"> \(O(h^4)\)</label>
+          </div>
+          <div class="q-explain">💡 Euler Explicit มี global error \(O(h)\)</div>
+        </div>
+
+        <div class="quiz-question" data-type="mc" data-answer="d">
+          <div class="q-text"><span class="q-number">4</span> RK4 มี global error order?</div>
+          <div class="q-options">
+            <label><input type="radio" name="q4" value="a"> \(O(h)\)</label>
+            <label><input type="radio" name="q4" value="b"> \(O(h^2)\)</label>
+            <label><input type="radio" name="q4" value="c"> \(O(h^3)\)</label>
+            <label><input type="radio" name="q4" value="d"> \(O(h^4)\)</label>
+          </div>
+          <div class="q-explain">💡 RK4 → global \(O(h^4)\)</div>
+        </div>
+
+        <div class="quiz-question" data-type="num" data-answer="2" data-tol="0.1">
+          <div class="q-text"><span class="q-number">5</span> จากตัวอย่าง 7.1 Modified Euler: \(y(1) = ?\)</div>
+          <input type="text" class="q-input" placeholder="ตัวเลข">
+          <div class="q-explain">💡 \(y_2 = 2\) (จาก predictor-corrector)</div>
+        </div>
+
+        <div class="quiz-question" data-type="mc" data-answer="c">
+          <div class="q-text"><span class="q-number">6</span> Modified Euler ประกอบด้วยกี่ steps?</div>
+          <div class="q-options">
+            <label><input type="radio" name="q6" value="a"> 1 (explicit)</label>
+            <label><input type="radio" name="q6" value="b"> 1 (implicit)</label>
+            <label><input type="radio" name="q6" value="c"> 2 (predictor + corrector)</label>
+            <label><input type="radio" name="q6" value="d"> 4 (RK4)</label>
+          </div>
+          <div class="q-explain">💡 Predictor: Explicit Euler; Corrector: Trapezoidal</div>
+        </div>
+
+        <div class="quiz-question" data-type="mc" data-answer="b">
+          <div class="q-text"><span class="q-number">7</span> Midpoint method ใช้ slope ที่?</div>
+          <div class="q-options">
+            <label><input type="radio" name="q7" value="a"> \((x_i, y_i)\)</label>
+            <label><input type="radio" name="q7" value="b"> \((x_i + h/2, y_m)\) โดย \(y_m\) ประมาณจาก Euler</label>
+            <label><input type="radio" name="q7" value="c"> \((x_{i+1}, y_{i+1})\)</label>
+            <label><input type="radio" name="q7" value="d"> ไม่ใช้ slope</label>
+          </div>
+          <div class="q-explain">💡 Midpoint ใช้ slope ที่กลาง interval → แม่นกว่า Euler</div>
+        </div>
+
+        <div class="quiz-question" data-type="mc" data-answer="a">
+          <div class="q-text"><span class="q-number">8</span> RK4 ใช้กี่ function evaluations ต่อ step?</div>
+          <div class="q-options">
+            <label><input type="radio" name="q8" value="a"> 4 (K1, K2, K3, K4)</label>
+            <label><input type="radio" name="q8" value="b"> 2</label>
+            <label><input type="radio" name="q8" value="c"> 1</label>
+            <label><input type="radio" name="q8" value="d"> 8</label>
+          </div>
+          <div class="q-explain">💡 RK4 ประเมิน f() 4 ครั้ง → ได้ accuracy \(O(h^4)\)</div>
+        </div>
+
+        <div class="quiz-question" data-type="mc" data-answer="b">
+          <div class="q-text"><span class="q-number">9</span> Implicit methods ดีกว่า Explicit ตรงไหน?</div>
+          <div class="q-options">
+            <label><input type="radio" name="q9" value="a"> คำนวณง่ายกว่า</label>
+            <label><input type="radio" name="q9" value="b"> Stable กว่าสำหรับ stiff equations</label>
+            <label><input type="radio" name="q9" value="c"> ไม่ต้องรู้ \(f\)</label>
+            <label><input type="radio" name="q9" value="d"> ไม่ต้องแก้สมการ</label>
+          </div>
+          <div class="q-explain">💡 Implicit methods stable กว่าสำหรับ stiff ODEs (แม้ \(h\) ใหญ่)</div>
+        </div>
+
+        <div class="quiz-question" data-type="mc" data-answer="c">
+          <div class="q-text"><span class="q-number">10</span> RK4 formula คือ?</div>
+          <div class="q-options">
+            <label><input type="radio" name="q10" value="a"> \(y_{i+1} = y_i + h K_1\)</label>
+            <label><input type="radio" name="q10" value="b"> \(y_{i+1} = y_i + h(K_1 + K_2)/2\)</label>
+            <label><input type="radio" name="q10" value="c"> \(y_{i+1} = y_i + \frac{h}{6}(K_1 + 2K_2 + 2K_3 + K_4)\)</label>
+            <label><input type="radio" name="q10" value="d"> \(y_{i+1} = y_i + h K_4\)</label>
+          </div>
+          <div class="q-explain">💡 RK4 weighted average: 1, 2, 2, 1 (sum = 6) → \(\frac{h}{6}(K_1 + 2K_2 + 2K_3 + K_4)\)</div>
+        </div>
+
+        <div class="quiz-actions">
+          <button class="btn btn-primary quiz-submit">✅ ตรวจคำตอบ</button>
+          <button class="btn btn-secondary quiz-reset">🔄 เริ่มใหม่</button>
+        </div>
+        <div class="quiz-score"></div>
+      </div>
+
+      <div class="pager">
+        <a href="ch10-numintegrate.html"><span class="label">← ก่อนหน้า</span><span class="title">บทที่ 10</span></a>
+        <a href="ch12-eigenvalue.html"><span class="label">ถัดไป →</span><span class="title">บทที่ 12: Eigenvalue</span></a>
+      </div>
+    </div>
+  </main>
+</div>
+<script src="../assets/app.js"></script>
+</body>
+</html>

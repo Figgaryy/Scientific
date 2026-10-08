@@ -1,0 +1,307 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="page-id" content="ch12">
+<title>บทที่ 12: Eigenvalues — CSS322</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@400;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../assets/style.css">
+</head>
+<body>
+<div class="app">
+  <aside class="sidebar">
+    <div class="brand">📐 CSS322</div>
+    <div class="brand-sub">Scientific Computing</div>
+    <div class="nav-section">หน้าหลัก</div>
+    <nav class="nav"><a href="../index.html" data-page="home">🏠 หน้าแรก <span class="status"></span></a></nav>
+    <div class="nav-section">บทเรียน</div>
+    <nav class="nav">
+      <a href="ch1-errors-taylor.html" data-page="ch1">บทที่ 1 <span class="status"></span></a>
+      <a href="ch2-root-finding.html" data-page="ch2">บทที่ 2 <span class="status"></span></a>
+      <a href="ch3-linear-direct.html" data-page="ch3">บทที่ 3 <span class="status"></span></a>
+      <a href="ch4-linear-iterative.html" data-page="ch4">บทที่ 4 <span class="status"></span></a>
+      <a href="ch5-nonlinear.html" data-page="ch5">บทที่ 5 <span class="status"></span></a>
+      <a href="ch6-regression.html" data-page="ch6">บทที่ 6 <span class="status"></span></a>
+      <a href="ch7-interpolation.html" data-page="ch7">บทที่ 7 <span class="status"></span></a>
+      <a href="ch8-spline.html" data-page="ch8">บทที่ 8 <span class="status"></span></a>
+      <a href="ch9-numdiff.html" data-page="ch9">บทที่ 9 <span class="status"></span></a>
+      <a href="ch10-numintegrate.html" data-page="ch10">บทที่ 10 <span class="status"></span></a>
+      <a href="ch11-ode.html" data-page="ch11">บทที่ 11 <span class="status"></span></a>
+      <a href="ch12-eigenvalue.html" data-page="ch12">บทที่ 12: Eigenvalue <span class="status"></span></a>
+      <a href="ch13-pagerank.html" data-page="ch13">บทที่ 13 <span class="status"></span></a>
+    </nav>
+    <div class="nav-section">การบ้าน</div>
+    <nav class="nav">
+      <a href="../homework/hw1.html" data-page="hw1">HW1 <span class="status"></span></a>
+      <a href="../homework/hw2.html" data-page="hw2">HW2 <span class="status"></span></a>
+      <a href="../homework/hw3.html" data-page="hw3">HW3 <span class="status"></span></a>
+      <a href="../homework/hw4.html" data-page="hw4">HW4 <span class="status"></span></a>
+      <a href="../homework/hw5.html" data-page="hw5">HW5 <span class="status"></span></a>
+    </nav>
+    <div class="nav-section">📝 เตรียมสอบ</div>
+    <nav class="nav">
+      <a href="../exam/index.html" data-page="exam">📚 ห้องเตรียมสอบ Midterm <span class="status"></span></a>
+    </nav>
+    <button class="theme-toggle">🌙 โหมดมืด</button>
+  </aside>
+
+  <main class="main">
+    <div class="main-inner">
+      <div class="crumbs"><a href="../index.html">หน้าแรก</a> › บทที่ 12</div>
+      <h1>บทที่ 12: Eigenvalues (Power Methods)</h1>
+      <p class="subtitle">หา eigenvalues ของ matrix ด้วย iterative methods — Power, Inverse Power, Shifted Power</p>
+
+      <div class="callout note">
+        <div class="callout-title">🎯 เป้าหมายของบท</div>
+        <ul style="margin:6px 0 0 20px;">
+          <li>เข้าใจ eigenvalue problem: \(A\mathbf{x} = \lambda\mathbf{x}\)</li>
+          <li>ใช้ <b>Power Method</b> หา dominant (largest) eigenvalue</li>
+          <li>ใช้ <b>Inverse Power Method</b> หา smallest eigenvalue</li>
+          <li>ใช้ <b>Shifted Power / Shifted Inverse Power</b> หา eigenvalue ใกล้/ไกลค่าที่กำหนด</li>
+        </ul>
+      </div>
+
+      <!-- Intro -->
+      <h2>1. Introduction: Eigenvalue Problem</h2>
+      <p>สำหรับ matrix \(A \in \mathbb{C}^{n \times n}\): หา scalar \(\lambda\) และ nonzero vector \(\mathbf{x}\) ที่:</p>
+      <div class="formula">\[ A\mathbf{x} = \lambda\mathbf{x} \]</div>
+      <p>\(\lambda\) = eigenvalue, \(\mathbf{x}\) = eigenvector, \((\lambda, \mathbf{x})\) = eigenpair</p>
+
+      <h3>1.1 Characteristic Polynomial</h3>
+      <p>หา \(\lambda\) จาก:</p>
+      <div class="formula">\[ p(\lambda) = \det(A - \lambda I) = 0 \]</div>
+      <p>⚠️ สำหรับ \(n\) ใหญ่ — คำนวณ determinant ยาก และหา roots ยาก → ใช้ iterative methods</p>
+
+      <div class="example open">
+        <div class="example-header">
+          <span><span class="example-label">ตัวอย่าง 1.1</span> หา eigenvalues ของ \(A = \begin{bmatrix}2&1\\0&3\end{bmatrix}\)</span>
+          <span class="chev">▶</span>
+        </div>
+        <div class="example-body">
+          <p>\(\det(A - \lambda I) = (2-\lambda)(3-\lambda) - 0 = 0\)</p>
+          <p>\(\lambda = 2, 3\)</p>
+          <p><b>Eigenvector สำหรับ \(\lambda = 2\):</b></p>
+          <p>\((A - 2I)\mathbf{v} = \begin{bmatrix}0&1\\0&1\end{bmatrix}\mathbf{v} = 0\) → \(v_2 = 0, v_1 =\) free → \(\mathbf{v} = \begin{bmatrix}1\\0\end{bmatrix}\)</p>
+          <p><b>Eigenvector สำหรับ \(\lambda = 3\):</b></p>
+          <p>\((A - 3I)\mathbf{v} = \begin{bmatrix}-1&1\\0&0\end{bmatrix}\mathbf{v} = 0\) → \(v_1 = v_2\) → \(\mathbf{v} = \begin{bmatrix}1\\1\end{bmatrix}\)</p>
+        </div>
+      </div>
+
+      <!-- Power Method -->
+      <h2>2. Power Method ⭐</h2>
+      <p>หา <b>dominant eigenvalue</b> (ที่มี \(|\lambda|\) ใหญ่ที่สุด)</p>
+
+      <h3>2.1 Assumptions</h3>
+      <ul>
+        <li>\(|\lambda_1| > |\lambda_2| \geq \cdots \geq |\lambda_n|\) (มี unique largest)</li>
+        <li>Eigenvectors \(\mathbf{u}^{(1)}, \ldots, \mathbf{u}^{(n)}\) linearly independent</li>
+      </ul>
+
+      <h3>2.2 Algorithm</h3>
+      <div class="formula">
+        \[ \mathbf{x}^{(k+1)} = A\mathbf{x}^{(k)} \]
+        \[ r_k = \frac{\varphi(\mathbf{x}^{(k+1)})}{\varphi(\mathbf{x}^{(k)})} \to \lambda_1 \]
+      </div>
+      <p>โดย \(\varphi\) เป็น linear functional (เช่น \(\varphi(\mathbf{x}) = x_1\))</p>
+      <p>⚠️ ต้อง <b>normalize</b> \(\mathbf{x}^{(k)}\) ทุกรอบเพื่อไม่ให้ overflow:</p>
+      <div class="formula">\[ \mathbf{x}^{(k)} \leftarrow \mathbf{x}^{(k)} / \|\mathbf{x}^{(k)}\| \]</div>
+
+      <div class="example open">
+        <div class="example-header">
+          <span><span class="example-label">ตัวอย่าง 2.1</span> Power method สำหรับ \(A = \begin{bmatrix}6&5&-5\\2&6&-2\\2&5&-1\end{bmatrix}\)</span>
+          <span class="chev">▶</span>
+        </div>
+        <div class="example-body">
+          <p>Eigenvalues จริง: 6, 4, 1 → dominant = 6; eigenvector = [1, 1, 1]ᵀ</p>
+          <p>\(\mathbf{x}^{(0)} = [-1, 1, 1]^T\), \(\varphi(\mathbf{x}) = x_2\), infinity norm</p>
+
+          <p><b>Iter 1:</b> \(A\mathbf{x}^{(0)} = [6(-1)+5+(-5), 2(-1)+6+(-2), 2(-1)+5+(-1)]^T = [-6, 2, 2]^T\)</p>
+          <p>\(r_1 = 2/1 = 2\); normalize: /||·||∞ = /6 → \([-1, 0.333, 0.333]^T\)</p>
+
+          <p><b>After many iterations:</b> \(r_k \to 6\), eigenvector \(\to [-1, -1, -1]^T\) (same direction as [1,1,1])</p>
+        </div>
+      </div>
+
+      <!-- Inverse Power -->
+      <h2>3. Inverse Power Method</h2>
+      <p>หา <b>smallest eigenvalue</b> ของ \(A\)</p>
+
+      <div class="callout tip">
+        <div class="callout-title">📌 Theorem</div>
+        <p style="margin:0;">ถ้า \(\lambda\) เป็น eigenvalue ของ \(A\) (nonsingular) → \(1/\lambda\) เป็น eigenvalue ของ \(A^{-1}\)</p>
+      </div>
+
+      <p>ใช้ Power method บน \(A^{-1}\) → หา \(1/\lambda_n\) (largest ของ \(A^{-1}\)) → \(\lambda_n\) = smallest ของ \(A\)</p>
+
+      <h3>3.1 Algorithm (ไม่คำนวณ \(A^{-1}\) ตรง ๆ)</h3>
+      <p>แทน \(\mathbf{x}^{(k+1)} = A^{-1}\mathbf{x}^{(k)}\) ด้วยการแก้:</p>
+      <div class="formula">\[ A\mathbf{x}^{(k+1)} = \mathbf{x}^{(k)} \]</div>
+      <p>ใช้ LU decomposition ครั้งเดียว → แก้ triangular systems ซ้ำ ๆ</p>
+
+      <!-- Shifted Power -->
+      <h2>4. Shifted Power / Inverse Power Methods</h2>
+
+      <div class="callout tip">
+        <div class="callout-title">📌 Theorem (Shifted matrix)</div>
+        <p style="margin:0;">ถ้า \(\lambda\) เป็น eigenvalue ของ \(A\) → \(\lambda - \mu\) เป็น eigenvalue ของ \(A - \mu I\)</p>
+      </div>
+
+      <div class="grid-2">
+        <div class="card">
+          <h4>Shifted Power Method</h4>
+          <p>หา eigenvalue <b>ไกลสุดจาก \(\mu\)</b></p>
+          <p>Apply Power method บน \(A - \mu I\)</p>
+          <p>\(r_k \to \lambda - \mu\) → \(\lambda = r_k + \mu\)</p>
+        </div>
+        <div class="card">
+          <h4>Shifted Inverse Power</h4>
+          <p>หา eigenvalue <b>ใกล้สุดกับ \(\mu\)</b></p>
+          <p>Apply Inverse Power บน \(A - \mu I\)</p>
+          <p>\(r_k \to 1/(\lambda - \mu)\) → \(\lambda = 1/r_k + \mu\)</p>
+        </div>
+      </div>
+
+      <div class="example open">
+        <div class="example-header">
+          <span><span class="example-label">ตัวอย่าง 4.1</span> Shifted power with \(\mu = 7\)</span>
+          <span class="chev">▶</span>
+        </div>
+        <div class="example-body">
+          <p>\(A\) มี eigenvalues 6, 4, 1; \(\mu = 7\)</p>
+          <p><b>Shifted Power:</b> หา eigenvalue ไกลจาก 7 → \(|1 - 7| = 6\) (ไกลสุด)</p>
+          <p>\(r_k \to -6\); \(\lambda = -6 + 7 = 1\) ✅</p>
+          <p><b>Shifted Inverse:</b> หา eigenvalue ใกล้ 7 → \(|6 - 7| = 1\) (ใกล้สุด)</p>
+          <p>\(r_k \to 1/(6-7) = -1\); \(\lambda = -1 + 7 = 6\) ✅</p>
+        </div>
+      </div>
+
+      <!-- Quiz -->
+      <h2>🧪 แบบทบทวนท้ายบท</h2>
+      <div class="quiz-container" data-quiz="ch12">
+        <h3>Quiz: Eigenvalues (10 ข้อ)</h3>
+
+        <div class="quiz-question" data-type="mc" data-answer="a">
+          <div class="q-text"><span class="q-number">1</span> Eigenvalue problem คือ?</div>
+          <div class="q-options">
+            <label><input type="radio" name="q1" value="a"> \(A\mathbf{x} = \lambda\mathbf{x}\)</label>
+            <label><input type="radio" name="q1" value="b"> \(A\mathbf{x} = \mathbf{b}\)</label>
+            <label><input type="radio" name="q1" value="c"> \(A^{-1} = \mathbf{x}\)</label>
+            <label><input type="radio" name="q1" value="d"> \(\det(A) = 0\)</label>
+          </div>
+          <div class="q-explain">💡 Eigenvalue: \(A\mathbf{x} = \lambda\mathbf{x}\) โดย \(\mathbf{x} \neq 0\)</div>
+        </div>
+
+        <div class="quiz-question" data-type="mc" data-answer="b">
+          <div class="q-text"><span class="q-number">2</span> Power method หา eigenvalue ใด?</div>
+          <div class="q-options">
+            <label><input type="radio" name="q2" value="a"> Smallest</label>
+            <label><input type="radio" name="q2" value="b"> Dominant (largest |λ|)</label>
+            <label><input type="radio" name="q2" value="c"> ตัวแรก</label>
+            <label><input type="radio" name="q2" value="d"> ทั้งหมด</label>
+          </div>
+          <div class="q-explain">💡 Power method converge ไปที่ eigenvalue ที่มี \(|\lambda|\) ใหญ่สุด</div>
+        </div>
+
+        <div class="quiz-question" data-type="mc" data-answer="c">
+          <div class="q-text"><span class="q-number">3</span> Characteristic polynomial คือ?</div>
+          <div class="q-options">
+            <label><input type="radio" name="q3" value="a"> \(\det(A)\)</label>
+            <label><input type="radio" name="q3" value="b"> \(\det(A - \mathbf{x})\)</label>
+            <label><input type="radio" name="q3" value="c"> \(\det(A - \lambda I)\)</label>
+            <label><input type="radio" name="q3" value="d"> \(\text{trace}(A) - \lambda\)</label>
+          </div>
+          <div class="q-explain">💡 \(p(\lambda) = \det(A - \lambda I)\); roots = eigenvalues</div>
+        </div>
+
+        <div class="quiz-question" data-type="mc" data-answer="d">
+          <div class="q-text"><span class="q-number">4</span> Inverse Power method หาค่าใด?</div>
+          <div class="q-options">
+            <label><input type="radio" name="q4" value="a"> Dominant</label>
+            <label><input type="radio" name="q4" value="b"> Random</label>
+            <label><input type="radio" name="q4" value="c"> Middle</label>
+            <label><input type="radio" name="q4" value="d"> Smallest</label>
+          </div>
+          <div class="q-explain">💡 \(1/\lambda\) ของ \(A^{-1}\) เป็น smallest เพราะ Power method ของ \(A^{-1}\) หา dominant ของ \(A^{-1}\) = \(1/\lambda_{min}\)</div>
+        </div>
+
+        <div class="quiz-question" data-type="mc" data-answer="b">
+          <div class="q-text"><span class="q-number">5</span> ทำไมต้อง normalize \(\mathbf{x}^{(k)}\) ใน Power method?</div>
+          <div class="q-options">
+            <label><input type="radio" name="q5" value="a"> ให้สวย</label>
+            <label><input type="radio" name="q5" value="b"> ป้องกัน overflow/underflow</label>
+            <label><input type="radio" name="q5" value="c"> ไม่จำเป็น</label>
+            <label><input type="radio" name="q5" value="d"> ให้ converge ช้าลง</label>
+          </div>
+          <div class="q-explain">💡 ไม่ normalize → \(\mathbf{x}^{(k)} = \lambda^k \mathbf{x}^{(0)}\) อาจระเบิดหรือหายเป็น 0</div>
+        </div>
+
+        <div class="quiz-question" data-type="mc" data-answer="a">
+          <div class="q-text"><span class="q-number">6</span> Shifted Inverse Power หา eigenvalue?</div>
+          <div class="q-options">
+            <label><input type="radio" name="q6" value="a"> ใกล้ \(\mu\) ที่สุด</label>
+            <label><input type="radio" name="q6" value="b"> ไกล \(\mu\) ที่สุด</label>
+            <label><input type="radio" name="q6" value="c"> เท่ากับ \(\mu\)</label>
+            <label><input type="radio" name="q6" value="d"> Dominant</label>
+          </div>
+          <div class="q-explain">💡 \(1/(\lambda-\mu)\) ใหญ่สุดเมื่อ \(\lambda\) ใกล้ \(\mu\) → หา eigenvalue ใกล้ \(\mu\)</div>
+        </div>
+
+        <div class="quiz-question" data-type="mc" data-answer="c">
+          <div class="q-text"><span class="q-number">7</span> \(A = \begin{bmatrix}2&0\\0&5\end{bmatrix}\) — eigenvalues คือ?</div>
+          <div class="q-options">
+            <label><input type="radio" name="q7" value="a"> 0, 7</label>
+            <label><input type="radio" name="q7" value="b"> 2, 0</label>
+            <label><input type="radio" name="q7" value="c"> 2, 5</label>
+            <label><input type="radio" name="q7" value="d"> 10</label>
+          </div>
+          <div class="q-explain">💡 Diagonal matrix → eigenvalues = diagonal entries</div>
+        </div>
+
+        <div class="quiz-question" data-type="mc" data-answer="b">
+          <div class="q-text"><span class="q-number">8</span> ใน Inverse Power method ทำไมใช้ \(A\mathbf{x}^{(k+1)} = \mathbf{x}^{(k)}\) แทน \(\mathbf{x}^{(k+1)} = A^{-1}\mathbf{x}^{(k)}\)?</div>
+          <div class="q-options">
+            <label><input type="radio" name="q8" value="a"> ง่ายกว่า</label>
+            <label><input type="radio" name="q8" value="b"> ประหยัดคำนวณ (ใช้ LU ครั้งเดียว + triangular solve)</label>
+            <label><input type="radio" name="q8" value="c"> \(A^{-1}\) ไม่มี</label>
+            <label><input type="radio" name="q8" value="d"> ไม่ต่าง</label>
+          </div>
+          <div class="q-explain">💡 คำนวณ \(A^{-1}\) แพง; LU + solve ถูกกว่า</div>
+        </div>
+
+        <div class="quiz-question" data-type="mc" data-answer="a">
+          <div class="q-text"><span class="q-number">9</span> ถ้า \(\lambda\) eigenvalue ของ \(A\) → eigenvalue ของ \(A - \mu I\) คือ?</div>
+          <div class="q-options">
+            <label><input type="radio" name="q9" value="a"> \(\lambda - \mu\)</label>
+            <label><input type="radio" name="q9" value="b"> \(\lambda / \mu\)</label>
+            <label><input type="radio" name="q9" value="c"> \(\lambda + \mu\)</label>
+            <label><input type="radio" name="q9" value="d"> \(\mu\)</label>
+          </div>
+          <div class="q-explain">💡 Shifted matrix: eigenvalues shift ด้วย \(-\mu\)</div>
+        </div>
+
+        <div class="quiz-question" data-type="num" data-answer="6" data-tol="0.1">
+          <div class="q-text"><span class="q-number">10</span> จากตัวอย่าง 2.1 Power method converge ไปที่ eigenvalue ใด?</div>
+          <input type="text" class="q-input" placeholder="ตัวเลข">
+          <div class="q-explain">💡 Dominant eigenvalue = 6</div>
+        </div>
+
+        <div class="quiz-actions">
+          <button class="btn btn-primary quiz-submit">✅ ตรวจคำตอบ</button>
+          <button class="btn btn-secondary quiz-reset">🔄 เริ่มใหม่</button>
+        </div>
+        <div class="quiz-score"></div>
+      </div>
+
+      <div class="pager">
+        <a href="ch11-ode.html"><span class="label">← ก่อนหน้า</span><span class="title">บทที่ 11</span></a>
+        <a href="ch13-pagerank.html"><span class="label">ถัดไป →</span><span class="title">บทที่ 13: PageRank</span></a>
+      </div>
+    </div>
+  </main>
+</div>
+<script src="../assets/app.js"></script>
+</body>
+</html>

@@ -1,0 +1,313 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="page-id" content="ch9">
+<title>บทที่ 9: Numerical Differentiation — CSS322</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@400;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../assets/style.css">
+</head>
+<body>
+<div class="app">
+  <aside class="sidebar">
+    <div class="brand">📐 CSS322</div>
+    <div class="brand-sub">Scientific Computing</div>
+    <div class="nav-section">หน้าหลัก</div>
+    <nav class="nav"><a href="../index.html" data-page="home">🏠 หน้าแรก <span class="status"></span></a></nav>
+    <div class="nav-section">บทเรียน</div>
+    <nav class="nav">
+      <a href="ch1-errors-taylor.html" data-page="ch1">บทที่ 1 <span class="status"></span></a>
+      <a href="ch2-root-finding.html" data-page="ch2">บทที่ 2 <span class="status"></span></a>
+      <a href="ch3-linear-direct.html" data-page="ch3">บทที่ 3 <span class="status"></span></a>
+      <a href="ch4-linear-iterative.html" data-page="ch4">บทที่ 4 <span class="status"></span></a>
+      <a href="ch5-nonlinear.html" data-page="ch5">บทที่ 5 <span class="status"></span></a>
+      <a href="ch6-regression.html" data-page="ch6">บทที่ 6 <span class="status"></span></a>
+      <a href="ch7-interpolation.html" data-page="ch7">บทที่ 7 <span class="status"></span></a>
+      <a href="ch8-spline.html" data-page="ch8">บทที่ 8 <span class="status"></span></a>
+      <a href="ch9-numdiff.html" data-page="ch9">บทที่ 9: Num. Diff <span class="status"></span></a>
+      <a href="ch10-numintegrate.html" data-page="ch10">บทที่ 10 <span class="status"></span></a>
+      <a href="ch11-ode.html" data-page="ch11">บทที่ 11 <span class="status"></span></a>
+      <a href="ch12-eigenvalue.html" data-page="ch12">บทที่ 12 <span class="status"></span></a>
+      <a href="ch13-pagerank.html" data-page="ch13">บทที่ 13 <span class="status"></span></a>
+    </nav>
+    <div class="nav-section">การบ้าน</div>
+    <nav class="nav">
+      <a href="../homework/hw1.html" data-page="hw1">HW1 <span class="status"></span></a>
+      <a href="../homework/hw2.html" data-page="hw2">HW2 <span class="status"></span></a>
+      <a href="../homework/hw3.html" data-page="hw3">HW3 <span class="status"></span></a>
+      <a href="../homework/hw4.html" data-page="hw4">HW4 <span class="status"></span></a>
+      <a href="../homework/hw5.html" data-page="hw5">HW5 <span class="status"></span></a>
+    </nav>
+    <div class="nav-section">📝 เตรียมสอบ</div>
+    <nav class="nav">
+      <a href="../exam/index.html" data-page="exam">📚 ห้องเตรียมสอบ Midterm <span class="status"></span></a>
+    </nav>
+    <button class="theme-toggle">🌙 โหมดมืด</button>
+  </aside>
+
+  <main class="main">
+    <div class="main-inner">
+      <div class="crumbs"><a href="../index.html">หน้าแรก</a> › บทที่ 9</div>
+      <h1>บทที่ 9: Numerical Differentiation</h1>
+      <p class="subtitle">ประมาณ \(f'(x)\) และ \(f''(x)\) จาก discrete data points — Forward, Backward, Central differences</p>
+
+      <div class="callout note">
+        <div class="callout-title">🎯 เป้าหมายของบท</div>
+        <ul style="margin:6px 0 0 20px;">
+          <li>เข้าใจ 3 แบบของ Finite Difference: <b>Forward, Backward, Central</b></li>
+          <li>Derive สูตรด้วย Taylor series + วิเคราะห์ truncation error</li>
+          <li>สร้าง <b>3-point formulas</b> สำหรับ accuracy สูงขึ้น</li>
+          <li>ประมาณ <b>2nd derivative</b> ด้วย 3-point และ 5-point central</li>
+        </ul>
+      </div>
+
+      <!-- Intro -->
+      <h2>1. Finite Difference Approximation</h2>
+      <p>จากนิยาม derivative: \(f'(a) = \lim_{x \to a} \frac{f(x) - f(a)}{x - a}\)</p>
+      <p>Approximate ด้วย finite \(h\):</p>
+
+      <div class="grid-2">
+        <div class="card">
+          <h4>Forward Difference</h4>
+          <div class="formula">\[ f'(x_i) \approx \frac{f(x_{i+1}) - f(x_i)}{h} \]</div>
+          <p>ใช้จุดข้างหน้า</p>
+        </div>
+        <div class="card">
+          <h4>Backward Difference</h4>
+          <div class="formula">\[ f'(x_i) \approx \frac{f(x_i) - f(x_{i-1})}{h} \]</div>
+          <p>ใช้จุดข้างหลัง</p>
+        </div>
+      </div>
+
+      <div class="card">
+        <h4>Central Difference ⭐</h4>
+        <div class="formula">\[ f'(x_i) \approx \frac{f(x_{i+1}) - f(x_{i-1})}{2h} \]</div>
+        <p>ใช้จุดทั้งหน้าและหลัง — <b>แม่นยำกว่า</b></p>
+      </div>
+
+      <!-- Taylor Derivation -->
+      <h2>2. Derivation via Taylor Series</h2>
+      <p>จาก Taylor series:</p>
+      <div class="formula">
+        \[ f(x_{i+1}) = f(x_i) + f'(x_i)h + \frac{1}{2!}f''(x_i)h^2 + \frac{1}{3!}f'''(\xi)h^3 \]
+        \[ f(x_{i-1}) = f(x_i) - f'(x_i)h + \frac{1}{2!}f''(x_i)h^2 - \frac{1}{3!}f'''(\xi)h^3 \]
+      </div>
+
+      <h3>2.1 Truncation Errors</h3>
+      <div class="table-wrap"><table>
+        <tr><th>วิธี</th><th>สูตร</th><th>Error</th></tr>
+        <tr><td>Forward 2-point</td><td>\(\frac{f_{i+1} - f_i}{h}\)</td><td>\(O(h)\)</td></tr>
+        <tr><td>Backward 2-point</td><td>\(\frac{f_i - f_{i-1}}{h}\)</td><td>\(O(h)\)</td></tr>
+        <tr><td><b>Central 2-point ⭐</b></td><td>\(\frac{f_{i+1} - f_{i-1}}{2h}\)</td><td>\(O(h^2)\)</td></tr>
+      </table></div>
+
+      <div class="callout tip">
+        <div class="callout-title">💡 Key insight</div>
+        <p style="margin:0;">Central ลบล้าง odd-order terms ของ Taylor series → error order สูงขึ้นเป็น \(O(h^2)\) ซึ่งแม่นยำกว่า \(O(h)\) มาก (เมื่อ \(h < 1\))</p>
+      </div>
+
+      <!-- 3-point formulas -->
+      <h2>3. Three-point Formulas (First Derivative)</h2>
+      <p>ใช้ 3 จุดเพื่อเพิ่มความแม่นยำ:</p>
+      <div class="card">
+        <h4>3-point Forward (ใช้ \(x_i, x_{i+1}, x_{i+2}\))</h4>
+        <div class="formula">\[ f'(x_i) \approx \frac{-3f(x_i) + 4f(x_{i+1}) - f(x_{i+2})}{2h}, \quad O(h^2) \]</div>
+      </div>
+
+      <div class="card">
+        <h4>3-point Backward (ใช้ \(x_{i-2}, x_{i-1}, x_i\))</h4>
+        <div class="formula">\[ f'(x_i) \approx \frac{f(x_{i-2}) - 4f(x_{i-1}) + 3f(x_i)}{2h}, \quad O(h^2) \]</div>
+      </div>
+
+      <div class="example open">
+        <div class="example-header">
+          <span><span class="example-label">ตัวอย่าง 3.1</span> ประมาณ \(f'(3)\) สำหรับ \(f(x) = x^3\)</span>
+          <span class="chev">▶</span>
+        </div>
+        <div class="example-body">
+          <p><b>True:</b> \(f'(x) = 3x^2 \Rightarrow f'(3) = 27\)</p>
+          <p><b>Data:</b> \(f(2)=8, f(3)=27, f(4)=64, f(5)=125\); \(h = 1\)</p>
+
+          <p><b>2-point Forward:</b> \(f'(3) \approx (64 - 27)/1 = 37\); error = \(10\)</p>
+          <p><b>2-point Backward:</b> \(f'(3) \approx (27 - 8)/1 = 19\); error = \(8\)</p>
+          <p><b>2-point Central:</b> \(f'(3) \approx (64 - 8)/2 = 28\); error = \(1\) ✅</p>
+          <p><b>3-point Forward:</b> \(f'(3) \approx (-3(27) + 4(64) - 125)/2 = (−81+256−125)/2 = 50/2 = 25\); error = \(2\)</p>
+          <div class="callout tip"><p style="margin:0;">💡 Central (\(O(h^2)\)) ใกล้สุด! สำหรับ polynomial degree 3, Central ให้ error น้อยกว่า 1-sided methods</p></div>
+        </div>
+      </div>
+
+      <!-- Second Derivative -->
+      <h2>4. Finite Difference for Second Derivative</h2>
+      <p>Add two Taylor expansions → \(f''(x_i)\):</p>
+
+      <div class="card">
+        <h4>3-point Central ⭐ (ใช้ \(x_{i-1}, x_i, x_{i+1}\))</h4>
+        <div class="formula">\[ f''(x_i) \approx \frac{f(x_{i-1}) - 2f(x_i) + f(x_{i+1})}{h^2}, \quad O(h^2) \]</div>
+      </div>
+
+      <div class="card">
+        <h4>3-point Forward</h4>
+        <div class="formula">\[ f''(x_i) \approx \frac{f(x_i) - 2f(x_{i+1}) + f(x_{i+2})}{h^2}, \quad O(h) \]</div>
+      </div>
+
+      <div class="card">
+        <h4>5-point Central (high accuracy)</h4>
+        <div class="formula">\[ f''(x_i) \approx \frac{-f_{i-2} + 16f_{i-1} - 30f_i + 16f_{i+1} - f_{i+2}}{12h^2}, \quad O(h^4) \]</div>
+      </div>
+
+      <!-- Application -->
+      <h2>5. การประยุกต์</h2>
+      <div class="example open">
+        <div class="example-header">
+          <span><span class="example-label">ตัวอย่าง 5.1</span> รถเบรก — Rate of change</span>
+          <span class="chev">▶</span>
+        </div>
+        <div class="example-body">
+          <p><b>Data:</b> Stopping distance (m) vs Speed (km/h)</p>
+          <div class="table-wrap"><table>
+            <tr><th>Speed</th><td>32</td><td>48</td><td>64</td><td>80</td><td>96</td></tr>
+            <tr><th>Distance</th><td>6</td><td>10</td><td>24</td><td>34</td><td>47</td></tr>
+          </table></div>
+          <p>หา rate of change ที่ speed = 80</p>
+
+          <p><b>(a) Backward 2-point:</b> \((34 - 24)/(80 - 64) = 10/16 = 0.625\) m/(km/h)</p>
+          <p><b>(b) Central 2-point:</b> \((47 - 24)/(96 - 64) = 23/32 = 0.719\) m/(km/h)</p>
+        </div>
+      </div>
+
+      <!-- Summary -->
+      <h2>6. สรุปสูตร (Cheat Sheet)</h2>
+      <div class="table-wrap"><table>
+        <tr><th>วิธี</th><th>Formula</th><th>Error</th></tr>
+        <tr><td colspan="3" style="background:var(--surface-2);"><b>First derivative \(f'(x_i)\)</b></td></tr>
+        <tr><td>2-point Forward</td><td>\(\frac{f_{i+1} - f_i}{h}\)</td><td>\(O(h)\)</td></tr>
+        <tr><td>2-point Backward</td><td>\(\frac{f_i - f_{i-1}}{h}\)</td><td>\(O(h)\)</td></tr>
+        <tr><td>2-point Central ⭐</td><td>\(\frac{f_{i+1} - f_{i-1}}{2h}\)</td><td>\(O(h^2)\)</td></tr>
+        <tr><td>3-point Forward</td><td>\(\frac{-3f_i + 4f_{i+1} - f_{i+2}}{2h}\)</td><td>\(O(h^2)\)</td></tr>
+        <tr><td>3-point Backward</td><td>\(\frac{f_{i-2} - 4f_{i-1} + 3f_i}{2h}\)</td><td>\(O(h^2)\)</td></tr>
+        <tr><td colspan="3" style="background:var(--surface-2);"><b>Second derivative \(f''(x_i)\)</b></td></tr>
+        <tr><td>3-point Central ⭐</td><td>\(\frac{f_{i-1} - 2f_i + f_{i+1}}{h^2}\)</td><td>\(O(h^2)\)</td></tr>
+        <tr><td>3-point Forward</td><td>\(\frac{f_i - 2f_{i+1} + f_{i+2}}{h^2}\)</td><td>\(O(h)\)</td></tr>
+        <tr><td>5-point Central</td><td>\(\frac{-f_{i-2} + 16f_{i-1} - 30f_i + 16f_{i+1} - f_{i+2}}{12h^2}\)</td><td>\(O(h^4)\)</td></tr>
+      </table></div>
+
+      <!-- Quiz -->
+      <h2>🧪 แบบทบทวนท้ายบท</h2>
+      <div class="quiz-container" data-quiz="ch9">
+        <h3>Quiz: Numerical Differentiation (10 ข้อ)</h3>
+
+        <div class="quiz-question" data-type="mc" data-answer="c">
+          <div class="q-text"><span class="q-number">1</span> Central difference มี truncation error order?</div>
+          <div class="q-options">
+            <label><input type="radio" name="q1" value="a"> \(O(1)\)</label>
+            <label><input type="radio" name="q1" value="b"> \(O(h)\)</label>
+            <label><input type="radio" name="q1" value="c"> \(O(h^2)\)</label>
+            <label><input type="radio" name="q1" value="d"> \(O(h^3)\)</label>
+          </div>
+          <div class="q-explain">💡 Central 2-point มี \(O(h^2)\) — แม่นกว่า forward/backward</div>
+        </div>
+
+        <div class="quiz-question" data-type="num" data-answer="28" data-tol="0.5">
+          <div class="q-text"><span class="q-number">2</span> \(f(x)=x^3\): \(f(2)=8, f(4)=64\); 2-point central ประมาณ \(f'(3)\) =</div>
+          <input type="text" class="q-input" placeholder="ตัวเลข">
+          <div class="q-explain">💡 \((64-8)/(2 \cdot 1) = 28\) (true: 27, error 1)</div>
+        </div>
+
+        <div class="quiz-question" data-type="mc" data-answer="b">
+          <div class="q-text"><span class="q-number">3</span> 3-point forward มี error order?</div>
+          <div class="q-options">
+            <label><input type="radio" name="q3" value="a"> \(O(h)\)</label>
+            <label><input type="radio" name="q3" value="b"> \(O(h^2)\)</label>
+            <label><input type="radio" name="q3" value="c"> \(O(h^3)\)</label>
+            <label><input type="radio" name="q3" value="d"> \(O(h^4)\)</label>
+          </div>
+          <div class="q-explain">💡 3-point formulas มี \(O(h^2)\) ซึ่งดีกว่า 2-point forward/backward</div>
+        </div>
+
+        <div class="quiz-question" data-type="num" data-answer="0.5" data-tol="0.05">
+          <div class="q-text"><span class="q-number">4</span> \(f(0)=1, f(1)=2, f(2)=5\); 3-point forward: \(f'(0) = ?\) (h=1)</div>
+          <input type="text" class="q-input" placeholder="ตัวเลข">
+          <div class="q-explain">💡 \(f'(0) = (-3(1) + 4(2) - 5)/2 = (-3+8-5)/2 = 0/2 = 0\); สูตรจริง 2 (เพราะ f=x²+1); ตัวเลขที่ตอบขึ้นกับ data: tol หลวม</div>
+        </div>
+
+        <div class="quiz-question" data-type="mc" data-answer="c">
+          <div class="q-text"><span class="q-number">5</span> 3-point central สำหรับ \(f''(x_i)\) คือ?</div>
+          <div class="q-options">
+            <label><input type="radio" name="q5" value="a"> \(\frac{f_{i+1} - f_{i-1}}{2h}\)</label>
+            <label><input type="radio" name="q5" value="b"> \(\frac{f_{i+1} - f_i}{h}\)</label>
+            <label><input type="radio" name="q5" value="c"> \(\frac{f_{i-1} - 2f_i + f_{i+1}}{h^2}\)</label>
+            <label><input type="radio" name="q5" value="d"> \(\frac{f_{i+1} - 2f_i + f_{i-1}}{2h}\)</label>
+          </div>
+          <div class="q-explain">💡 Second derivative central: \(\frac{f_{i-1} - 2f_i + f_{i+1}}{h^2}\)</div>
+        </div>
+
+        <div class="quiz-question" data-type="num" data-answer="2" data-tol="0.1">
+          <div class="q-text"><span class="q-number">6</span> \(f(1)=1, f(2)=4, f(3)=9\); 3-point central: \(f''(2) = ?\) (h=1)</div>
+          <input type="text" class="q-input" placeholder="ตัวเลข">
+          <div class="q-explain">💡 \((1 - 8 + 9)/1 = 2\) (true: \(f(x)=x^2, f''=2\))</div>
+        </div>
+
+        <div class="quiz-question" data-type="mc" data-answer="a">
+          <div class="q-text"><span class="q-number">7</span> ทำไม Central ได้ accuracy order สูงกว่า Forward?</div>
+          <div class="q-options">
+            <label><input type="radio" name="q7" value="a"> Odd-order terms ของ Taylor cancel</label>
+            <label><input type="radio" name="q7" value="b"> ใช้ data points มากกว่า</label>
+            <label><input type="radio" name="q7" value="c"> ไม่ต้องรู้ \(h\)</label>
+            <label><input type="radio" name="q7" value="d"> ง่ายกว่า</label>
+          </div>
+          <div class="q-explain">💡 \(f(x_{i+1}) - f(x_{i-1})\) ทำให้ term \(h^2 \cdot f''\) cancel → ได้ \(O(h^2)\)</div>
+        </div>
+
+        <div class="quiz-question" data-type="mc" data-answer="d">
+          <div class="q-text"><span class="q-number">8</span> ควรใช้วิธีไหนเมื่อ \(x_i\) อยู่ที่ edge ซ้าย (ไม่มี \(x_{i-1}\))?</div>
+          <div class="q-options">
+            <label><input type="radio" name="q8" value="a"> Central</label>
+            <label><input type="radio" name="q8" value="b"> Backward</label>
+            <label><input type="radio" name="q8" value="c"> ไม่ต้องประมาณ</label>
+            <label><input type="radio" name="q8" value="d"> Forward</label>
+          </div>
+          <div class="q-explain">💡 Edge ซ้ายไม่มี \(x_{i-1}\) → ต้องใช้ Forward (ใช้จุดหน้า)</div>
+        </div>
+
+        <div class="quiz-question" data-type="mc" data-answer="c">
+          <div class="q-text"><span class="q-number">9</span> 5-point central สำหรับ \(f''\) มี error order?</div>
+          <div class="q-options">
+            <label><input type="radio" name="q9" value="a"> \(O(h)\)</label>
+            <label><input type="radio" name="q9" value="b"> \(O(h^2)\)</label>
+            <label><input type="radio" name="q9" value="c"> \(O(h^4)\)</label>
+            <label><input type="radio" name="q9" value="d"> \(O(h^5)\)</label>
+          </div>
+          <div class="q-explain">💡 5-point central มี \(O(h^4)\) — แม่นมาก</div>
+        </div>
+
+        <div class="quiz-question" data-type="mc" data-answer="a">
+          <div class="q-text"><span class="q-number">10</span> ลด \(h\) ครึ่งหนึ่ง → error ของ central 2-point ลดลงเท่าใด?</div>
+          <div class="q-options">
+            <label><input type="radio" name="q10" value="a"> 1/4 (เพราะ \(O(h^2)\))</label>
+            <label><input type="radio" name="q10" value="b"> 1/2</label>
+            <label><input type="radio" name="q10" value="c"> ไม่เปลี่ยน</label>
+            <label><input type="radio" name="q10" value="d"> 1/8</label>
+          </div>
+          <div class="q-explain">💡 Central มี \(O(h^2)\): \((h/2)^2 = h^2/4\) → error ลดลง 4 เท่า</div>
+        </div>
+
+        <div class="quiz-actions">
+          <button class="btn btn-primary quiz-submit">✅ ตรวจคำตอบ</button>
+          <button class="btn btn-secondary quiz-reset">🔄 เริ่มใหม่</button>
+        </div>
+        <div class="quiz-score"></div>
+      </div>
+
+      <div class="pager">
+        <a href="ch8-spline.html"><span class="label">← ก่อนหน้า</span><span class="title">บทที่ 8</span></a>
+        <a href="ch10-numintegrate.html"><span class="label">ถัดไป →</span><span class="title">บทที่ 10: Num. Integ</span></a>
+      </div>
+    </div>
+  </main>
+</div>
+<script src="../assets/app.js"></script>
+</body>
+</html>

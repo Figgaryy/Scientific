@@ -1,0 +1,311 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="page-id" content="ch13">
+<title>บทที่ 13: PageRank — CSS322</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@400;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../assets/style.css">
+</head>
+<body>
+<div class="app">
+  <aside class="sidebar">
+    <div class="brand">📐 CSS322</div>
+    <div class="brand-sub">Scientific Computing</div>
+    <div class="nav-section">หน้าหลัก</div>
+    <nav class="nav"><a href="../index.html" data-page="home">🏠 หน้าแรก <span class="status"></span></a></nav>
+    <div class="nav-section">บทเรียน</div>
+    <nav class="nav">
+      <a href="ch1-errors-taylor.html" data-page="ch1">บทที่ 1 <span class="status"></span></a>
+      <a href="ch2-root-finding.html" data-page="ch2">บทที่ 2 <span class="status"></span></a>
+      <a href="ch3-linear-direct.html" data-page="ch3">บทที่ 3 <span class="status"></span></a>
+      <a href="ch4-linear-iterative.html" data-page="ch4">บทที่ 4 <span class="status"></span></a>
+      <a href="ch5-nonlinear.html" data-page="ch5">บทที่ 5 <span class="status"></span></a>
+      <a href="ch6-regression.html" data-page="ch6">บทที่ 6 <span class="status"></span></a>
+      <a href="ch7-interpolation.html" data-page="ch7">บทที่ 7 <span class="status"></span></a>
+      <a href="ch8-spline.html" data-page="ch8">บทที่ 8 <span class="status"></span></a>
+      <a href="ch9-numdiff.html" data-page="ch9">บทที่ 9 <span class="status"></span></a>
+      <a href="ch10-numintegrate.html" data-page="ch10">บทที่ 10 <span class="status"></span></a>
+      <a href="ch11-ode.html" data-page="ch11">บทที่ 11 <span class="status"></span></a>
+      <a href="ch12-eigenvalue.html" data-page="ch12">บทที่ 12 <span class="status"></span></a>
+      <a href="ch13-pagerank.html" data-page="ch13">บทที่ 13: PageRank <span class="status"></span></a>
+    </nav>
+    <div class="nav-section">การบ้าน</div>
+    <nav class="nav">
+      <a href="../homework/hw1.html" data-page="hw1">HW1 <span class="status"></span></a>
+      <a href="../homework/hw2.html" data-page="hw2">HW2 <span class="status"></span></a>
+      <a href="../homework/hw3.html" data-page="hw3">HW3 <span class="status"></span></a>
+      <a href="../homework/hw4.html" data-page="hw4">HW4 <span class="status"></span></a>
+      <a href="../homework/hw5.html" data-page="hw5">HW5 <span class="status"></span></a>
+    </nav>
+    <div class="nav-section">📝 เตรียมสอบ</div>
+    <nav class="nav">
+      <a href="../exam/index.html" data-page="exam">📚 ห้องเตรียมสอบ Midterm <span class="status"></span></a>
+    </nav>
+    <button class="theme-toggle">🌙 โหมดมืด</button>
+  </aside>
+
+  <main class="main">
+    <div class="main-inner">
+      <div class="crumbs"><a href="../index.html">หน้าแรก</a> › บทที่ 13</div>
+      <h1>บทที่ 13: Google PageRank Algorithm 🔍</h1>
+      <p class="subtitle">ประยุกต์ Power method กับ Markov chain เพื่อจัดอันดับหน้าเว็บ — Algorithm ที่ Google สร้างชื่อ</p>
+
+      <div class="callout note">
+        <div class="callout-title">🎯 เป้าหมายของบท</div>
+        <ul style="margin:6px 0 0 20px;">
+          <li>เข้าใจแนวคิด <b>PageRank</b> — จัดอันดับหน้าเว็บจาก link structure</li>
+          <li>สร้าง <b>Connectivity matrix</b> \(G\) และ <b>Transition matrix</b> \(A\)</li>
+          <li>แก้ \(\mathbf{x} = A\mathbf{x}\) ด้วย power method</li>
+          <li>เข้าใจบทบาทของ damping factor \(p = 0.85\)</li>
+        </ul>
+      </div>
+
+      <!-- Intro -->
+      <h2>1. Introduction</h2>
+      <p><b>PageRank</b> — algorithm ที่ Larry Page และ Sergey Brin คิดค้นสมัยเรียนป.โทที่ Stanford และกลายเป็นหัวใจของ Google</p>
+
+      <ul>
+        <li>คำนวณจาก <b>link structure</b> ของเว็บทั้งหมด</li>
+        <li>ไม่สนใจเนื้อหาของหน้าเว็บ</li>
+        <li><b>หลักการ:</b> หน้าเว็บสำคัญ = หน้าเว็บที่หน้าสำคัญ ๆ ลิงก์มา (recursive!)</li>
+      </ul>
+
+      <!-- Markov Chain -->
+      <h2>2. Markov Chain for PageRank</h2>
+
+      <h3>2.1 Notations</h3>
+      <ul>
+        <li>\(W\) = set of web pages (ประมาณ 3 พันล้านในปี 2002)</li>
+        <li>\(n\) = \(|W|\)</li>
+        <li>\(G\) = \(n \times n\) connectivity matrix: \(g_{ij} = 1\) ถ้ามี link จากหน้า \(j\) ไปหน้า \(i\); 0 ถ้าไม่มี</li>
+        <li>\(c_j = \sum_i g_{ij}\) = <b>out-degree</b> ของหน้า \(j\)</li>
+        <li>\(r_i = \sum_j g_{ij}\) = <b>in-degree</b> ของหน้า \(i\)</li>
+        <li>\(p = 0.85\) = probability ที่ random surfer ตามลิงก์ (1-p ไปที่หน้าสุ่ม)</li>
+      </ul>
+
+      <h3>2.2 Transition Matrix</h3>
+      <div class="formula">\[ A = pGD + \mathbf{e}\mathbf{z}^T \]</div>
+      <p>โดย:</p>
+      <ul>
+        <li>\(D\) = diagonal matrix: \(d_{jj} = 1/c_j\) ถ้า \(c_j \neq 0\); = 0 ถ้า \(c_j = 0\)</li>
+        <li>\(\mathbf{e}\) = n-vector ของเลข 1</li>
+        <li>\(\mathbf{z}\) = vector: \(z_j = \delta\) ถ้า \(c_j \neq 0\); = \(1/n\) ถ้า \(c_j = 0\) (dangling nodes)</li>
+        <li>\(\delta = (1-p)/n\)</li>
+      </ul>
+
+      <h3>2.3 PageRank Equation</h3>
+      <div class="formula">\[ \mathbf{x} = A\mathbf{x}, \quad \sum_i x_i = 1 \]</div>
+      <p>คือ \(\mathbf{x}\) เป็น <b>eigenvector ของ \(A\) ที่ eigenvalue = 1</b></p>
+
+      <!-- Computing PageRank -->
+      <h2>3. Computing PageRank</h2>
+      <p>แก้ singular, homogeneous linear system:</p>
+      <div class="formula">\[ (I - A)\mathbf{x} = 0 \]</div>
+
+      <h3>3.1 Power Method</h3>
+      <p>เริ่มจาก \(\mathbf{x} = \text{ones}(n, 1)/n\); ทำซ้ำ:</p>
+      <div class="formula">\[ \mathbf{x} \leftarrow A\mathbf{x} \]</div>
+      <p>จนกระทั่ง \(\mathbf{x}\) converge (\(\|\mathbf{x}^{new} - \mathbf{x}^{old}\|\) น้อย)</p>
+
+      <h3>3.2 Linear System Approach</h3>
+      <p>แยก \(A = pGD + \delta \mathbf{e}\mathbf{e}^T\) (เมื่อ \(c_j \neq 0\)):</p>
+      <div class="formula">
+        \[ \mathbf{x} = A\mathbf{x} = pGD\mathbf{x} + \delta\mathbf{e}(\mathbf{e}^T\mathbf{x}) \]
+      </div>
+      <p>เนื่องจาก \(\mathbf{e}^T\mathbf{x} = 1\):</p>
+      <div class="formula">\[ (I - pGD)\mathbf{x} = \delta\mathbf{e} \]</div>
+      <p>แก้ด้วย Gaussian elimination — รักษา sparsity ของ \(G\)</p>
+
+      <!-- Example -->
+      <h2>4. Example: 6-page Web</h2>
+
+      <div class="example open">
+        <div class="example-header">
+          <span><span class="example-label">ตัวอย่าง 4.1</span> คำนวณ PageRank สำหรับเว็บ 6 หน้า</span>
+          <span class="chev">▶</span>
+        </div>
+        <div class="example-body">
+          <p><b>เว็บ:</b> alpha, beta, gamma, delta, rho, sigma</p>
+          <p><b>Connections (indices \(i \leftarrow j\)):</b></p>
+          <p>i = [2, 3, 4, 4, 5, 6, 1, 6, 1]</p>
+          <p>j = [1, 2, 2, 3, 3, 3, 4, 5, 6]</p>
+
+          <p><b>Setup:</b> \(G, D\) sparse matrices; \(p = 0.85, \delta = 0.025\)</p>
+
+          <p><b>Power method converge → PageRank x:</b></p>
+          <div class="table-wrap"><table>
+            <tr><th>Page</th><th>PageRank</th><th>In</th><th>Out</th></tr>
+            <tr><td>alpha</td><td>0.2675</td><td>2</td><td>1</td></tr>
+            <tr><td>beta</td><td>0.2524</td><td>1</td><td>2</td></tr>
+            <tr><td>delta</td><td>0.1697</td><td>1</td><td>2</td></tr>
+            <tr><td>gamma</td><td>0.1323</td><td>1</td><td>3</td></tr>
+            <tr><td>sigma</td><td>0.1156</td><td>2</td><td>1</td></tr>
+            <tr><td>rho</td><td>0.0625</td><td>1</td><td>1</td></tr>
+          </table></div>
+
+          <div class="callout tip">
+            <div class="callout-title">💡 Observations</div>
+            <ul style="margin:6px 0 0 20px;">
+              <li><b>alpha</b> อยู่อันดับ 1 แม้มีจำนวน links ไม่ต่างจาก delta/sigma — เพราะหน้าที่ลิงก์มา (beta) มี PageRank สูง</li>
+              <li><b>beta</b> อันดับ 2 เพราะ beta is linked by alpha (ซึ่งมี PageRank สูง)</li>
+              <li>Random surfer visit alpha ~27% ของเวลา, rho ~6%</li>
+            </ul>
+          </div>
+        </div>
+      </div>
+
+      <!-- Properties -->
+      <h2>5. Properties of A</h2>
+      <div class="card">
+        <ul>
+          <li><b>Column sums ของ \(A\) = 1</b> — คุณสมบัติของ probability transition matrix</li>
+          <li>\(A\) มี eigenvalue 1 เสมอ (dominant)</li>
+          <li>PageRank \(\mathbf{x}\) คือ eigenvector ที่ eigenvalue 1</li>
+          <li>\(x_i \in (0, 1)\) และ \(\sum x_i = 1\)</li>
+        </ul>
+      </div>
+
+      <!-- Why damping -->
+      <h2>6. Damping Factor \(p = 0.85\)</h2>
+      <p>ตีความ:</p>
+      <ul>
+        <li><b>85%</b> ของเวลา: random surfer คลิก link ปัจจุบัน</li>
+        <li><b>15%</b> ของเวลา: ไปที่หน้าสุ่มใด ๆ (bored of current page)</li>
+      </ul>
+
+      <div class="callout tip">
+        <div class="callout-title">💡 ความสำคัญของ \(p < 1\)</div>
+        <p style="margin:0;">ป้องกัน <b>dangling nodes</b> (หน้าที่ไม่มี out-link) ทำให้ Markov chain เป็น <b>ergodic</b> → มี unique steady state</p>
+      </div>
+
+      <!-- Quiz -->
+      <h2>🧪 แบบทบทวนท้ายบท</h2>
+      <div class="quiz-container" data-quiz="ch13">
+        <h3>Quiz: PageRank (10 ข้อ)</h3>
+
+        <div class="quiz-question" data-type="mc" data-answer="c">
+          <div class="q-text"><span class="q-number">1</span> PageRank ตัดสินอันดับจาก?</div>
+          <div class="q-options">
+            <label><input type="radio" name="q1" value="a"> เนื้อหาหน้า</label>
+            <label><input type="radio" name="q1" value="b"> วันที่สร้าง</label>
+            <label><input type="radio" name="q1" value="c"> Link structure</label>
+            <label><input type="radio" name="q1" value="d"> จำนวน visitors</label>
+          </div>
+          <div class="q-explain">💡 PageRank ใช้แค่โครงสร้าง link — ไม่สนใจเนื้อหา</div>
+        </div>
+
+        <div class="quiz-question" data-type="mc" data-answer="b">
+          <div class="q-text"><span class="q-number">2</span> PageRank equation คือ?</div>
+          <div class="q-options">
+            <label><input type="radio" name="q2" value="a"> \(A\mathbf{x} = \mathbf{b}\)</label>
+            <label><input type="radio" name="q2" value="b"> \(\mathbf{x} = A\mathbf{x}\) with \(\sum x_i = 1\)</label>
+            <label><input type="radio" name="q2" value="c"> \(\det(A) = 0\)</label>
+            <label><input type="radio" name="q2" value="d"> \(A^{-1}\mathbf{b}\)</label>
+          </div>
+          <div class="q-explain">💡 PageRank คือ eigenvector ที่ eigenvalue = 1</div>
+        </div>
+
+        <div class="quiz-question" data-type="num" data-answer="0.85" data-tol="0.01">
+          <div class="q-text"><span class="q-number">3</span> Damping factor \(p\) ทั่วไปใช้ค่าใด?</div>
+          <input type="text" class="q-input" placeholder="ตัวเลข">
+          <div class="q-explain">💡 Google ใช้ \(p = 0.85\)</div>
+        </div>
+
+        <div class="quiz-question" data-type="mc" data-answer="c">
+          <div class="q-text"><span class="q-number">4</span> ค่า \(c_j = \sum_i g_{ij}\) คือ?</div>
+          <div class="q-options">
+            <label><input type="radio" name="q4" value="a"> In-degree</label>
+            <label><input type="radio" name="q4" value="b"> PageRank</label>
+            <label><input type="radio" name="q4" value="c"> Out-degree ของหน้า \(j\)</label>
+            <label><input type="radio" name="q4" value="d"> Total degree</label>
+          </div>
+          <div class="q-explain">💡 Sum ของ column \(j\) ของ \(G\) = จำนวน links ออกจากหน้า \(j\) = out-degree</div>
+        </div>
+
+        <div class="quiz-question" data-type="mc" data-answer="a">
+          <div class="q-text"><span class="q-number">5</span> PageRank เป็น eigenvector ของ \(A\) ที่ eigenvalue?</div>
+          <div class="q-options">
+            <label><input type="radio" name="q5" value="a"> 1</label>
+            <label><input type="radio" name="q5" value="b"> 0</label>
+            <label><input type="radio" name="q5" value="c"> \(p = 0.85\)</label>
+            <label><input type="radio" name="q5" value="d"> \(n\)</label>
+          </div>
+          <div class="q-explain">💡 \(\mathbf{x} = A\mathbf{x}\) → \(\lambda = 1\)</div>
+        </div>
+
+        <div class="quiz-question" data-type="mc" data-answer="b">
+          <div class="q-text"><span class="q-number">6</span> Column sums ของ transition matrix \(A\) เท่าใด?</div>
+          <div class="q-options">
+            <label><input type="radio" name="q6" value="a"> 0</label>
+            <label><input type="radio" name="q6" value="b"> 1 (probability matrix)</label>
+            <label><input type="radio" name="q6" value="c"> \(n\)</label>
+            <label><input type="radio" name="q6" value="d"> \(p\)</label>
+          </div>
+          <div class="q-explain">💡 \(A\) คือ probability transition matrix → column sum = 1</div>
+        </div>
+
+        <div class="quiz-question" data-type="mc" data-answer="d">
+          <div class="q-text"><span class="q-number">7</span> วิธีคำนวณ PageRank ที่ scale ได้?</div>
+          <div class="q-options">
+            <label><input type="radio" name="q7" value="a"> Characteristic polynomial</label>
+            <label><input type="radio" name="q7" value="b"> Gaussian elimination ของ \(A\) ตรง</label>
+            <label><input type="radio" name="q7" value="c"> Lagrange interpolation</label>
+            <label><input type="radio" name="q7" value="d"> Power method (iterative)</label>
+          </div>
+          <div class="q-explain">💡 \(n = 3 \times 10^9\) → ต้อง iterative; Power method สะดวก</div>
+        </div>
+
+        <div class="quiz-question" data-type="mc" data-answer="c">
+          <div class="q-text"><span class="q-number">8</span> ประโยชน์ของ damping factor \(p < 1\)?</div>
+          <div class="q-options">
+            <label><input type="radio" name="q8" value="a"> ลด computation</label>
+            <label><input type="radio" name="q8" value="b"> เพิ่ม PageRank</label>
+            <label><input type="radio" name="q8" value="c"> ป้องกัน dangling nodes + ensure unique steady state</label>
+            <label><input type="radio" name="q8" value="d"> ลด noise</label>
+          </div>
+          <div class="q-explain">💡 ทำให้ Markov chain เป็น ergodic → มี unique eigenvector</div>
+        </div>
+
+        <div class="quiz-question" data-type="mc" data-answer="a">
+          <div class="q-text"><span class="q-number">9</span> จากตัวอย่าง 4.1 ทำไม alpha มี PageRank สูงกว่า delta/sigma?</div>
+          <div class="q-options">
+            <label><input type="radio" name="q9" value="a"> ถูก link จาก beta ที่ PageRank สูง</label>
+            <label><input type="radio" name="q9" value="b"> มี out-degree สูงสุด</label>
+            <label><input type="radio" name="q9" value="c"> อยู่ก่อน</label>
+            <label><input type="radio" name="q9" value="d"> เนื้อหาดีกว่า</label>
+          </div>
+          <div class="q-explain">💡 PageRank recursive: ถูก link จากหน้าสำคัญ → สำคัญด้วย</div>
+        </div>
+
+        <div class="quiz-question" data-type="mc" data-answer="b">
+          <div class="q-text"><span class="q-number">10</span> Alternative วิธีแก้ PageRank แทน power method?</div>
+          <div class="q-options">
+            <label><input type="radio" name="q10" value="a"> Lagrange</label>
+            <label><input type="radio" name="q10" value="b"> \((I - pGD)\mathbf{x} = \delta\mathbf{e}\) ด้วย Gaussian elimination (รักษา sparsity)</label>
+            <label><input type="radio" name="q10" value="c"> Trapezoidal</label>
+            <label><input type="radio" name="q10" value="d"> RK4</label>
+          </div>
+          <div class="q-explain">💡 แยก \(A = pGD + \delta\mathbf{e}\mathbf{e}^T\) → ได้ sparse linear system</div>
+        </div>
+
+        <div class="quiz-actions">
+          <button class="btn btn-primary quiz-submit">✅ ตรวจคำตอบ</button>
+          <button class="btn btn-secondary quiz-reset">🔄 เริ่มใหม่</button>
+        </div>
+        <div class="quiz-score"></div>
+      </div>
+
+      <div class="pager">
+        <a href="ch12-eigenvalue.html"><span class="label">← ก่อนหน้า</span><span class="title">บทที่ 12</span></a>
+        <a href="../index.html"><span class="label">กลับ →</span><span class="title">หน้าแรก</span></a>
+      </div>
+    </div>
+  </main>
+</div>
+<script src="../assets/app.js"></script>
+</body>
+</html>
