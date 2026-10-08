@@ -1,0 +1,262 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="page-id" content="hw5">
+<title>HW5: Least-Squares Regression — CSS322</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@400;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../assets/style.css">
+</head>
+<body>
+<div class="app">
+  <aside class="sidebar">
+    <div class="brand">📐 CSS322</div>
+    <div class="brand-sub">Scientific Computing</div>
+    <div class="nav-section">หน้าหลัก</div>
+    <nav class="nav"><a href="../index.html" data-page="home">🏠 หน้าแรก <span class="status"></span></a></nav>
+    <div class="nav-section">บทเรียน</div>
+    <nav class="nav">
+      <a href="../chapters/ch1-errors-taylor.html" data-page="ch1">บทที่ 1: Errors & Taylor <span class="status"></span></a>
+      <a href="../chapters/ch2-root-finding.html" data-page="ch2">บทที่ 2: Root Finding <span class="status"></span></a>
+      <a href="../chapters/ch3-linear-direct.html" data-page="ch3">บทที่ 3: Linear (Direct) <span class="status"></span></a>
+      <a href="../chapters/ch4-linear-iterative.html" data-page="ch4">บทที่ 4: Linear (Iterative) <span class="status"></span></a>
+      <a href="../chapters/ch5-nonlinear.html" data-page="ch5">บทที่ 5: Nonlinear <span class="status"></span></a>
+      <a href="../chapters/ch6-regression.html" data-page="ch6">บทที่ 6: Regression <span class="status"></span></a>
+    </nav>
+    <div class="nav-section">การบ้าน</div>
+    <nav class="nav">
+      <a href="hw1.html" data-page="hw1">HW1: Taylor Error <span class="status"></span></a>
+      <a href="hw2.html" data-page="hw2">HW2: Root + IRR <span class="status"></span></a>
+      <a href="hw3.html" data-page="hw3">HW3: Jacobi/GS <span class="status"></span></a>
+      <a href="hw4.html" data-page="hw4">HW4: Nonlinear <span class="status"></span></a>
+      <a href="hw5.html" data-page="hw5">HW5: LS Regression 🆕 <span class="status"></span></a>
+    </nav>
+    <div class="nav-section">📝 เตรียมสอบ</div>
+    <nav class="nav">
+      <a href="../exam/index.html" data-page="exam">📚 ห้องเตรียมสอบ Midterm <span class="status"></span></a>
+    </nav>
+    <button class="theme-toggle">🌙 โหมดมืด</button>
+  </aside>
+
+  <main class="main">
+    <div class="main-inner">
+      <div class="crumbs"><a href="../index.html">หน้าแรก</a> › HW5</div>
+      <h1>📝 HW5: Least-Squares Regression (Monod Growth)</h1>
+      <p class="subtitle">Exercise 6, page 21 — Fit Monod equation โดยการ linearize และคำนวณ R²</p>
+
+      <div class="callout note">
+        <div class="callout-title">🔗 หัวข้อที่เกี่ยวข้อง</div>
+        <p style="margin:0;">อ่านทบทวน <a href="../chapters/ch6-regression.html">บทที่ 6 — Least-Squares Regression</a> โดยเฉพาะ Section 6 (Nonlinear Linearization) และ Section 4 (R²)</p>
+      </div>
+
+      <!-- ==================== PROBLEM ==================== -->
+      <div class="card">
+        <h2 style="margin-top:0; border:none; padding:0; color: var(--text);">Problem (Exercise 6)</h2>
+        <p><b>โจทย์ (English):</b></p>
+        <p>An investigator has reported the data tabulated below for an experiment to determine the growth rate of bacteria \(k\) (per a time unit), as a function of oxygen concentration \(c\) (mg/L). It is known that such data can be modeled by the following equation:</p>
+        <div class="formula">
+          \[ k = \frac{k_{max} \, c^2}{c_s + c^2} \]
+        </div>
+        <p>where \(c_s\) and \(k_{max}\) are parameters.</p>
+
+        <p><b>Tasks:</b></p>
+        <ol>
+          <li>Use a transformation to linearize this equation</li>
+          <li>Use linear regression to estimate \(c_s\) and \(k_{max}\)</li>
+          <li>Compute the corresponding \(R^2\)</li>
+          <li>Predict the growth rate at \(c = 2\) mg/L</li>
+        </ol>
+
+        <p><b>Data:</b></p>
+        <div class="table-wrap"><table>
+          <tr><th>\(c\) (mg/L)</th><td>0.5</td><td>0.8</td><td>1.5</td><td>2.5</td><td>4</td></tr>
+          <tr><th>\(k\)</th><td>1.1</td><td>2.4</td><td>5.3</td><td>7.6</td><td>8.9</td></tr>
+        </table></div>
+      </div>
+
+      <div class="solution">
+        <button class="solution-toggle">💡 ดูเฉลยละเอียด (Step-by-Step)</button>
+        <div class="solution-body">
+          <h3>✅ Guided Solution</h3>
+
+          <!-- Step 1: Linearization -->
+          <h4>Step 1: Linearize สมการ Monod</h4>
+          <p>เริ่มจาก \( k = \dfrac{k_{max} \, c^2}{c_s + c^2} \) — <b>กลับทั้งสองข้าง</b>:</p>
+          <div class="formula">
+            \[ \frac{1}{k} = \frac{c_s + c^2}{k_{max} \, c^2} = \frac{c_s}{k_{max}} \cdot \frac{1}{c^2} + \frac{1}{k_{max}} \]
+          </div>
+
+          <p><b>ตั้งตัวแปรใหม่:</b></p>
+          <div class="formula">
+            \[ Y = \frac{1}{k}, \quad X = \frac{1}{c^2} \]
+          </div>
+          <p>ได้สมการเชิงเส้น:</p>
+          <div class="formula">
+            \[ Y = a_0 + a_1 X \quad \text{โดย} \quad a_0 = \frac{1}{k_{max}}, \; a_1 = \frac{c_s}{k_{max}} \]
+          </div>
+
+          <div class="callout tip">
+            <p style="margin:0;">💡 <b>หลังหา \(a_0, a_1\) แล้ว:</b></p>
+            <p style="margin:4px 0;">\(k_{max} = \dfrac{1}{a_0}, \quad c_s = \dfrac{a_1}{a_0} = a_1 \cdot k_{max}\)</p>
+          </div>
+
+          <!-- Step 2: Transform data -->
+          <h4>Step 2: แปลง data เป็น \((X_i, Y_i)\)</h4>
+          <div class="table-wrap"><table>
+            <tr><th>\(i\)</th><th>\(c_i\)</th><th>\(k_i\)</th><th>\(X_i = 1/c_i^2\)</th><th>\(Y_i = 1/k_i\)</th></tr>
+            <tr><td>1</td><td>0.5</td><td>1.1</td><td>4.0000</td><td>0.9091</td></tr>
+            <tr><td>2</td><td>0.8</td><td>2.4</td><td>1.5625</td><td>0.4167</td></tr>
+            <tr><td>3</td><td>1.5</td><td>5.3</td><td>0.4444</td><td>0.1887</td></tr>
+            <tr><td>4</td><td>2.5</td><td>7.6</td><td>0.1600</td><td>0.1316</td></tr>
+            <tr><td>5</td><td>4.0</td><td>8.9</td><td>0.0625</td><td>0.1124</td></tr>
+          </table></div>
+
+          <!-- Step 3: Calculate sums -->
+          <h4>Step 3: คำนวณ sums (ตารางสำคัญ!)</h4>
+          <div class="table-wrap"><table>
+            <tr><th>\(i\)</th><th>\(X_i\)</th><th>\(Y_i\)</th><th>\(X_i^2\)</th><th>\(X_i Y_i\)</th></tr>
+            <tr><td>1</td><td>4.0000</td><td>0.9091</td><td>16.0000</td><td>3.6364</td></tr>
+            <tr><td>2</td><td>1.5625</td><td>0.4167</td><td>2.4414</td><td>0.6510</td></tr>
+            <tr><td>3</td><td>0.4444</td><td>0.1887</td><td>0.1975</td><td>0.0839</td></tr>
+            <tr><td>4</td><td>0.1600</td><td>0.1316</td><td>0.0256</td><td>0.0211</td></tr>
+            <tr><td>5</td><td>0.0625</td><td>0.1124</td><td>0.0039</td><td>0.0070</td></tr>
+            <tr style="background:var(--accent-soft);"><th>Σ</th><th>6.2294</th><th>1.7585</th><th>18.6684</th><th>4.3994</th></tr>
+          </table></div>
+
+          <p>\(n = 5, \quad S_X = 6.2294, \quad S_Y = 1.7585, \quad S_{XX} = 18.6684, \quad S_{XY} = 4.3994\)</p>
+
+          <!-- Step 4: Compute a0, a1 -->
+          <h4>Step 4: หา \(a_1, a_0\) จากสูตรสำเร็จ</h4>
+          <div class="formula">
+            \[ a_1 = \frac{n S_{XY} - S_X S_Y}{n S_{XX} - (S_X)^2} \]
+          </div>
+          <p>แทนค่า:</p>
+          <p>\(a_1 = \dfrac{5 \times 4.3994 - 6.2294 \times 1.7585}{5 \times 18.6684 - (6.2294)^2}\)</p>
+          <p>\(= \dfrac{21.9970 - 10.9541}{93.3420 - 38.8054} = \dfrac{11.0429}{54.5366}\)</p>
+          <p>\(\boxed{a_1 \approx 0.2025}\)</p>
+
+          <p><b>Shortcut สำหรับ \(a_0\):</b> \(a_0 = \bar{Y} - a_1 \bar{X}\)</p>
+          <p>\(\bar{X} = 6.2294/5 = 1.2459, \quad \bar{Y} = 1.7585/5 = 0.3517\)</p>
+          <p>\(a_0 = 0.3517 - 0.2025 \times 1.2459 = 0.3517 - 0.2523 = 0.0994\)</p>
+          <p>\(\boxed{a_0 \approx 0.0994}\)</p>
+
+          <!-- Step 5: Back-convert to k_max, c_s -->
+          <h4>Step 5: แปลงกลับเป็น \(k_{max}, c_s\)</h4>
+          <p>\(k_{max} = \dfrac{1}{a_0} = \dfrac{1}{0.0994}\)</p>
+          <div class="callout tip">
+            <p style="margin:0;"><b>\(\boxed{k_{max} \approx 10.06}\)</b></p>
+          </div>
+
+          <p>\(c_s = a_1 \cdot k_{max} = 0.2025 \times 10.06\)</p>
+          <div class="callout tip">
+            <p style="margin:0;"><b>\(\boxed{c_s \approx 2.04}\)</b></p>
+          </div>
+
+          <p><b>Model สุดท้าย:</b></p>
+          <div class="formula">
+            \[ k = \frac{10.06 \, c^2}{2.04 + c^2} \]
+          </div>
+
+          <!-- Step 6: R² -->
+          <h4>Step 6: คำนวณ \(R^2\)</h4>
+          <p><b>คำนวณ \(f(c_i)\) จาก model แล้วเทียบกับ \(k_i\):</b></p>
+          <div class="table-wrap"><table>
+            <tr><th>\(c_i\)</th><th>\(k_i\) จริง</th><th>\(f(c_i)\) model</th><th>\(e_i = k_i - f(c_i)\)</th><th>\(e_i^2\)</th><th>\((k_i - \bar{k})^2\)</th></tr>
+            <tr><td>0.5</td><td>1.1</td><td>1.100</td><td>0.000</td><td>0.0000</td><td>15.6816</td></tr>
+            <tr><td>0.8</td><td>2.4</td><td>2.405</td><td>-0.005</td><td>0.0000</td><td>7.0756</td></tr>
+            <tr><td>1.5</td><td>5.3</td><td>5.278</td><td>0.022</td><td>0.0005</td><td>0.0576</td></tr>
+            <tr><td>2.5</td><td>7.6</td><td>7.582</td><td>0.018</td><td>0.0003</td><td>6.4516</td></tr>
+            <tr><td>4.0</td><td>8.9</td><td>8.916</td><td>-0.016</td><td>0.0003</td><td>14.7456</td></tr>
+            <tr style="background:var(--accent-soft);"><th>Σ</th><td></td><td></td><td></td><th>\(SS_{res} \approx 0.0011\)</th><th>\(SS_{tot} \approx 44.01\)</th></tr>
+          </table></div>
+
+          <p>\(\bar{k} = \dfrac{1.1+2.4+5.3+7.6+8.9}{5} = \dfrac{25.3}{5} = 5.06\)</p>
+
+          <p><b>\(R^2\):</b></p>
+          <div class="formula">
+            \[ R^2 = 1 - \frac{SS_{res}}{SS_{tot}} = 1 - \frac{0.0011}{44.01} \approx 1 - 0.000025 \]
+          </div>
+
+          <div class="callout tip">
+            <p style="margin:0;"><b>\(\boxed{R^2 \approx 0.99998 \approx 1.0000}\)</b> — Fit <b>แทบจะสมบูรณ์แบบ</b>! 🎯</p>
+          </div>
+
+          <!-- Step 7: Predict at c=2 -->
+          <h4>Step 7: ประมาณ growth rate ที่ \(c = 2\) mg/L</h4>
+          <p>แทน \(c = 2\) ใน model:</p>
+          <div class="formula">
+            \[ k(2) = \frac{10.06 \times 4}{2.04 + 4} = \frac{40.24}{6.04} \]
+          </div>
+          <div class="callout tip">
+            <p style="margin:0;"><b>\(\boxed{k(2) \approx 6.66 \text{ (per time unit)}}\)</b></p>
+          </div>
+
+          <!-- Summary -->
+          <h4>📊 สรุปคำตอบทั้งหมด</h4>
+          <div class="card">
+            <ul>
+              <li><b>Linearization:</b> \(Y = 1/k, X = 1/c^2\) → \(Y = a_0 + a_1 X\)</li>
+              <li><b>\(a_0 \approx 0.0994, \; a_1 \approx 0.2025\)</b></li>
+              <li><b>\(k_{max} \approx 10.06\)</b></li>
+              <li><b>\(c_s \approx 2.04\)</b></li>
+              <li><b>\(R^2 \approx 1.0000\)</b> (perfect fit)</li>
+              <li><b>\(k(c=2) \approx 6.66\)</b></li>
+            </ul>
+          </div>
+        </div>
+      </div>
+
+      <!-- Python code -->
+      <h3>💻 Python Code (สำหรับตรวจคำตอบ)</h3>
+      <pre>import numpy as np
+
+c = np.array([0.5, 0.8, 1.5, 2.5, 4.0])
+k = np.array([1.1, 2.4, 5.3, 7.6, 8.9])
+
+# Linearize: Y = 1/k, X = 1/c^2
+X = 1 / c**2
+Y = 1 / k
+
+# Linear regression
+n = len(c)
+Sx, Sy = X.sum(), Y.sum()
+Sxx = (X**2).sum()
+Sxy = (X*Y).sum()
+
+a1 = (n*Sxy - Sx*Sy) / (n*Sxx - Sx**2)
+a0 = Y.mean() - a1*X.mean()
+
+k_max = 1/a0
+c_s = a1 * k_max
+print(f"a0={a0:.4f}, a1={a1:.4f}")
+print(f"k_max={k_max:.4f}, c_s={c_s:.4f}")
+
+# R^2
+k_pred = k_max*c**2 / (c_s + c**2)
+SS_res = ((k - k_pred)**2).sum()
+SS_tot = ((k - k.mean())**2).sum()
+R2 = 1 - SS_res/SS_tot
+print(f"R^2 = {R2:.6f}")
+
+# Predict at c=2
+k_at_2 = k_max*4 / (c_s + 4)
+print(f"k(c=2) = {k_at_2:.4f}")</pre>
+
+      <div class="callout note">
+        <div class="callout-title">⏰ ส่งการบ้าน</div>
+        <p style="margin:0;">หน้านี้สร้างเป็นสื่อฝึกทำโจทย์ — ให้คัดลอกวิธีคำนวณไปเขียนลงในฟอร์มที่อาจารย์ให้ส่งเองนะครับ</p>
+      </div>
+
+      <div class="pager">
+        <a href="hw4.html"><span class="label">← ก่อนหน้า</span><span class="title">HW4</span></a>
+        <a href="../index.html"><span class="label">กลับ →</span><span class="title">หน้าแรก</span></a>
+      </div>
+    </div>
+  </main>
+</div>
+<script src="../assets/app.js"></script>
+</body>
+</html>
