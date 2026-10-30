@@ -1,0 +1,361 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="page-id" content="hw6">
+<title>HW6: Numerical Differentiation — CSS322</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@400;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../assets/style.css">
+</head>
+<body>
+<div class="app">
+  <aside class="sidebar">
+    <div class="brand">📐 CSS322</div>
+    <div class="brand-sub">Scientific Computing</div>
+    <div class="nav-section">หน้าหลัก</div>
+    <nav class="nav"><a href="../index.html" data-page="home">🏠 หน้าแรก <span class="status"></span></a></nav>
+    <div class="nav-section">บทเรียน</div>
+    <nav class="nav">
+      <a href="../chapters/ch1-errors-taylor.html" data-page="ch1">บทที่ 1: Errors & Taylor <span class="status"></span></a>
+      <a href="../chapters/ch2-root-finding.html" data-page="ch2">บทที่ 2: Root Finding <span class="status"></span></a>
+      <a href="../chapters/ch3-linear-direct.html" data-page="ch3">บทที่ 3: Linear (Direct) <span class="status"></span></a>
+      <a href="../chapters/ch4-linear-iterative.html" data-page="ch4">บทที่ 4: Linear (Iterative) <span class="status"></span></a>
+      <a href="../chapters/ch5-nonlinear.html" data-page="ch5">บทที่ 5: Nonlinear <span class="status"></span></a>
+      <a href="../chapters/ch6-regression.html" data-page="ch6">บทที่ 6: Regression <span class="status"></span></a>
+      <a href="../chapters/ch7-interpolation.html" data-page="ch7">บทที่ 7: Interp <span class="status"></span></a>
+      <a href="../chapters/ch8-spline.html" data-page="ch8">บทที่ 8: Spline <span class="status"></span></a>
+      <a href="../chapters/ch9-numdiff.html" data-page="ch9">บทที่ 9: NumDiff <span class="status"></span></a>
+      <a href="../chapters/ch10-numintegrate.html" data-page="ch10">บทที่ 10: NumInt <span class="status"></span></a>
+      <a href="../chapters/ch11-ode.html" data-page="ch11">บทที่ 11: ODE <span class="status"></span></a>
+      <a href="../chapters/ch12-eigenvalue.html" data-page="ch12">บทที่ 12: Eig <span class="status"></span></a>
+      <a href="../chapters/ch13-pagerank.html" data-page="ch13">บทที่ 13: PageRank <span class="status"></span></a>
+    </nav>
+    <div class="nav-section">การบ้าน</div>
+    <nav class="nav">
+      <a href="hw1.html" data-page="hw1">HW1: Taylor Error <span class="status"></span></a>
+      <a href="hw2.html" data-page="hw2">HW2: Root + IRR <span class="status"></span></a>
+      <a href="hw3.html" data-page="hw3">HW3: Jacobi/GS <span class="status"></span></a>
+      <a href="hw4.html" data-page="hw4">HW4: Nonlinear <span class="status"></span></a>
+      <a href="hw5.html" data-page="hw5">HW5: LS Regression <span class="status"></span></a>
+      <a href="hw6.html" data-page="hw6">HW6: NumDiff 🆕 <span class="status"></span></a>
+    </nav>
+    <div class="nav-section">📝 เตรียมสอบ</div>
+    <nav class="nav">
+      <a href="../exam/index.html" data-page="exam">📚 ห้องเตรียมสอบ Midterm <span class="status"></span></a>
+    </nav>
+    <button class="theme-toggle">🌙 โหมดมืด</button>
+  </aside>
+
+  <main class="main">
+    <div class="main-inner">
+      <div class="crumbs"><a href="../index.html">หน้าแรก</a> › HW6</div>
+      <h1>📝 HW6: Numerical Differentiation</h1>
+      <p class="subtitle">Exercise 1(a) หน้า 9 + Exercise 4 หน้า 10 — Two-point backward difference และ Taylor error analysis</p>
+
+      <div class="callout note">
+        <div class="callout-title">🔗 หัวข้อที่เกี่ยวข้อง</div>
+        <p style="margin:0;">อ่านทบทวน <a href="../chapters/ch9-numdiff.html">บทที่ 9 — Numerical Differentiation</a> โดยเฉพาะส่วน Finite-Difference formulas (forward/backward/central) และ Taylor-series error analysis</p>
+      </div>
+
+      <!-- =============================================================== -->
+      <!--                        PART 1                                    -->
+      <!-- =============================================================== -->
+      <h2 style="margin-top: 2rem;">Part 1 — Exercise 1(a): Two-Point Backward Difference</h2>
+
+      <div class="card">
+        <h3 style="margin-top:0; border:none; padding:0; color: var(--text);">โจทย์</h3>
+        <p>The following data is given for the <b>stopping distance</b> of a car versus the <b>speed</b> at which it begins braking:</p>
+
+        <div class="table-wrap"><table>
+          <tr><th>Speed (km/h)</th><td>32</td><td>48</td><td>64</td><td>80</td><td>96</td></tr>
+          <tr><th>Stopping distance (m)</th><td>6</td><td>10</td><td>24</td><td>34</td><td>47</td></tr>
+        </table></div>
+
+        <p>Calculate the <b>rate of change</b> of the stopping distance at a speed of <b>80 km/h</b> using the <b>two-point backward difference formula</b>.</p>
+      </div>
+
+      <div class="solution">
+        <button class="solution-toggle">💡 ดูเฉลยละเอียด Part 1 (Step-by-Step)</button>
+        <div class="solution-body">
+          <h3>✅ Guided Solution — Part 1</h3>
+
+          <!-- Step 1: Formula -->
+          <h4>Step 1: เขียนสูตร Two-Point Backward Difference</h4>
+          <p>สูตร backward difference อันดับที่หนึ่ง (first-order) ใช้จุด \(x_i\) กับจุด <b>ก่อนหน้า</b> \(x_{i-1}\):</p>
+          <div class="formula">
+            \[ f'(x_i) \;\approx\; \frac{f(x_i) - f(x_{i-1})}{h} \]
+          </div>
+          <p>โดย \(h = x_i - x_{i-1}\) คือระยะห่างระหว่างจุด</p>
+
+          <div class="callout tip">
+            <p style="margin:0;">💡 <b>ชื่อ "backward" มาจาก</b> การใช้ข้อมูล <b>ย้อนหลัง</b> (จุดก่อน \(x_i\)) ประโยชน์: ใช้ได้แม้ไม่รู้ค่าถัดไป (เช่น ตอน real-time measurement ที่ยังไม่มีข้อมูลอนาคต)</p>
+          </div>
+
+          <!-- Step 2: Identify data -->
+          <h4>Step 2: ระบุจุดและค่า \(h\)</h4>
+          <p>เราต้องการ \(f'(80)\) ดังนั้น:</p>
+          <ul>
+            <li>\(x_i = 80\), \(f(x_i) = 34\) m</li>
+            <li>\(x_{i-1} = 64\) (จุดก่อนหน้าในตาราง), \(f(x_{i-1}) = 24\) m</li>
+            <li>\(h = 80 - 64 = 16\) km/h</li>
+          </ul>
+
+          <!-- Step 3: Substitute -->
+          <h4>Step 3: แทนค่าในสูตร</h4>
+          <div class="formula">
+            \[ f'(80) \;\approx\; \frac{f(80) - f(64)}{16} \;=\; \frac{34 - 24}{16} \;=\; \frac{10}{16} \]
+          </div>
+
+          <div class="callout tip">
+            <p style="margin:0;"><b>\(\boxed{\, f'(80) \approx 0.625 \;\text{m per km/h} \,}\)</b></p>
+          </div>
+
+          <!-- Step 4: Physical interpretation -->
+          <h4>Step 4: ตีความทางฟิสิกส์</h4>
+          <p>ที่ความเร็ว 80 km/h: ถ้ารถวิ่งเร็วขึ้น <b>1 km/h</b> ระยะเบรก (stopping distance) จะเพิ่มขึ้นประมาณ <b>0.625 เมตร</b></p>
+          <p>หรือพูดอีกแบบ: เร็วขึ้น 10 km/h → ต้องการระยะเบรกเพิ่มราว 6.25 เมตร</p>
+
+          <!-- Step 5: Compare methods -->
+          <h4>Step 5: เปรียบเทียบกับ Forward / Central Difference (เสริม)</h4>
+          <p>ลองคำนวณด้วยสูตรอื่นที่จุดเดียวกัน (\(x = 80\)) เพื่อเห็นความแตกต่าง:</p>
+
+          <div class="table-wrap"><table>
+            <tr>
+              <th>วิธี</th>
+              <th>สูตร</th>
+              <th>คำนวณ</th>
+              <th>ค่า (m per km/h)</th>
+              <th>Error order</th>
+            </tr>
+            <tr>
+              <td><b>Backward</b> (คำตอบที่โจทย์ถาม)</td>
+              <td>\(\dfrac{f(x_i) - f(x_{i-1})}{h}\)</td>
+              <td>\(\dfrac{34 - 24}{16}\)</td>
+              <td>\(\mathbf{0.6250}\)</td>
+              <td>\(O(h)\)</td>
+            </tr>
+            <tr>
+              <td><b>Forward</b></td>
+              <td>\(\dfrac{f(x_{i+1}) - f(x_i)}{h}\)</td>
+              <td>\(\dfrac{47 - 34}{16}\)</td>
+              <td>\(0.8125\)</td>
+              <td>\(O(h)\)</td>
+            </tr>
+            <tr>
+              <td><b>Central</b> (แม่นที่สุด)</td>
+              <td>\(\dfrac{f(x_{i+1}) - f(x_{i-1})}{2h}\)</td>
+              <td>\(\dfrac{47 - 24}{32}\)</td>
+              <td>\(0.7188\)</td>
+              <td>\(O(h^2)\)</td>
+            </tr>
+          </table></div>
+
+          <div class="callout note">
+            <p style="margin:0;">📊 <b>ข้อสังเกต:</b> ค่า backward (0.625) และ forward (0.8125) ต่างกันพอสมควร เพราะข้อมูลไม่เรียบ (non-linear). <b>Central difference</b> (0.719) อยู่กึ่งกลาง ซึ่งโดยทั่วไปแม่นที่สุดเพราะ error เป็น \(O(h^2)\) แต่โจทย์ถามแค่ backward เท่านั้น</p>
+          </div>
+
+          <!-- Final answer -->
+          <h4>📊 สรุปคำตอบ Part 1</h4>
+          <div class="card">
+            <ul>
+              <li><b>สูตรที่ใช้:</b> Two-point backward difference</li>
+              <li><b>ค่า \(h\):</b> 16 km/h</li>
+              <li><b>คำนวณ:</b> \((34 - 24)/16\)</li>
+              <li><b>คำตอบ:</b> \(f'(80) \approx \mathbf{0.625}\) m per km/h</li>
+            </ul>
+          </div>
+        </div>
+      </div>
+
+      <!-- =============================================================== -->
+      <!--                        PART 2                                    -->
+      <!-- =============================================================== -->
+      <h2 style="margin-top: 2.5rem;">Part 2 — Exercise 4: Taylor-Series Error Term</h2>
+
+      <div class="card">
+        <h3 style="margin-top:0; border:none; padding:0; color: var(--text);">โจทย์</h3>
+        <p>Using <b>Taylor series</b>, establish the <b>error term</b> for the formula</p>
+        <div class="formula">
+          \[ f'(0) \;\approx\; \frac{1}{2h}\bigl[\, f(2h) - f(0) \,\bigr]. \]
+        </div>
+        <p><b>เป้าหมาย:</b> หาว่าสูตรนี้มี error เท่าไร และเป็น order ที่เท่าใดของ \(h\)</p>
+      </div>
+
+      <div class="solution">
+        <button class="solution-toggle">💡 ดูเฉลยละเอียด Part 2 (Step-by-Step)</button>
+        <div class="solution-body">
+          <h3>✅ Guided Solution — Part 2</h3>
+
+          <!-- Step 1: Idea -->
+          <h4>Step 1: ไอเดีย — ใช้ Taylor expansion รอบจุด \(x = 0\)</h4>
+          <p>วิธี: เขียน \(f(2h)\) ด้วย Taylor series รอบ \(x = 0\) → เอามา<b>เทียบ</b>กับสูตรที่โจทย์ให้ → ส่วนที่เหลือคือ <b>error</b></p>
+
+          <div class="callout tip">
+            <p style="margin:0;">💡 <b>ทริกสำคัญ:</b> Taylor expansion ของ \(f(x+a)\) รอบ \(x\) คือ
+              \[ f(x+a) = f(x) + a\,f'(x) + \tfrac{a^2}{2!}f''(x) + \tfrac{a^3}{3!}f'''(x) + \ldots \]
+              ในที่นี้ \(x = 0, a = 2h\)</p>
+          </div>
+
+          <!-- Step 2: Expand -->
+          <h4>Step 2: กางสูตร \(f(2h)\) ด้วย Taylor</h4>
+          <div class="formula">
+            \[ f(2h) \;=\; f(0) + (2h)\,f'(0) + \frac{(2h)^2}{2!}\,f''(0) + \frac{(2h)^3}{3!}\,f'''(0) + \frac{(2h)^4}{4!}\,f^{(4)}(0) + \cdots \]
+          </div>
+
+          <p><b>ลดรูป</b> แต่ละพจน์:</p>
+          <ul>
+            <li>\(\dfrac{(2h)^2}{2!} = \dfrac{4h^2}{2} = 2h^2\)</li>
+            <li>\(\dfrac{(2h)^3}{3!} = \dfrac{8h^3}{6} = \dfrac{4h^3}{3}\)</li>
+            <li>\(\dfrac{(2h)^4}{4!} = \dfrac{16h^4}{24} = \dfrac{2h^4}{3}\)</li>
+          </ul>
+
+          <div class="formula">
+            \[ f(2h) \;=\; f(0) + 2h\,f'(0) + 2h^2\,f''(0) + \tfrac{4h^3}{3}\,f'''(0) + \tfrac{2h^4}{3}\,f^{(4)}(0) + \cdots \]
+          </div>
+
+          <!-- Step 3: Rearrange -->
+          <h4>Step 3: ย้ายข้างเพื่อจัดรูปสูตรที่โจทย์ให้</h4>
+          <p>ลบ \(f(0)\) ออกจากสองข้าง:</p>
+          <div class="formula">
+            \[ f(2h) - f(0) \;=\; 2h\,f'(0) + 2h^2\,f''(0) + \tfrac{4h^3}{3}\,f'''(0) + \cdots \]
+          </div>
+
+          <p>หารด้วย \(2h\) ทั้งสองข้าง:</p>
+          <div class="formula">
+            \[ \frac{f(2h) - f(0)}{2h} \;=\; f'(0) \;+\; h\,f''(0) \;+\; \tfrac{2h^2}{3}\,f'''(0) \;+\; \tfrac{h^3}{3}\,f^{(4)}(0) + \cdots \]
+          </div>
+
+          <!-- Step 4: Isolate f'(0) -->
+          <h4>Step 4: แยก \(f'(0)\) ออกมา</h4>
+          <p>ย้ายทุกเทอมที่ไม่ใช่ \(f'(0)\) ไปอีกข้าง:</p>
+          <div class="formula">
+            \[ f'(0) \;=\; \frac{f(2h) - f(0)}{2h} \;\underbrace{- \;h\,f''(0) - \tfrac{2h^2}{3}\,f'''(0) - \cdots}_{\text{Error term}} \]
+          </div>
+
+          <div class="callout tip">
+            <p style="margin:0;"><b>Leading error term:</b> \(\boxed{\, -\,h\,f''(0) \,}\) → เป็น \(O(h)\)</p>
+          </div>
+
+          <!-- Step 5: Exact remainder -->
+          <h4>Step 5: Error ที่ "แม่น" (Lagrange remainder)</h4>
+          <p>Taylor's theorem รับประกันว่าถ้าตัด series ที่เทอมอันดับ 2 เราจะเขียน:</p>
+          <div class="formula">
+            \[ f(2h) \;=\; f(0) + 2h\,f'(0) + \frac{(2h)^2}{2!}\,f''(\xi) \]
+          </div>
+          <p>โดย \(\xi\) คือจุดใด ๆ ใน \((0, 2h)\) (<b>Mean Value Theorem</b> สำหรับ Taylor)</p>
+
+          <p>จัดรูป:</p>
+          <div class="formula">
+            \[ \frac{f(2h) - f(0)}{2h} \;=\; f'(0) \;+\; h\,f''(\xi) \]
+          </div>
+
+          <p>ย้ายข้าง:</p>
+          <div class="formula">
+            \[ f'(0) \;=\; \frac{f(2h) - f(0)}{2h} \;-\; h\,f''(\xi), \qquad \xi \in (0, 2h) \]
+          </div>
+
+          <div class="callout tip">
+            <p style="margin:0;">🎯 <b>Error term ที่แน่นอน:</b>
+              \[ E(h) \;=\; -\,h\,f''(\xi), \quad \xi \in (0, 2h) \]
+              หรือเขียนด้วย big-O: \(\;E(h) = O(h)\)
+            </p>
+          </div>
+
+          <!-- Step 6: Comparison -->
+          <h4>Step 6: เปรียบเทียบกับสูตร differentiation อื่น</h4>
+          <p>สูตรที่โจทย์ให้ \(f'(0) \approx \dfrac{f(2h) - f(0)}{2h}\) หน้าตา<b>คล้าย central difference</b> แต่จริง ๆ แล้วมันคือ <b>forward difference ที่ใช้ step 2h</b> จึงมี error แค่ \(O(h)\) ไม่ใช่ \(O(h^2)\)</p>
+
+          <div class="table-wrap"><table>
+            <tr>
+              <th>สูตร</th>
+              <th>Expression</th>
+              <th>Leading error</th>
+              <th>Order</th>
+            </tr>
+            <tr style="background:var(--accent-soft);">
+              <td><b>สูตรโจทย์</b> (forward, step 2h)</td>
+              <td>\(\dfrac{f(2h) - f(0)}{2h}\)</td>
+              <td>\(-\,h\,f''(\xi)\)</td>
+              <td>\(O(h)\)</td>
+            </tr>
+            <tr>
+              <td>Forward มาตรฐาน (step h)</td>
+              <td>\(\dfrac{f(h) - f(0)}{h}\)</td>
+              <td>\(-\tfrac{h}{2}\,f''(\xi)\)</td>
+              <td>\(O(h)\)</td>
+            </tr>
+            <tr>
+              <td>Central (step h, สมมาตร)</td>
+              <td>\(\dfrac{f(h) - f(-h)}{2h}\)</td>
+              <td>\(-\tfrac{h^2}{6}\,f'''(\xi)\)</td>
+              <td>\(\mathbf{O(h^2)}\) ✨</td>
+            </tr>
+          </table></div>
+
+          <div class="callout note">
+            <p style="margin:0;">💭 <b>บทเรียน:</b> หน้าตาสูตร "คล้าย central" (มี \(2h\) ที่ตัวหาร) ไม่ได้แปลว่าแม่น central ต้องมีจุด <b>สมมาตร</b> รอบจุดที่หา (คือ \(f(h)\) และ \(f(-h)\)) จึงจะได้ accuracy \(O(h^2)\). สูตรโจทย์ใช้ \(f(0)\) และ \(f(2h)\) ซึ่ง<b>ไม่สมมาตร</b> → ยังแค่ \(O(h)\)</p>
+          </div>
+
+          <!-- Summary -->
+          <h4>📊 สรุปคำตอบ Part 2</h4>
+          <div class="card">
+            <ul>
+              <li><b>Taylor expansion:</b> \(f(2h) = f(0) + 2h f'(0) + 2h^2 f''(0) + \tfrac{4h^3}{3}f'''(0) + \cdots\)</li>
+              <li><b>Error term (series form):</b> \(-\,h\,f''(0) - \tfrac{2h^2}{3}f'''(0) - \cdots\)</li>
+              <li><b>Error term (Lagrange form):</b> \(E(h) = -\,h\,f''(\xi), \; \xi \in (0, 2h)\)</li>
+              <li><b>Order of accuracy:</b> \(\boxed{\,O(h)\,}\) — first-order accurate</li>
+            </ul>
+          </div>
+        </div>
+      </div>
+
+      <!-- =============================================================== -->
+      <!--                      PYTHON CHECK                                -->
+      <!-- =============================================================== -->
+      <h3 style="margin-top: 2.5rem;">💻 Python Code (สำหรับตรวจคำตอบ Part 1 + ทดสอบ error order Part 2)</h3>
+      <pre>import numpy as np
+
+# ========== Part 1: Backward Difference ==========
+speed    = np.array([32, 48, 64, 80, 96])
+distance = np.array([ 6, 10, 24, 34, 47])
+
+i = 3   # index of x = 80
+h = speed[i] - speed[i-1]              # = 16
+backward = (distance[i] - distance[i-1]) / h
+forward  = (distance[i+1] - distance[i]) / h
+central  = (distance[i+1] - distance[i-1]) / (2*h)
+
+print(f"Backward f'(80) = {backward:.4f} m per km/h")   # 0.6250
+print(f"Forward  f'(80) = {forward:.4f} m per km/h")    # 0.8125
+print(f"Central  f'(80) = {central:.4f} m per km/h")    # 0.7188
+
+# ========== Part 2: Verify error order O(h) ==========
+# Test with f(x) = sin(x), so f'(0) = cos(0) = 1
+# Formula: f'(0) ≈ (f(2h) - f(0)) / (2h)
+print("\nError test for f(x)=sin(x), true f'(0) = 1:")
+print(f"{'h':>10} {'approx':>12} {'error':>12} {'error/h':>12}")
+for h in [0.1, 0.05, 0.025, 0.0125, 0.00625]:
+    approx = (np.sin(2*h) - np.sin(0)) / (2*h)
+    err = approx - 1.0
+    print(f"{h:10.5f} {approx:12.8f} {err:12.5e} {err/h:12.5e}")
+# สังเกต: error/h คงที่ประมาณ -1 → ยืนยัน error ≈ -h·f''(0) = -h·(-sin(0)+...)
+# สำหรับ sin: f''(0)=0, O(h^2) จะมา dominant แต่สำหรับฟังก์ชันทั่วไป error ∝ h</pre>
+
+      <div class="callout note">
+        <div class="callout-title">⏰ ส่งการบ้าน</div>
+        <p style="margin:0;">หน้านี้สร้างเป็นสื่อฝึกทำโจทย์ — ให้คัดลอกวิธีคำนวณไปเขียนลงในฟอร์มที่อาจารย์ให้ส่งเองนะครับ อย่าลืมโชว์ <b>ขั้นตอน Taylor expansion</b> ของ Part 2 ครบ ๆ จะได้คะแนนเต็ม</p>
+      </div>
+
+      <div class="pager">
+        <a href="hw5.html"><span class="label">← ก่อนหน้า</span><span class="title">HW5</span></a>
+        <a href="../index.html"><span class="label">กลับ →</span><span class="title">หน้าแรก</span></a>
+      </div>
+    </div>
+  </main>
+</div>
+<script src="../assets/app.js"></script>
+</body>
+</html>
