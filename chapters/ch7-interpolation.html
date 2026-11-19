@@ -74,6 +74,17 @@
         <li>ใช้ประมาณค่า \(y\) สำหรับ \(x\) ระหว่างจุดที่รู้</li>
       </ul>
 
+      <div class="callout lecture">
+        <div class="callout-title">จากคาบเรียน: interpolation ต่างจาก regression ตรงไหน</div>
+        <div class="lecture-time">คาบ 5 ต.ค. · คลิป 1 · 04:50–12:45</div>
+        <ul style="margin:0;">
+          <li>Regression ขอแค่ \(f(x_i) \approx y_i\) ส่วน interpolation บังคับ \(f(x_i) = y_i\) เป๊ะทุกจุด อาจารย์ย้ำว่า "this is exactly equal to \(y_i\)"</li>
+          <li>คำว่า inter แปลว่า "ระหว่าง" เราใช้ \(f\) ประมาณค่าที่ \(x\) อยู่ใน \([x_1, x_n]\) เท่านั้น ถ้า \(x\) อยู่นอกช่วงจะเป็น extrapolation ซึ่งวิชานี้ไม่สอน</li>
+          <li>โปรแกรมพล็อตกราฟที่ลากเส้นตรงต่อจุดก็คือ linear interpolation นั่นเอง</li>
+          <li>ก่อนใช้สูตรให้เช็กเงื่อนไขสองข้อ: ค่า \(x_i\) ต้องไม่ซ้ำกัน และเรียงจากน้อยไปมาก</li>
+        </ul>
+      </div>
+
       <div class="callout tip">
         <div class="callout-title">📌 Theorem (Existence and Uniqueness)</div>
         <p style="margin:0;">สำหรับ \(n\) data points ที่ \(x_i\) แตกต่างกัน → มี polynomial \(p_{n-1}\) ของ degree \(\leq n-1\) <b>เพียง 1 เดียว</b> ที่ \(p_{n-1}(x_i) = y_i\) สำหรับทุก \(i\)</p>
@@ -86,6 +97,32 @@
       </div>
       <p>⚠️ Matrix นี้ (Vandermonde) อาจ singular เมื่อ \(n\) ใหญ่ → ใช้ Lagrange หรือ Newton แทน</p>
 
+      <div class="example">
+        <div class="example-header">
+          <span><span class="example-label">ตัวอย่างในคาบ 1.1</span> สร้าง polynomial ผ่าน 5 จุดด้วย linear system</span>
+          <span class="chev">▶</span>
+        </div>
+        <div class="example-body">
+          <div class="lecture-time">คาบ 5 ต.ค. · คลิป 1 · 27:24–34:04</div>
+          <p style="margin:0;">โจทย์: data \((0,1), (1,2), (2,4), (3,8), (4,16)\) (คือ \(y = 2^x\)) หา polynomial ที่ผ่านทุกจุด</p>
+          <ol>
+            <li>มี 5 จุด → ใช้ degree \(5-1 = 4\) มี unknown 5 ตัว \(a_0,\dots,a_4\) พอดีกับ 5 สมการ</li>
+            <li>แต่ละจุดให้หนึ่งแถว \([1,\ x_i,\ x_i^2,\ x_i^3,\ x_i^4]\):
+              <div class="formula">\[ \begin{bmatrix} 1&amp;0&amp;0&amp;0&amp;0\\ 1&amp;1&amp;1&amp;1&amp;1\\ 1&amp;2&amp;4&amp;8&amp;16\\ 1&amp;3&amp;9&amp;27&amp;81\\ 1&amp;4&amp;16&amp;64&amp;256 \end{bmatrix} \begin{bmatrix}a_0\\a_1\\a_2\\a_3\\a_4\end{bmatrix} = \begin{bmatrix}1\\2\\4\\8\\16\end{bmatrix} \]</div>
+            </li>
+            <li>แก้ระบบได้ \(a_0 = 1,\ a_1 = \tfrac{7}{12} \approx 0.5833,\ a_2 = \tfrac{11}{24} \approx 0.4583,\ a_3 = -\tfrac{1}{12} \approx -0.0833,\ a_4 = \tfrac{1}{24} \approx 0.0417\)</li>
+            <li>\(p(x) = 1 + 0.5833x + 0.4583x^2 - 0.0833x^3 + 0.0417x^4\)</li>
+          </ol>
+          <div class="callout tip"><p style="margin:0;">💡 วิธีนี้ง่ายที่สุดแต่อาจารย์บอกว่า "in theory, it's nice and easy, but not good in practice" เพราะ Vandermonde matrix เป็น ill-conditioned (determinant เข้าใกล้ศูนย์) แค่ 5×5 นี้ condition number ก็ราว 2,600 แล้ว ยิ่ง degree สูง round-off error ยิ่งสะสม เลยต้องไปใช้ Lagrange กับ Newton</p></div>
+        </div>
+      </div>
+
+      <div class="callout warn lecture">
+        <div class="callout-title">อาจารย์พูดถึงข้อสอบ Midterm</div>
+        <div class="lecture-time">คาบ 5 ต.ค. · คลิป 1 · 24:43–25:50</div>
+        <p style="margin:0;">ข้อสุดท้ายของ Midterm ให้ fit 3 จุดด้วย polynomial degree 2 ตามทฤษฎี error ต้องเป็นศูนย์ ถ้าใครได้ error ประมาณ \(10^{-6}\) อาจารย์ให้คะแนนเต็ม เพราะนั่นคือ round-off error จากการแก้ระบบ ไม่ได้แปลว่าทำผิด</p>
+      </div>
+
       <!-- Lagrange -->
       <h2>2. Lagrange Interpolating Polynomial</h2>
       <p>สำหรับ \(n\) data points:</p>
@@ -96,6 +133,22 @@
       <div class="callout tip">
         <div class="callout-title">💡 คุณสมบัติของ \(L_i(x)\)</div>
         <p style="margin:0;">\(L_i(x_k) = \begin{cases} 1 & k = i \\ 0 & k \neq i \end{cases}\) → ทำให้ \(f(x_i) = y_i\) ตรงเป๊ะทุกจุด</p>
+      </div>
+
+      <div class="callout lecture">
+        <div class="callout-title">จากคาบเรียน: อาจารย์หาสูตร Lagrange มายังไง</div>
+        <div class="lecture-time">คาบ 5 ต.ค. · คลิป 1 · 35:49–50:20</div>
+        <p style="margin:0;">อาจารย์ไม่ได้ให้จำสูตรตั้งแต่แรก แต่สร้างขึ้นมาทีละขั้น</p>
+        <ol>
+          <li>เริ่มที่ \(n = 2\) เพราะจุดเดียวไม่มีอะไรให้เชื่อม เขียน \(p(x) = a_1(x - x_2) + a_2(x - x_1)\)</li>
+          <li>แทน \(x = x_1\) term ที่สองหายเพราะ \((x_1 - x_1) = 0\) เหลือ \(y_1 = a_1(x_1 - x_2)\) จึงได้ \(a_1 = \dfrac{y_1}{x_1 - x_2}\)</li>
+          <li>แทน \(x = x_2\) แบบเดียวกันได้ \(a_2 = \dfrac{y_2}{x_2 - x_1}\) ไม่ต้องแก้ linear system เลย</li>
+          <li>ทำซ้ำกับ \(n = 3\) จะเห็น pattern: ตัวเศษคือผลคูณ \((x - x_j)\) ทุกตัวที่ \(j \ne i\) ตัวส่วนคือตัวเศษที่แทน \(x = x_i\)</li>
+          <li>pattern นี้คือ \(L_i(x)\) และตัวส่วนห้ามเป็นศูนย์ จึงต้องมี \(x_i\) ไม่ซ้ำกัน</li>
+        </ol>
+        <p style="margin:0;">สัญลักษณ์ \(\prod\) (Pi ตัวใหญ่) แปลว่าคูณกันทุกตัว เหมือน \(\sum\) ที่แปลว่าบวกกันทุกตัว เช่น \(n = 3\):</p>
+        <div class="formula">\[ L_2(x) = \frac{(x - x_1)(x - x_3)}{(x_2 - x_1)(x_2 - x_3)} \]</div>
+        <p style="margin:0;">ลองแทน \(x = x_2\) ได้ 1 และแทน \(x = x_3\) ได้ 0 ตรงกับคุณสมบัติด้านบน</p>
       </div>
 
       <h3>2.1 สำหรับ 2 จุด (First-order Lagrange)</h3>
@@ -122,6 +175,18 @@
           <p>\(f(2) = \frac{(1)(-1)}{3} - 2(-1) + \frac{4}{3}(2)(1) = -0.333 + 2 + 2.667 = 4.333\)</p>
 
           <div class="callout tip"><p style="margin:0;">💡 Order 2 ใช้ information มากกว่า → ให้ค่าแม่นยำกว่า (ถ้า data มี curvature)</p></div>
+
+          <div class="callout warn lecture">
+            <div class="lecture-time">คาบ 5 ต.ค. · คลิป 2 · 02:48 และ 12:40</div>
+            <p style="margin:0;">อาจารย์เตือนว่า "if you have cheat sheets and you just try to copy from the formula and you don't understand the formula you might make a mistake" สูตร Lagrange มี index เยอะมาก ตอนทำในคาบอาจารย์เองก็เขียนเครื่องหมายลบผิดไปหนึ่งตัว จุดที่พลาดบ่อยคือตัวส่วน term ที่สาม \((3-0)(3-1) = 6\) เป็นบวก ไม่มีเครื่องหมายลบ</p>
+          </div>
+
+          <div class="callout tip lecture">
+            <div class="callout-title">ใช้ polynomial ตัวไหนประมาณค่า</div>
+            <div class="lecture-time">คาบ 5 ต.ค. · คลิป 2 · 14:12–18:45</div>
+            <p style="margin:0;">ต้องเลือก polynomial ที่ช่วงของมันครอบคลุม \(x\) ที่ถาม \(P_1\) สร้างจาก \((0,1),(1,2)\) จึงใช้ได้แค่ใน \([0,1]\) ส่วน \(x = 2\) อยู่นอกช่วงนั้น ถ้าใช้ \(P_1\) จะเป็น extrapolation คำตอบที่ถูกจึงต้องใช้ \(P_2\) ซึ่งครอบคลุม \([0,3]\) ได้ \(P_2(2) = 13/3 \approx 4.333\)</p>
+            <p style="margin:0;">ขยายออกมาแล้ว \(P_2(x) = \tfrac{2}{3}x^2 + \tfrac{1}{3}x + 1\) ลองแทน \(x = 0, 1, 3\) จะได้ \(1, 2, 8\) ครบ</p>
+          </div>
         </div>
       </div>
 
@@ -134,6 +199,19 @@
       <p>ขยายได้:</p>
       <div class="formula">
         \[ f(x) = a_1 + a_2(x - x_1) + a_3(x-x_1)(x-x_2) + a_4(x-x_1)(x-x_2)(x-x_3) + \cdots \]
+      </div>
+
+      <div class="callout lecture">
+        <div class="callout-title">จากคาบเรียน: ทำไมต้องมี Newton และ \(a_i\) มาจากไหน</div>
+        <div class="lecture-time">คาบ 5 ต.ค. · คลิป 2 · 11:18–14:12, 29:53–46:07</div>
+        <ul style="margin:0;">
+          <li>ปัญหาของ Lagrange: เพิ่มจุดใหม่หนึ่งจุดต้องสร้างใหม่ทั้งหมด Newton แก้ตรงนี้</li>
+          <li>Degree 1: \(p_1(x) = a_1 + a_2(x - x_1)\) แทน \(x = x_1\) ได้ \(a_1 = y_1\) แทน \(x = x_2\) ได้ \(a_2 = \frac{y_2 - y_1}{x_2 - x_1}\) อาจารย์ให้มองว่า \(a_2\) คือ slope</li>
+          <li>Degree 2: สองพจน์แรกเหมือน degree 1 ทุกอย่าง อาจารย์พูดว่า "this first order Newton polynomial is hidden in this second order Newton polynomial" ตัว \(a_3\) คือ "slope ของ slope" เอา slope สองช่วงมาลบกัน แล้วหารด้วยระยะจาก \(x\) ตัวแรกถึงตัวสุดท้าย
+            <div class="formula">\[ a_3 = \frac{\dfrac{y_3 - y_2}{x_3 - x_2} - \dfrac{y_2 - y_1}{x_2 - x_1}}{x_3 - x_1} \]</div>
+          </li>
+          <li>เขียนต่อไปแบบนี้ไม่ไหว จึงตั้งชื่อว่า divided difference และใช้ตารางช่วยคำนวณ</li>
+        </ul>
       </div>
 
       <div class="callout tip">
@@ -162,6 +240,17 @@
         <tr><td></td><td></td><td>\(f[x_3,x_4]\)</td><td></td><td></td></tr>
         <tr><td>\(x_4\)</td><td>\(y_4\)</td><td></td><td></td><td></td></tr>
       </table></div>
+
+      <div class="callout tip lecture">
+        <div class="callout-title">กฎลบในตาราง divided difference</div>
+        <div class="lecture-time">คาบ 5 ต.ค. · คลิป 2 · 49:17–59:28</div>
+        <ul style="margin:0;">
+          <li>ตัวเศษ: เอาช่องล่างลบช่องบน (ตัวที่มาทีหลังลบตัวที่มาก่อน)</li>
+          <li>ตัวส่วน: เอา \(x\) index มากสุดลบ \(x\) index น้อยสุดที่ช่องนั้นครอบคลุม เช่นคอลัมน์ที่ 2 แถวแรกหารด้วย \(x_3 - x_1\) ไม่ใช่ \(x_2 - x_1\)</li>
+          <li>อ่าน \(a_1, a_2, \dots\) จากแถวบนสุดของแต่ละคอลัมน์</li>
+          <li>ตอนทำในคาบอาจารย์พูดตัวเลขช่องสุดท้ายผิดเป็น 39 ค่าที่ถูกคือ \((64 - 27)/(4 - 3) = 37\)</li>
+        </ul>
+      </div>
 
       <div class="example open">
         <div class="example-header">
@@ -201,10 +290,23 @@
           <p>\(p_2(x) = -39 + 21(x+2) - 6(x+2)(x-0)\)</p>
 
           <p><b>Part (b):</b> เพิ่ม \((3, 36)\) → แค่คำนวณ \(a_4\) เพิ่มอย่างเดียว!</p>
-          <p>\(a_4 = \ldots = 2\) (จาก divided diff ต่อ)</p>
+          <div class="lecture-time">คาบ 5 ต.ค. · คลิป 3 · 11:17–16:27</div>
+          <p style="margin:0;">เพิ่มแถวใหม่แค่แถวล่างสุดของแต่ละคอลัมน์:</p>
+          <ul style="margin:0;">
+            <li>1st: \(f[x_3,x_4] = \frac{36 - 6}{3 - 1} = 15\)</li>
+            <li>2nd: \(f[x_2,x_3,x_4] = \frac{15 - 3}{3 - 0} = 4\)</li>
+            <li>3rd: \(a_4 = f[x_1,\dots,x_4] = \frac{4 - (-6)}{3 - (-2)} = \frac{10}{5} = 2\)</li>
+          </ul>
           <p>\(p_3(x) = p_2(x) + 2(x+2)(x)(x-1)\)</p>
-          <p>ประมาณ \(y(2) = p_3(2) = 3 + 42 - 48 + 16 = 13\)</p>
+          <p>\(p_3(2) = -39 + 21(4) - 6(4)(2) + 2(4)(2)(1) = -39 + 84 - 48 + 16 = 13\)</p>
         </div>
+      </div>
+
+      <div class="callout warn lecture">
+        <div class="callout-title">เช็กคำตอบด้วยจุดที่โจทย์ให้มา</div>
+        <div class="lecture-time">คาบ 5 ต.ค. · คลิป 3 · 16:27–21:04</div>
+        <p style="margin:0;">อาจารย์บอกว่าในข้อสอบอาจถามค่าที่ \(x\) ตรงกับ data point เช่นถาม \(p(0)\) คำตอบต้องเป็น 3 เท่ากับ \(y\) ที่ให้มา ถ้าได้ค่าอื่นแปลว่าคำนวณผิดแน่นอน ใช้ข้อนี้เช็กงานตัวเองได้ทุกข้อ</p>
+        <p style="margin:0;">อีกจุดที่อาจารย์ทำพลาดในคาบคือคัดลอก \(a_3 = -6\) แล้วเครื่องหมายเพี้ยน เวลาเอา part (a) มาใช้ต่อใน part (b) ให้ระวังเครื่องหมาย</p>
       </div>
 
       <!-- Accuracy -->
@@ -221,10 +323,21 @@
         <p style="margin:0;">→ High-degree interpolation อาจ worse กว่า low-degree! แก้ด้วย <b>Spline</b> (บทที่ 8)</p>
       </div>
 
+      <div class="callout lecture">
+        <div class="callout-title">จากคาบเรียน: ทำแบบฝึกหัดข้อไหนก่อน</div>
+        <div class="lecture-time">คาบ 5 ต.ค. · คลิป 2 · 19:07–21:23, คลิป 3 · 21:04–26:41</div>
+        <ul style="margin:0;">
+          <li>แบบฝึกหัดส่วนใหญ่คล้ายตัวอย่างในคาบ ข้อ 4 ต่างออกไปและอาจารย์ให้ลองเอง</li>
+          <li>ข้อ 2 ไม่มีตารางให้ ต้องสร้าง data เองจาก \(g(x)\) ที่ \(x = -2, -1, 0, 1, 2\) แล้วใช้ Lagrange degree 4 บน \([-2, 2]\)</li>
+          <li>เหตุผลที่ใช้ interpolation ในงานจริง: polynomial คำนวณแค่บวกกับคูณ จึงใช้แทนฟังก์ชันที่ซับซ้อนได้</li>
+          <li>10–15 จุดต้องใช้ degree 9–14 ซึ่งแกว่งมาก คาบถัดไปจึงเป็น piecewise interpolation (บทที่ 8) ที่ล็อก degree ไว้ที่ 1, 2 หรือ 3</li>
+        </ul>
+      </div>
+
       <!-- Quiz -->
       <h2>🧪 แบบทบทวนท้ายบท</h2>
       <div class="quiz-container" data-quiz="ch7">
-        <h3>Quiz: Interpolation (10 ข้อ)</h3>
+        <h3>Quiz: Interpolation (13 ข้อ)</h3>
 
         <div class="quiz-question" data-type="mc" data-answer="c">
           <div class="q-text"><span class="q-number">1</span> Interpolation ต่างจาก Regression อย่างไร?</div>
@@ -319,6 +432,29 @@
             <label><input type="radio" name="q10" value="d"> ไม่มีปัญหา</label>
           </div>
           <div class="q-explain">💡 Vandermonde ill-conditioned → ใช้ Lagrange/Newton แทน</div>
+        </div>
+
+        <div class="quiz-question" data-type="num" data-answer="4.3333" data-tol="0.01">
+          <div class="q-text"><span class="q-number">11</span> Data \((0,1),(1,2),(3,8)\). \(P_2(2) = ?\)</div>
+          <input type="text" class="q-input" placeholder="ตัวเลข">
+          <div class="q-explain">💡 13/3; ต้องใช้ \(P_2\) เพราะ \(x = 2\) อยู่นอกช่วงของ \(P_1\)</div>
+        </div>
+
+        <div class="quiz-question" data-type="mc" data-answer="b">
+          <div class="q-text"><span class="q-number">12</span> ตารางเดิมของ \((-2,-39),(0,3),(1,6),(3,36)\) ถ้าถาม \(p_3(0)\) คำตอบคือ?</div>
+          <div class="q-options">
+            <label><input type="radio" name="q12" value="a"> 0</label>
+            <label><input type="radio" name="q12" value="b"> 3</label>
+            <label><input type="radio" name="q12" value="c"> 13</label>
+            <label><input type="radio" name="q12" value="d"> −39</label>
+          </div>
+          <div class="q-explain">💡 polynomial ต้องผ่านทุก data point</div>
+        </div>
+
+        <div class="quiz-question" data-type="num" data-answer="3" data-tol="0.01">
+          <div class="q-text"><span class="q-number">13</span> Divided difference \(f[x_1,x_2,x_3]\) ของ \((0,0),(1,1),(2,8)\)</div>
+          <input type="text" class="q-input" placeholder="ตัวเลข">
+          <div class="q-explain">💡 (7 − 1)/(2 − 0) = 3; ตัวส่วนคือ \(x_3 - x_1\)</div>
         </div>
 
         <div class="quiz-actions">

@@ -73,6 +73,16 @@
         <li>อนุพันธ์ \((k-1)\)-th ต่อเนื่องบน \([a, b]\)</li>
       </ul>
 
+      <div class="callout lecture">
+        <div class="callout-title">จากคาบเรียน: ทำไมต้อง spline และเงื่อนไขสองข้ออ่านยังไง</div>
+        <div class="lecture-time">คาบ 12 ต.ค. · คลิป 1 · 11:44–14:43</div>
+        <ul style="margin:0;">
+          <li>ต่อจากบทที่ 7: ถ้ามี \(n\) จุดแล้วใช้ polynomial เดียว degree \(n-1\) พอจุดเยอะ degree ก็สูงตาม กราฟจะแกว่งมาก spline แก้โดยล็อก degree ไว้ แล้วต่อจุดทีละคู่ที่อยู่ติดกัน วิชานี้เรียนแค่ degree 1, 2, 3 คือ linear, quadratic และ cubic spline</li>
+          <li>เงื่อนไขข้อแรกเขียนว่า degree "\(\le k\)" อาจารย์ย้ำว่า "k or less" เช่น quadratic spline แต่ละช่วงจะเป็น degree 2 หรือ degree 1 ก็ได้ (ตัวอย่างในคาบ 2.2 ข้างล่างมีช่วงหนึ่งเป็นเส้นตรง)</li>
+          <li>เงื่อนไขข้อสองไล่ตาม \(k\): \(k = 1\) ต้องการแค่ตัวฟังก์ชันต่อเนื่อง (อนุพันธ์อันดับ 0), \(k = 2\) ต้องให้ \(S'\) ต่อเนื่องด้วย, \(k = 3\) ต้องให้ทั้ง \(S'\) และ \(S''\) ต่อเนื่อง</li>
+        </ul>
+      </div>
+
       <!-- Linear Spline -->
       <h2>2. Linear Spline (degree 1)</h2>
       <p>สำหรับ \(n\) data points → \(n - 1\) linear segments:</p>
@@ -80,6 +90,19 @@
         \[ S_i(x) = y_i + \left(\frac{y_{i+1} - y_i}{x_{i+1} - x_i}\right)(x - x_i), \quad i = 1, \ldots, n-1 \]
       </div>
       <p>คือการต่อเส้นตรงระหว่างจุดต่อเนื่อง — เหมือน dot-to-dot</p>
+
+      <div class="callout lecture">
+        <div class="callout-title">จากคาบเรียน: สูตร linear spline มาจากไหน</div>
+        <div class="lecture-time">คาบ 12 ต.ค. · คลิป 1 · 15:05–27:09</div>
+        <ol>
+          <li>\(n\) จุดมี \(n-1\) ช่วง จึงมี \(S_1, S_2, \dots, S_{n-1}\) ตัว \(S_i\) ใช้กับช่วง \([x_i, x_{i+1}]\) เท่านั้น</li>
+          <li>อาจารย์เขียน \(S_i\) ในรูปเดียวกับ Newton degree 1: \(S_i(x) = a_i + b_i(x - x_i)\)</li>
+          <li>บังคับ \(S_i(x_i) = y_i\) พจน์ที่สองหายเพราะ \(x_i - x_i = 0\) ได้ \(a_i = y_i\)</li>
+          <li>บังคับ \(S_i(x_{i+1}) = y_{i+1}\) แล้วแทน \(a_i = y_i\) ได้ \(b_i = \dfrac{y_{i+1} - y_i}{x_{i+1} - x_i}\) ซึ่งก็คือ slope ของเส้นตรงช่วงนั้น</li>
+          <li>ได้สูตรโดยไม่ต้องแก้ linear system เลย แค่แทน data</li>
+        </ol>
+        <p style="margin:0;">ในเอกสาร note สูตรนี้พิมพ์ตัวส่วนผิดเป็น \(x - x_i\) อาจารย์แจ้งในคาบให้แก้เป็น \(x_{i+1} - x_i\) เพราะถ้ามี \(x\) อยู่ในตัวส่วน \(S_i\) จะไม่ใช่เส้นตรง ใครคัดสูตรจาก note ลง cheat sheet ให้แก้ตรงนี้ด้วย (สูตรบนหน้านี้ถูกแล้ว)</p>
+      </div>
 
       <div class="example open">
         <div class="example-header">
@@ -94,6 +117,16 @@
           <p>\(S_3(x) = 4 + \frac{-6-4}{5-3}(x-3) = 4 - 5(x-3)\) สำหรับ \(x \in [3, 5]\)</p>
 
           <p>\(x = 2 \in [1, 3]\) → \(S_2(2) = -2 + 3(1) = 1\)</p>
+
+          <div class="callout tip lecture">
+            <div class="callout-title">จุดรอยต่อใช้ช่วงไหน และต้องหาครบทุกช่วงไหม</div>
+            <div class="lecture-time">คาบ 12 ต.ค. · คลิป 1 · 30:32–37:43</div>
+            <ul style="margin:0;">
+              <li>เขียนช่วงแบบปิด \([0,1]\) กับ \([1,3]\) แล้ว \(x = 1\) อยู่ทั้งสองช่วง ไม่ผิด เพราะ \(S_1(1) = S_2(1) = -2\) ซึ่งเป็น data point ที่โจทย์ให้มา จะใช้ตัวไหนก็ได้ค่าเดียวกัน</li>
+              <li>โจทย์ถามแค่ \(y\) ที่ \(x = 2\) ก็สร้างแค่ \(S_2\) พอ ไม่ต้องหา \(S_1\) กับ \(S_3\) แต่ถ้าโจทย์ให้หา spline function ต้องเขียนครบทุกช่วง</li>
+              <li>โปรแกรมพล็อตกราฟส่วนใหญ่ลากเส้นตรงต่อจุดแบบนี้ ซูมเข้าไปจะเห็นมุมหักตรงรอยต่อ ตรงมุมนั้นหาอนุพันธ์ไม่ได้ จึงต้องขยับไป quadratic</li>
+            </ul>
+          </div>
         </div>
       </div>
 
@@ -109,6 +142,20 @@
         <li>Boundary: ต้องเพิ่ม 1 เงื่อนไข (เช่น \(S_1''(x_1) = 0\) — Natural)</li>
       </ol>
 
+      <div class="callout lecture">
+        <div class="callout-title">จากคาบเรียน: นับ unknown กับสมการ ทำไมขาดไป 1</div>
+        <div class="lecture-time">คาบ 12 ต.ค. · คลิป 1 · 38:00–49:17, 55:14–56:58</div>
+        <p style="margin:0;">อาจารย์ให้วาดสามจุดติดกัน \(x_i, x_{i+1}, x_{i+2}\) โดย \(S_i\) กับ \(S_{i+1}\) มาเจอกันที่จุดกลาง \(x_{i+1}\) ตรงจุดกลางนี้ทั้งสองชิ้นต้องให้ค่าเท่ากัน (เท่ากับ \(y_{i+1}\)) และ slope ต้องเท่ากันด้วย กราฟจึงต่อกันเรียบไม่มีมุมหัก</p>
+        <p style="margin:0;">นับจำนวน:</p>
+        <ul style="margin:0;">
+          <li>unknown: แต่ละ \(S_i\) มี \(a_i, b_i, c_i\) และมี \(n-1\) ชิ้น รวม \(3(n-1) = 3n - 3\) ตัว</li>
+          <li>เงื่อนไขผ่านจุดปลายสองข้างของทุกชิ้น: \(2(n-1) = 2n - 2\) สมการ</li>
+          <li>เงื่อนไข slope เท่ากันที่จุดกลาง: มีจุดกลาง \(n-2\) จุด ได้ \(n-2\) สมการ</li>
+          <li>รวม \(3n - 4\) สมการ น้อยกว่า unknown อยู่ 1</li>
+        </ul>
+        <p style="margin:0;">อาจารย์จึงย้ำว่าโจทย์ quadratic spline ต้องให้เงื่อนไขเพิ่มมาอีก 1 ข้อเสมอ ไม่อย่างนั้นหา coefficient ให้ unique ไม่ได้ เงื่อนไขนี้อาจเป็นค่า \(S'(x_1)\) (แบบตัวอย่าง 3.1) หรือ natural boundary \(S_1''(x_1) = 0\) ซึ่งทำให้ \(z_1 = z_2\)</p>
+      </div>
+
       <h3>3.1 สูตรง่าย ๆ สำหรับคำนวณ</h3>
       <p>ตั้ง \(z_i = S_i'(x_i)\); \(h_i = x_{i+1} - x_i\):</p>
       <div class="formula">
@@ -119,6 +166,23 @@
       <p><b>Polynomial สุดท้าย:</b></p>
       <div class="formula">
         \[ S_i(x) = y_i + z_i(x - x_i) + \left(\frac{z_{i+1} - z_i}{2 h_i}\right)(x - x_i)^2 \]
+      </div>
+
+      <div class="callout lecture">
+        <div class="callout-title">จากคาบเรียน: \(z_i\) คืออะไร และขั้นตอนที่ต้องจำ</div>
+        <div class="lecture-time">คาบ 12 ต.ค. · คลิป 1 · 49:17–59:54, คลิป 2 · 06:10–06:30</div>
+        <ul style="margin:0;">
+          <li>อาจารย์ข้าม derivation ส่วนใหญ่ แต่ให้จำว่า \(z_i = S_i'(x_i)\) คือ slope ของชิ้นที่ \(i\) ที่จุดเริ่มของมัน</li>
+          <li>จาก \(S_i(x) = a_i + b_i(x - x_i) + c_i(x - x_i)^2\) แทน \(x = x_i\) ได้ \(a_i = y_i\) ส่วน \(S_i'(x) = b_i + 2c_i(x - x_i)\) แทน \(x = x_i\) ได้ \(b_i = z_i\) และใช้เงื่อนไข slope เท่ากันที่รอยต่อได้ \(c_i = \dfrac{z_{i+1} - z_i}{2h_i}\)</li>
+          <li>ขั้นตอนตอนทำโจทย์:
+            <ol>
+              <li>เช็กว่า \(x_i\) ไม่ซ้ำและเรียงจากน้อยไปมาก แล้วหา \(h_i = x_{i+1} - x_i\)</li>
+              <li>หา \(z_1, \dots, z_n\) จาก recurrence \(z_{i+1} = -z_i + 2\left(\dfrac{y_{i+1} - y_i}{h_i}\right)\) เงื่อนไขที่โจทย์ให้เพิ่มมาใช้ตรงขั้นนี้ เพื่อหา \(z_1\) ตัวแรก</li>
+              <li>แทน \(z_i\) ลงในสูตร \(S_i\) ทีละช่วง</li>
+            </ol>
+          </li>
+          <li>แต่ละ \(S_i\) ใช้ได้เฉพาะใน \([x_i, x_{i+1}]\) ห้ามเอาไปแทนค่า \(x\) นอกช่วง</li>
+        </ul>
       </div>
 
       <div class="example open">
@@ -132,7 +196,48 @@
           <p>\(z_2 = -2 + 2(3-2)/1 = 0\); \(z_3 = -0 + 2(5-3)/1 = 4\)</p>
           <p>\(S_1(x) = 2 + 2(x-1) + \frac{0-2}{2}(x-1)^2 = 2 + 2(x-1) - (x-1)^2\), \(x \in [1,2]\)</p>
           <p>\(S_2(x) = 3 + 0(x-2) + \frac{4-0}{2}(x-2)^2 = 3 + 2(x-2)^2\), \(x \in [2,3]\)</p>
+
+          <div class="callout tip lecture">
+            <div class="callout-title">ทำไม \(S'(1) = 2\) แปลว่า \(z_1 = 2\)</div>
+            <div class="lecture-time">คาบ 12 ต.ค. · คลิป 2 · 01:00–04:00</div>
+            <p style="margin:0;">โจทย์เขียน \(S'(1)\) ไม่มี subscript แต่ \(x = 1\) คือ \(x_1\) ซึ่งอยู่ในช่วงแรก \([1,2]\) ตรงนั้น \(S\) ก็คือ \(S_1\) จึงได้ \(S_1'(x_1) = 2\) ตรงกับนิยาม \(z_1 = S_1'(x_1)\) พอดี ต้องจำนิยามของ \(z_i\) ให้ได้ ถึงจะแปลงเงื่อนไขที่โจทย์ให้มาเป็นค่า \(z\) ได้</p>
+          </div>
         </div>
+      </div>
+
+      <div class="example">
+        <div class="example-header">
+          <span><span class="example-label">ตัวอย่างในคาบ 2.2</span> หา \(a, b, c\) ที่ทำให้ฟังก์ชันเป็น quadratic spline</span>
+          <span class="chev">▶</span>
+        </div>
+        <div class="example-body">
+          <div class="lecture-time">คาบ 12 ต.ค. · คลิป 2 · 06:44–18:43</div>
+          <p style="margin:0;">โจทย์: ให้ \(p(x)\) เป็น quadratic spline</p>
+          <div class="formula">\[ p(x) = \begin{cases} x^2 + a, &amp; x \in [-5, 0] \\ bx^2, &amp; x \in [0, 1] \\ 1 + cx, &amp; x \in [1, 5] \end{cases} \]</div>
+          <p style="margin:0;">หาค่า \(a, b, c\)</p>
+          <ol>
+            <li>ไม่มีตาราง data แต่อ่านจากช่วงได้ว่ามี 3 ชิ้น จึงมี 4 จุด: \(x_1 = -5,\ x_2 = 0,\ x_3 = 1,\ x_4 = 5\) ตั้งชื่อ \(p_1 = x^2 + a,\ p_2 = bx^2,\ p_3 = 1 + cx\) จุดรอยต่อคือ \(x = 0\) และ \(x = 1\)</li>
+            <li>ค่าเท่ากันที่ \(x = 0\): \(p_1(0) = p_2(0)\) ได้ \(0 + a = 0\) จึง \(a = 0\)</li>
+            <li>ค่าเท่ากันที่ \(x = 1\): \(p_2(1) = p_3(1)\) ได้ \(b = 1 + c\)</li>
+            <li>หาอนุพันธ์: \(p_1'(x) = 2x,\ p_2'(x) = 2bx,\ p_3'(x) = c\)</li>
+            <li>slope เท่ากันที่ \(x = 0\): \(2(0) = 2b(0)\) ได้ \(0 = 0\) เป็นจริงเสมอ ไม่ได้ข้อมูลใหม่</li>
+            <li>slope เท่ากันที่ \(x = 1\): \(2b(1) = c\) จึง \(c = 2b\)</li>
+            <li>แทนลงข้อ 3: \(b = 1 + 2b\) ได้ \(b = -1\) และ \(c = 2b = -2\)</li>
+          </ol>
+          <p style="margin:0;">คำตอบ \(a = 0,\ b = -1,\ c = -2\) ลองเช็ก: \(p_2(1) = -1 = p_3(1) = 1 - 2\) และ \(p_2'(1) = -2 = p_3'(1)\)</p>
+          <div class="callout tip"><p style="margin:0;">💡 โจทย์แบบนี้ไม่ต้องใช้สูตร \(z_i\) เลย ใช้แค่นิยามของ quadratic spline สองข้อ (ค่าเท่ากันและ slope เท่ากันที่รอยต่อ) ช่วงสุดท้าย \(1 + cx\) เป็นแค่เส้นตรงก็ยังเป็น quadratic spline ได้ เพราะเงื่อนไขคือ degree \(\le 2\)</p></div>
+        </div>
+      </div>
+
+      <div class="callout warn lecture">
+        <div class="callout-title">อาจารย์พูดถึงข้อสอบ Final เรื่อง spline</div>
+        <div class="lecture-time">คาบ 12 ต.ค. · คลิป 2 · 21:30–23:17, 46:19–47:17</div>
+        <ul style="margin:0;">
+          <li>ข้อสอบเรื่อง spline อาจให้ทำตามขั้นตอนสูตร หรือถามความเข้าใจแบบตัวอย่าง 2.2 อาจารย์บอกว่า "most of the time I might want to ask you this on the exam" เพื่อดูว่าเข้าใจ concept โดยไม่ต้องคำนวณยาว แต่ก็ต้องแทนสูตรเป็นด้วย</li>
+          <li>สอบนำ cheat sheet เข้าได้ และอาจารย์บอกว่า "I'll type some of the formula for you" จะแจ้งทีหลังว่าให้สูตรไหนบ้าง</li>
+          <li>คะแนนบางส่วน: ถ้าเขียนสิ่งที่เกี่ยวกับโจทย์จริงจะได้คะแนนบ้าง ถ้าเขียนสูตรผิดเรื่อง เช่นโจทย์ให้ใช้ Newton สำหรับ system of nonlinear equations แต่ไปใช้ Newton แบบสมการตัวแปรเดียว จะไม่ได้คะแนนเลย แม้จะลอกสูตรมาครบ</li>
+          <li>ใครอยากดูข้อสอบ Midterm หรือวิธีให้คะแนน ไปหาอาจารย์ได้ ใช้เตรียมตัวสอบ Final</li>
+        </ul>
       </div>
 
       <!-- Cubic Spline -->
@@ -147,11 +252,40 @@
         <li>\(S_i''(x_{i+1}) = S_{i+1}''(x_{i+1})\) — 2nd derivative ต่อเนื่อง</li>
       </ol>
 
+      <div class="callout lecture">
+        <div class="callout-title">จากคาบเรียน: นับเงื่อนไขของ cubic spline และ \(z_i\) ตัวใหม่</div>
+        <div class="lecture-time">คาบ 12 ต.ค. · คลิป 2 · 23:17–33:40</div>
+        <ul style="margin:0;">
+          <li>unknown: \(a_i, b_i, c_i, d_i\) ชิ้นละ 4 ตัว \(n-1\) ชิ้น รวม \(4n - 4\)</li>
+          <li>สมการ: ผ่านจุดปลาย \(2(n-1)\), \(S'\) เท่ากันที่จุดกลาง \(n-2\), \(S''\) เท่ากันที่จุดกลาง \(n-2\) รวม \(4n - 6\)</li>
+          <li>ขาดไป 2 สมการ โจทย์ cubic spline จึงต้องให้เงื่อนไขเพิ่ม 2 ข้อเสมอ</li>
+          <li>เงื่อนไข \(S''\) เท่ากันแปลว่า concavity ของสองชิ้นที่ติดกันเท่ากันตรงรอยต่อ</li>
+          <li>บางตำราตั้งระบบ \(4n-4\) สมการแล้วแก้ทีเดียว อาจารย์บอกว่าไม่ efficient เพราะระบบใหญ่ วิธีในวิชานี้ดูซับซ้อนกว่าแต่แก้ระบบเล็กกว่ามาก</li>
+          <li>ระวัง: \(z_i\) ของ cubic คือ \(S_i''(x_i)\) (second derivative) ส่วน \(z_i\) ของ quadratic คือ \(S_i'(x_i)\) (first derivative) ใช้ตัวอักษรเดียวกันแต่ความหมายต่างกัน</li>
+        </ul>
+      </div>
+
       <h3>4.1 ระบบ Tridiagonal สำหรับหา \(z_i = S_i''(x_i)\)</h3>
       <div class="formula">
         \[ h_{i-1} z_{i-1} + 2(h_{i-1} + h_i) z_i + h_i z_{i+1} = 6\left(\frac{y_{i+1} - y_i}{h_i} - \frac{y_i - y_{i-1}}{h_{i-1}}\right) \]
       </div>
       <p>สำหรับ \(i = 2, \ldots, n-1\) → ได้ \(n - 2\) สมการ, \(n\) unknowns → ต้องการ 2 boundary conditions</p>
+
+      <div class="callout lecture">
+        <div class="callout-title">จากคาบเรียน: แปลงสูตรเป็น linear system (ตัวอย่าง \(n = 7\))</div>
+        <div class="lecture-time">คาบ 12 ต.ค. · คลิป 2 · 36:42–44:09</div>
+        <p style="margin:0;">สมการเดียวมี \(z\) สามตัว \(z_{i-1}, z_i, z_{i+1}\) แก้ทีละสมการไม่ได้ ต้องเขียนทุกสมการรวมเป็น linear system</p>
+        <p style="margin:0;">ถ้ามี 7 จุดและใช้ natural boundary: \(z_1 = z_7 = 0\) เหลือ unknown 5 ตัวคือ \(z_2, \dots, z_6\) ใช้สูตรที่ \(i = 2, 3, 4, 5, 6\)</p>
+        <ul style="margin:0;">
+          <li>\(i = 2\): พจน์ \(h_1 z_1\) หายไปเพราะ \(z_1 = 0\) เหลือ \(2(h_1 + h_2)z_2 + h_2 z_3\)</li>
+          <li>\(i = 6\): พจน์ \(h_6 z_7\) หายไปเพราะ \(z_7 = 0\)</li>
+          <li>แถวที่เหลือมีสามพจน์ตามสูตร ได้ matrix แบบ tridiagonal 5×5 ที่มี \(2(h_{i-1} + h_i)\) บนแนวทแยง</li>
+        </ul>
+        <p style="margin:0;">ถ้าจุดห่างเท่ากัน \(h_i = \Delta x\) ทุกช่วง: \(2(h_{i-1} + h_i) = 4\Delta x\) จึงเห็นเลข 4 บนแนวทแยง และ 1 ข้างๆ ดึง \(\Delta x\) ออกได้</p>
+        <div class="formula">\[ \Delta x \begin{bmatrix} 4&amp;1&amp;0&amp;0&amp;0\\ 1&amp;4&amp;1&amp;0&amp;0\\ 0&amp;1&amp;4&amp;1&amp;0\\ 0&amp;0&amp;1&amp;4&amp;1\\ 0&amp;0&amp;0&amp;1&amp;4 \end{bmatrix} \begin{bmatrix}z_2\\z_3\\z_4\\z_5\\z_6\end{bmatrix} = \frac{6}{\Delta x}\begin{bmatrix} y_3 - 2y_2 + y_1\\ y_4 - 2y_3 + y_2\\ y_5 - 2y_4 + y_3\\ y_6 - 2y_5 + y_4\\ y_7 - 2y_6 + y_5 \end{bmatrix} \]</div>
+        <p style="margin:0;">อาจารย์บอกว่ากรณีจุดห่างเท่ากันเจอบ่อย เพราะเวลาเลือกจุดเองจากฟังก์ชันมักเลือกให้ห่างเท่ากัน</p>
+        <p style="margin:0;">ขั้นตอนรวม: หา \(h_i\) → ตั้ง linear system หา \(z_1, \dots, z_n\) (ใช้เงื่อนไขเพิ่ม 2 ข้อตรงนี้) → แทน \(z_i\) ใน \(a_i, b_i, c_i, d_i\) → ประกอบ \(S_i\)</p>
+      </div>
 
       <h3>4.2 Boundary Conditions</h3>
       <div class="grid-2">
@@ -166,6 +300,18 @@
           <p>\(S'(x_1) = \alpha, S'(x_n) = \beta\)</p>
           <p>ใช้เมื่อรู้ค่า \(f'(x)\) ที่ปลาย</p>
         </div>
+      </div>
+
+      <div class="callout lecture">
+        <div class="callout-title">จากคาบเรียน: อ่านเงื่อนไขขอบให้ออก</div>
+        <div class="lecture-time">คาบ 12 ต.ค. · คลิป 2 · 35:25–36:15, 47:57–49:19; คลิป 3 · 02:46–04:22</div>
+        <ul style="margin:0;">
+          <li>คำว่า "natural cubic spline" ในโจทย์แปลว่า \(z_1 = 0\) และ \(z_n = 0\) ทันที โดย \(z_n\) คือตัวสุดท้าย เช่นมี 3 จุดก็คือ \(z_3\) มี 4 จุดก็คือ \(z_4\)</li>
+          <li>ถ้าโจทย์ให้ \(S''\) ที่ปลายเป็นค่าอื่น เช่น \(S''(1) = -1\) และ \(S''(4) = 1\) ในตัวอย่างในคาบ 3.2(b) ก็คือ \(z_1 = -1\), \(z_4 = 1\) ใช้ขั้นตอนเดียวกับ natural แค่ \(z\) ที่ปลายไม่เป็นศูนย์ อันนี้ยังไม่ใช่ clamped เพราะ clamped กำหนด \(S'\) (first derivative)</li>
+          <li>clamped boundary อาจารย์บอกว่า "I'll come back to this later" แต่คาบนี้ไม่ได้กลับมาสอน ใน note หน้า 11 ให้สมการไว้ใช้แทน \(z_1 = 0\) และ \(z_n = 0\):
+            <div class="formula">\[ 2h_1 z_1 + h_1 z_2 = 6\left(\frac{y_2 - y_1}{h_1} - \alpha\right), \qquad h_{n-1} z_{n-1} + 2h_{n-1} z_n = 6\left(\beta - \frac{y_n - y_{n-1}}{h_{n-1}}\right) \]</div>
+          </li>
+        </ul>
       </div>
 
       <h3>4.3 Coefficients หลังได้ \(z_i\)</h3>
@@ -193,7 +339,65 @@
 
           <p>\(S_2\) (\(i=2\)): \(a_2 = 3, c_2 = 0.75, d_2 = (0-1.5)/6 = -0.25\); \(b_2 = 2 - (0 + 0.5) = 1.5\)</p>
           <p>\(S_2(x) = 3 + 1.5(x-2) + 0.75(x-2)^2 - 0.25(x-2)^3\), \(x \in [2,3]\)</p>
+
+          <div class="callout tip lecture">
+            <div class="callout-title">3 จุดไม่ต้องตั้ง linear system และถามค่าที่จุด data ไม่ต้องคำนวณ</div>
+            <div class="lecture-time">คาบ 12 ต.ค. · คลิป 2 · 49:19–57:39</div>
+            <ul style="margin:0;">
+              <li>มี 3 จุดและ natural ทำให้ \(z_1 = z_3 = 0\) เหลือ unknown ตัวเดียวคือ \(z_2\) แทน \(i = 2\) ได้สมการเดียว \(4z_2 = 6\) แก้ได้เลย อาจารย์เขียนสมการเต็มรูป \(h_1 z_1 + 2(h_1 + h_2)z_2 + h_2 z_3\) ไว้ก่อนแล้วค่อยแทนศูนย์ เพื่อให้เปลี่ยนเงื่อนไขขอบทีหลังได้โดยไม่ต้องเริ่มใหม่</li>
+              <li>ถ้าโจทย์ถาม \(y\) ที่ \(x = 2\) ตอบ 3 ได้ทันทีจาก data เพราะ interpolation ต้องผ่านทุกจุด</li>
+              <li>ถ้าถามที่ \(x = 1.5\) ต้องดูก่อนว่าอยู่ช่วง \([1,2]\) แล้วใช้ \(S_1\): \(S_1(1.5) = 2 + 0.75(0.5) + 0.25(0.5)^3 = 2.40625\)</li>
+            </ul>
+          </div>
         </div>
+      </div>
+
+      <div class="example">
+        <div class="example-header">
+          <span><span class="example-label">ตัวอย่างในคาบ 3.2</span> ประมาณ \(f(3.5)\) ด้วย cubic spline สองแบบเงื่อนไขขอบ</span>
+          <span class="chev">▶</span>
+        </div>
+        <div class="example-body">
+          <div class="lecture-time">คาบ 12 ต.ค. · คลิป 2 · 57:59 – คลิป 3 · 18:47</div>
+          <p style="margin:0;">โจทย์: \(f(1) = -1,\ f(2) = -3,\ f(3) = 5,\ f(4) = 1\) หา \(f(3.5)\) ด้วย cubic spline (a) natural boundary (b) \(S''(1) = -1\) และ \(S''(4) = 1\)</p>
+          <ol>
+            <li>4 จุดมี 3 ชิ้น: \(S_1\) บน \([1,2]\), \(S_2\) บน \([2,3]\), \(S_3\) บน \([3,4]\) ตัว \(3.5\) อยู่ใน \([3,4]\) จึงต้องการแค่ \(S_3\) ไม่ต้องหา coefficient ของ \(S_1, S_2\) แต่ยังต้องหา \(z\) ทุกตัว</li>
+            <li>\(h_1 = h_2 = h_3 = 1\)</li>
+            <li>เขียนสูตรที่ \(i = 2\) และ \(i = 3\) โดยเก็บ \(z_1, z_4\) ไว้ก่อน (อาจารย์เรียกว่าสมการ \(\star\) เพื่อใช้ซ้ำใน part b):
+              <div class="formula">\[ \begin{bmatrix} 1&amp;4&amp;1&amp;0\\ 0&amp;1&amp;4&amp;1 \end{bmatrix} \begin{bmatrix}z_1\\z_2\\z_3\\z_4\end{bmatrix} = 6\begin{bmatrix} [5-(-3)] - [-3-(-1)]\\ (1-5) - [5-(-3)] \end{bmatrix} = \begin{bmatrix}60\\-72\end{bmatrix} \]</div>
+            </li>
+            <li>(a) natural: \(z_1 = z_4 = 0\) เหลือ \(\begin{bmatrix}4&amp;1\\1&amp;4\end{bmatrix}\begin{bmatrix}z_2\\z_3\end{bmatrix} = \begin{bmatrix}60\\-72\end{bmatrix}\) ได้ \(z_2 = 20.8,\ z_3 = -23.2\)</li>
+            <li>coefficient ของ \(S_3\) (\(i = 3\)): \(a_3 = y_3 = 5\), \(b_3 = \frac{1-5}{1} - 1\left(\frac{0}{6} + \frac{-23.2}{3}\right) = 3.7333\), \(c_3 = \frac{-23.2}{2} = -11.6\), \(d_3 = \frac{0-(-23.2)}{6} = 3.8667\)</li>
+            <li>\(S_3(x) = 5 + 3.7333(x-3) - 11.6(x-3)^2 + 3.8667(x-3)^3\) แทน \(x = 3.5\): \(f(3.5) \approx S_3(3.5) = 4.4500\)</li>
+            <li>(b) \(z_1 = -1,\ z_4 = 1\) ใช้สมการ \(\star\) เดิม แต่ย้ายคอลัมน์ของ \(z_1\) และ \(z_4\) ไปลบฝั่งขวา: \(60 - (1)(-1) = 61\) และ \(-72 - (1)(1) = -73\) ได้ \(\begin{bmatrix}4&amp;1\\1&amp;4\end{bmatrix}\begin{bmatrix}z_2\\z_3\end{bmatrix} = \begin{bmatrix}61\\-73\end{bmatrix}\) แก้ได้ \(z_2 = 21.1333,\ z_3 = -23.5333\)</li>
+            <li>\(a_3 = 5\), \(b_3 = -4 - \left(\frac{1}{6} + \frac{-23.5333}{3}\right) = 3.6778\), \(c_3 = -11.7667\), \(d_3 = \frac{1-(-23.5333)}{6} = 4.0889\)</li>
+            <li>\(S_3(3.5) = 5 + 3.6778(0.5) - 11.7667(0.25) + 4.0889(0.125) = 4.4083\)</li>
+          </ol>
+          <div class="callout tip"><p style="margin:0;">💡 คำตอบ (a) กับ (b) ใกล้กันเพราะเงื่อนไขขอบต่างกันไม่มาก แต่ไม่เท่ากัน เงื่อนไขเพิ่มต่างกันให้ spline ต่างกันเสมอ อาจารย์ใช้ MATLAB หาค่าเหล่านี้และให้ตอบ 4 ตำแหน่งทศนิยม ในข้อสอบถ้าถามจุดเดียวให้หาแค่ชิ้นที่ต้องใช้ หาครบทุกชิ้นจะเสียเวลามาก</p></div>
+        </div>
+      </div>
+
+      <div class="callout warn lecture">
+        <div class="callout-title">จุดที่พลาดบ่อยในตัวอย่าง 3.2</div>
+        <div class="lecture-time">คาบ 12 ต.ค. · คลิป 3 · 04:46–07:15, 14:37–17:01</div>
+        <ul style="margin:0;">
+          <li>ตอนแทน \(i = 2, 3\) ลงสูตร อาจารย์เองก็เขียน \(z_2\) กับ \(z_3\) ตกไปบนกระดาน แล้วนักศึกษาทักให้แก้ วิธีเช็ก: ทุกพจน์ทางซ้ายต้องมีตัว \(z\) คูณอยู่เสมอ</li>
+          <li>part b ห้ามแค่แทน \(z_1, z_4\) แล้วใช้ฝั่งขวา 60, −72 เดิม ต้องย้ายพจน์ \(1 \cdot z_1\) และ \(1 \cdot z_4\) ไปลบฝั่งขวาก่อน ได้ 61, −73 ระวังเครื่องหมายเพราะ \(z_1 = -1\) ลบแล้วกลายเป็นบวก</li>
+          <li>note หน้า 14–15 มีจุดพิมพ์ผิด: \(4_3 = 0\) ควรเป็น \(z_4 = 0\), สูตร \(d_3 = \frac{z_4 - z_i}{6h_3}\) ควรเป็น \(\frac{z_4 - z_3}{6h_3}\), และ \(i = 1, \dots, 2\) ควรเป็น \(i = 1, \dots, 3\) ส่วน \(c_3 = -11.766\) ใน note คือ \(-11.7667\) ที่ตัดทศนิยม</li>
+        </ul>
+      </div>
+
+      <div class="callout lecture">
+        <div class="callout-title">จากคาบเรียน: แบบฝึกหัดที่อาจารย์ให้ลองเอง</div>
+        <div class="lecture-time">คาบ 12 ต.ค. · คลิป 3 · 18:47–22:14</div>
+        <ul style="margin:0;">
+          <li>ตัวอย่าง 3.3 ใน note ทำแบบเดียวกับ 3.2 และมีคำตอบให้แล้ว: data \((-1,1),(0,2),(1,-1),(2,1)\) หา \(f(1.5)\) (a) natural ได้ \(z_2 = -8.4,\ z_3 = 9.6\), \(f(1.5) \approx -0.6\) (b) \(z_1 = 1,\ z_4 = 2\) ได้ \(f(1.5) \approx -0.6958\) (โจทย์ใน note พิมพ์ "\(S'' = 1\) and \(S'' = 2\)" ไม่บอกจุด ให้อ่านเป็น \(S''(-1) = 1,\ S''(2) = 2\))</li>
+          <li>ตัวอย่าง 3.4 คืองานจริงของ cubic spline: ใช้ polynomial แทนฟังก์ชันที่ซับซ้อนอย่าง \(f(x) = e^x - x\) โจทย์ไม่ให้ตาราง ต้องแทน \(x = -2, -1, 0, 2\) ลง \(f\) เอง ได้ \(y \approx 2.1353,\ 1.3679,\ 1,\ 5.3891\)</li>
+          <li>จุดที่อาจารย์เตือนในข้อ 3.4: \(h_1 = h_2 = 1\) แต่ \(h_3 = 2\) ระยะไม่เท่ากัน matrix จึงไม่มีเลข 4 ทุกตัวบนแนวทแยง ต้องใช้สูตรเต็ม ได้
+            <div class="formula">\[ \begin{bmatrix}4&amp;1\\1&amp;6\end{bmatrix}\begin{bmatrix}z_2\\z_3\end{bmatrix} = \begin{bmatrix}2.3975\\15.3744\end{bmatrix} \Rightarrow z_2 \approx -0.0430,\ z_3 \approx 2.5696 \]</div>
+          </li>
+          <li>กราฟใน note: ช่วง \([0,2]\) ที่กว้าง spline (เส้นแดง) ห่างจาก \(f\) จริงพอสมควร เช่นที่ \(x = 1\) ได้ \(S_3(1) \approx 2.55\) แต่ \(f(1) \approx 1.72\) ส่วนช่วงที่แคบ spline แทบทับเส้นจริง</li>
+        </ul>
       </div>
 
       <!-- Comparison -->
@@ -208,7 +412,7 @@
       <!-- Quiz -->
       <h2>🧪 แบบทบทวนท้ายบท</h2>
       <div class="quiz-container" data-quiz="ch8">
-        <h3>Quiz: Spline (10 ข้อ)</h3>
+        <h3>Quiz: Spline (14 ข้อ)</h3>
 
         <div class="quiz-question" data-type="mc" data-answer="c">
           <div class="q-text"><span class="q-number">1</span> Spline function degree \(k\) มี continuity ของ derivative ขั้นใด?</div>
@@ -298,6 +502,40 @@
           <div class="q-text"><span class="q-number">10</span> Cubic spline สำหรับ 10 data points มีกี่ segments (cubic polynomials)?</div>
           <input type="text" class="q-input" placeholder="ตัวเลข">
           <div class="q-explain">💡 segments = n - 1 = 9</div>
+        </div>
+
+        <div class="quiz-question" data-type="num" data-answer="4.45" data-tol="0.005">
+          <div class="q-text"><span class="q-number">11</span> data \((1,-1),(2,-3),(3,5),(4,1)\) ใช้ natural cubic spline ประมาณ \(f(3.5) = ?\)</div>
+          <input type="text" class="q-input" placeholder="ตัวเลข">
+          <div class="q-explain">💡 \(z_2 = 20.8,\ z_3 = -23.2\) ใช้ \(S_3\) เพราะ 3.5 อยู่ใน \([3,4]\) ได้ \(5 + 3.7333(0.5) - 11.6(0.25) + 3.8667(0.125) = 4.4500\)</div>
+        </div>
+
+        <div class="quiz-question" data-type="num" data-answer="-2" data-tol="0.01">
+          <div class="q-text"><span class="q-number">12</span> \(p(x) = x^2 + a\) บน \([-5,0]\), \(bx^2\) บน \([0,1]\), \(1 + cx\) บน \([1,5]\) เป็น quadratic spline ค่า \(c = ?\)</div>
+          <input type="text" class="q-input" placeholder="ตัวเลข">
+          <div class="q-explain">💡 ค่าเท่ากันที่ \(x = 1\) ได้ \(b = 1 + c\) slope เท่ากันที่ \(x = 1\) ได้ \(c = 2b\) แก้ได้ \(b = -1,\ c = -2\)</div>
+        </div>
+
+        <div class="quiz-question" data-type="mc" data-answer="b">
+          <div class="q-text"><span class="q-number">13</span> Quadratic spline ผ่าน \(n\) จุด มี unknown \(3n - 3\) ตัว เงื่อนไขของ spline เองให้กี่สมการ?</div>
+          <div class="q-options">
+            <label><input type="radio" name="q13" value="a"> \(3n - 3\)</label>
+            <label><input type="radio" name="q13" value="b"> \(3n - 4\)</label>
+            <label><input type="radio" name="q13" value="c"> \(2n - 2\)</label>
+            <label><input type="radio" name="q13" value="d"> \(4n - 6\)</label>
+          </div>
+          <div class="q-explain">💡 ผ่านจุดปลาย \(2(n-1)\) บวก slope เท่ากันที่จุดกลาง \(n-2\) รวม \(3n-4\) ขาด 1 สมการ โจทย์จึงต้องให้เงื่อนไขเพิ่ม 1 ข้อ</div>
+        </div>
+
+        <div class="quiz-question" data-type="mc" data-answer="a">
+          <div class="q-text"><span class="q-number">14</span> โจทย์ cubic spline ให้ \(S''(1) = -1\) โดย \(x_1 = 1\) หมายความว่าอะไร?</div>
+          <div class="q-options">
+            <label><input type="radio" name="q14" value="a"> \(z_1 = -1\)</label>
+            <label><input type="radio" name="q14" value="b"> clamped boundary \(S'(1) = -1\)</label>
+            <label><input type="radio" name="q14" value="c"> \(y_1 = -1\)</label>
+            <label><input type="radio" name="q14" value="d"> \(c_1 = -1\)</label>
+          </div>
+          <div class="q-explain">💡 cubic spline นิยาม \(z_i = S_i''(x_i)\) จึงได้ \(z_1 = -1\) ตรงๆ (ส่วน \(c_1 = z_1/2 = -0.5\)) ส่วน clamped จะกำหนดค่า \(S'\) ที่ปลาย</div>
         </div>
 
         <div class="quiz-actions">

@@ -89,12 +89,40 @@
         <p>ใช้จุดทั้งหน้าและหลัง — <b>แม่นยำกว่า</b></p>
       </div>
 
+      <div class="callout lecture">
+        <div class="callout-title">จากคาบเรียน: ดูชนิดของสูตรจากจุดที่ใช้</div>
+        <div class="lecture-time">คาบ 19 ต.ค. · คลิป 1 · 08:17–17:09</div>
+        <ul style="margin:0;">
+          <li>อาจารย์เริ่มจากนิยาม limit \(f'(a) = \lim_{x \to a} \frac{f(x) - f(a)}{x - a}\) แล้วให้ \(a = x_i\) คือจุดที่อยากรู้ slope เสมอ ทั้งสามสูตรคือ slope ของเส้นตรงที่ลากผ่านสองจุด</li>
+          <li>Forward ใช้จุดที่มากกว่า \(x_i\) ส่วน backward ใช้จุดที่น้อยกว่า central ใช้ \(x_{i-1}\) กับ \(x_{i+1}\) โดยไม่ใช้ \(f(x_i)\) ในสูตรเลย</li>
+          <li>ดูแค่สูตรกับรูปตอบไม่ได้ว่าสูตรไหนแม่นกว่า ต้องใช้ Taylor series ในหัวข้อถัดไป</li>
+          <li>อาจารย์ถามในคาบว่า \(f'(x_1) \approx \frac{f(x_1 + h) - f(x_1)}{h}\) เป็นแบบไหน คำตอบคือ forward เพราะ \(x_1 + h\) อยู่ทางขวาของ \(x_1\) อาจารย์บอกว่า "notation can be different but the concept is going to be the same" ในข้อสอบสูตรอาจเขียนด้วย \(x \pm h\) แทน \(x_{i \pm 1}\)</li>
+        </ul>
+      </div>
+
       <!-- Taylor Derivation -->
       <h2>2. Derivation via Taylor Series</h2>
       <p>จาก Taylor series:</p>
       <div class="formula">
         \[ f(x_{i+1}) = f(x_i) + f'(x_i)h + \frac{1}{2!}f''(x_i)h^2 + \frac{1}{3!}f'''(\xi)h^3 \]
         \[ f(x_{i-1}) = f(x_i) - f'(x_i)h + \frac{1}{2!}f''(x_i)h^2 - \frac{1}{3!}f'''(\xi)h^3 \]
+      </div>
+
+      <div class="callout lecture">
+        <div class="callout-title">จากคาบเรียน: ขั้นตอน derive สูตรด้วย Taylor ที่อาจารย์ใช้ทุกครั้ง</div>
+        <div class="lecture-time">คาบ 19 ต.ค. · คลิป 1 · 17:34–36:21, 47:44–53:05</div>
+        <ol>
+          <li>เขียน Taylor ของ \(f\) รอบจุด \(a\) แล้วแทน \(a = x_i\) เสมอ เพราะ \(f'(x_i)\) คือสิ่งที่อยากได้</li>
+          <li>แทน \(x\) ด้วยจุดอีกจุดที่สูตรใช้ forward แทน \(x = x_{i+1}\) ส่วน backward แทน \(x = x_{i-1}\) แล้วเปลี่ยนระยะห่างเป็น \(h\) (จุดห่างเท่ากันหมด)</li>
+          <li>ตัดหลัง term \(f'\) แล้วเก็บส่วนที่เหลือเป็น remainder ไม่ใช้ "..." เพราะสูตรประมาณ \(f'\) ห้ามมี \(f''\) อยู่ข้างใน อาจารย์พูดว่า "if you don't know the first derivative, how could you know the second derivative?"
+            <div class="formula">\[ f(x_{i+1}) = f(x_i) + f'(x_i)h + \frac{f''(\xi)}{2!}h^2, \quad \xi \in [x_i, x_{i+1}] \]</div>
+          </li>
+          <li>แก้หา \(f'(x_i)\) แล้วหารด้วย \(h\) ทั้งสมการ term \(h^2\) จึงเหลือ \(h\)
+            <div class="formula">\[ f'(x_i) = \frac{f(x_{i+1}) - f(x_i)}{h} - \frac{f''(\xi)}{2}h = \frac{f(x_{i+1}) - f(x_i)}{h} + O(h) \]</div>
+          </li>
+          <li>Backward ต่างตรงเดียวคือ \(x_{i-1} - x_i = -h\) เพราะ \(h\) นิยามเป็นจุดมากลบจุดน้อยและเป็นบวกเสมอ term กำลังคี่จึงติดลบ ส่วน term กำลังคู่ยังเป็นบวก</li>
+        </ol>
+        <p style="margin:0;">Big O: \(O(h)\) แปลว่า error เป็นค่าคงที่คูณ \(h\) เราไม่สนค่าคงที่และเครื่องหมาย เพราะไม่รู้ค่า \(f''(\xi)\) อยู่แล้ว forward กับ backward จึงแม่นระดับเดียวกันในทางทฤษฎี แต่ error จริงไม่เท่ากันเพราะ \(f''(\xi)\) ต่างกัน</p>
       </div>
 
       <h3>2.1 Truncation Errors</h3>
@@ -107,7 +135,19 @@
 
       <div class="callout tip">
         <div class="callout-title">💡 Key insight</div>
-        <p style="margin:0;">Central ลบล้าง odd-order terms ของ Taylor series → error order สูงขึ้นเป็น \(O(h^2)\) ซึ่งแม่นยำกว่า \(O(h)\) มาก (เมื่อ \(h < 1\))</p>
+        <p style="margin:0;">ตอนเอา \(f(x_{i+1}) - f(x_{i-1})\) term กำลังคู่ (\(f(x_i)\) และ \(f''(x_i)h^2\)) หักกันหมด เหลือ term กำลังคี่ error จึงเริ่มที่ \(h^3\) หาร \(2h\) แล้วได้ \(O(h^2)\) ซึ่งแม่นกว่า \(O(h)\) เมื่อ \(h &lt; 1\)</p>
+      </div>
+
+      <div class="callout lecture">
+        <div class="callout-title">จากคาบเรียน: ทำไม central ถึงเก็บ term \(f''\) ไว้ได้</div>
+        <div class="lecture-time">คาบ 19 ต.ค. · คลิป 1 · 36:36–46:54, 53:26–55:08</div>
+        <ul style="margin:0;">
+          <li>Central ใช้ Taylor สองสมการ คือ \(x = x_{i+1}\) และ \(x = x_{i-1}\) และขยายถึง term \(f''\) (เก็บ 3 term แรก remainder เป็น \(R_3\))</li>
+          <li>เอาสมการแรกลบสมการที่สอง \(f(x_i)\) หายไป term \(f'\) กลายเป็น \(2f'(x_i)h\) และ term \(f''\) หักกันพอดี เหลือแค่ remainder ซึ่งเป็น \(O(h^3)\)</li>
+          <li>หารด้วย \(2h\) ได้ error \(O(h^2)\)</li>
+          <li>อาจารย์ย้ำว่าเก็บ \(f''\) ไว้ได้เพราะรู้ล่วงหน้าว่ามันจะหักกันหมด ถ้าหักไม่หมดก็ต้องตัดทิ้งตั้งแต่แรก การเก็บ term มากขึ้นใน Taylor คือที่มาของ accuracy ที่สูงขึ้น</li>
+          <li>ทำไม \(O(h^2)\) แม่นกว่า \(O(h)\): ถ้า \(h &lt; 1\) แล้ว \(h^2 &lt; h\) เช่น \(h = 0.1\) ได้ \(h^2 = 0.01\) power ของ \(h\) ยิ่งสูงยิ่งแม่น</li>
+        </ul>
       </div>
 
       <!-- 3-point formulas -->
@@ -121,6 +161,21 @@
       <div class="card">
         <h4>3-point Backward (ใช้ \(x_{i-2}, x_{i-1}, x_i\))</h4>
         <div class="formula">\[ f'(x_i) \approx \frac{f(x_{i-2}) - 4f(x_{i-1}) + 3f(x_i)}{2h}, \quad O(h^2) \]</div>
+      </div>
+
+      <div class="callout lecture">
+        <div class="callout-title">จากคาบเรียน: derive 3-point forward ด้วยการคูณ 4</div>
+        <div class="lecture-time">คาบ 19 ต.ค. · คลิป 1 · 55:34 – คลิป 2 · 06:05</div>
+        <ol>
+          <li>ทั้งสองสมการใช้ \(a = x_i\) สมการ (1) แทน \(x = x_{i+1}\) (ระยะ \(h\)) สมการ (2) แทน \(x = x_{i+2}\) (ระยะ \(2h\))
+            <div class="formula">\[ f(x_{i+1}) = f(x_i) + f'(x_i)h + \tfrac{1}{2}f''(x_i)h^2 + O(h^3) \]</div>
+            <div class="formula">\[ f(x_{i+2}) = f(x_i) + f'(x_i)(2h) + \tfrac{1}{2}f''(x_i)(2h)^2 + O(h^3) \]</div>
+          </li>
+          <li>เป้าหมายคือให้ term \(f''\) หายไป สมการ (2) มี \((2h)^2 = 4h^2\) ต่างจากสมการ (1) อยู่ 4 เท่า จึงคูณสมการ (1) ด้วย 4 ทั้งสมการ (คูณแค่ term \(f''\) ไม่ได้)</li>
+          <li>\(4\times(1) - (2)\): \(4f(x_{i+1}) - f(x_{i+2}) = 3f(x_i) + 2f'(x_i)h + O(h^3)\)</li>
+          <li>แก้หา \(f'(x_i)\) หารด้วย \(2h\) ได้ \(f'(x_i) = \frac{-3f(x_i) + 4f(x_{i+1}) - f(x_{i+2})}{2h} + O(h^2)\)</li>
+        </ol>
+        <p style="margin:0;">Order เท่ากับ 2-point central แล้วจะมีสูตรนี้ไปทำไม อาจารย์ตอบว่าข้อมูลจากการทดลองบางทีไม่มี \(x_{i-1}\) มีแค่จุดที่มากกว่า เลยต้องมีสูตรที่ใช้จุดฝั่งเดียว 3-point backward ทำแบบเดียวกันโดยใช้ \(x_{i-1}, x_{i-2}\) อาจารย์ไม่ได้ derive ให้ดูในคาบ</p>
       </div>
 
       <div class="example open">
@@ -137,6 +192,45 @@
           <p><b>2-point Central:</b> \(f'(3) \approx (64 - 8)/2 = 28\); error = \(1\) ✅</p>
           <p><b>3-point Forward:</b> \(f'(3) \approx (-3(27) + 4(64) - 125)/2 = (−81+256−125)/2 = 50/2 = 25\); error = \(2\)</p>
           <div class="callout tip"><p style="margin:0;">💡 Central (\(O(h^2)\)) ใกล้สุด! สำหรับ polynomial degree 3, Central ให้ error น้อยกว่า 1-sided methods</p></div>
+          <div class="callout warn lecture">
+            <div class="lecture-time">คาบ 19 ต.ค. · คลิป 2 · 10:22–20:42</div>
+            <ul style="margin:0;">
+              <li>อาจารย์บอกว่าข้อแบบนี้คือ "a straightforward question on your exam" แทนค่าเข้าสูตรตรงๆ</li>
+              <li>Forward เลือกได้ทั้ง 4 และ 5 ให้ใช้ 4 เพราะใกล้ 3 กว่า จุดยิ่งใกล้ยิ่งแม่น</li>
+              <li>ตอนทำในคาบอาจารย์เกือบเขียนสัมประสิทธิ์ 3-point forward ผิดเป็น \(-4\) แล้วแก้เป็น \(-3,\ 4,\ -1\) หาร \(2h\) ข้อนี้ควรมีใน cheat sheet</li>
+              <li>อาจารย์คิดเลข 3-point ไม่จบในคาบ ค่าที่ถูกคือ \((-81 + 256 - 125)/2 = 25\)</li>
+              <li>\(f(x) = x^3\) เป็น polynomial degree 3 ทั้ง central 2-point (ได้ 28) และ 3-point forward (ได้ 25) จึงยังไม่ exact เพราะ error ของทั้งสองสูตรขึ้นกับ \(f'''\) ซึ่งเท่ากับ 6</li>
+            </ul>
+          </div>
+        </div>
+      </div>
+
+      <div class="example">
+        <div class="example-header">
+          <span><span class="example-label">ตัวอย่างในคาบ 2.2</span> derive สูตร \(f'(x_i)\) จาก \(x_i, x_{i+1}, x_{i+3}\) ให้ error \(O(h^2)\)</span>
+          <span class="chev">▶</span>
+        </div>
+        <div class="example-body">
+          <div class="lecture-time">คาบ 19 ต.ค. · คลิป 2 · 45:59 – คลิป 3 · 01:32</div>
+          <p style="margin:0;">โจทย์ (Example 2.2 ใน note): หาสูตรประมาณ \(f'(x_i)\) จากค่า \(f\) ที่ \(x_i, x_{i+1}, x_{i+3}\) โดย truncation error เป็น \(O(h^2)\)</p>
+          <ol>
+            <li>ใช้ \(a = x_i\) ทั้งสองสมการ จาก \(x_i\) ไป \(x_{i+3}\) คือ 3 ช่วง ระยะจึงเป็น \(3h\)
+              <div class="formula">\[ f(x_{i+1}) = f(x_i) + f'(x_i)h + \tfrac{1}{2}f''(x_i)h^2 + O(h^3) \]</div>
+              <div class="formula">\[ f(x_{i+3}) = f(x_i) + f'(x_i)(3h) + \tfrac{1}{2}f''(x_i)(3h)^2 + O(h^3) \]</div>
+            </li>
+            <li>\((3h)^2 = 9h^2\) จึงคูณสมการแรกด้วย 9 แล้วลบสมการที่สอง term \(f''\) หายพอดี</li>
+            <li>\(9f(x_{i+1}) - f(x_{i+3}) = 8f(x_i) + 6f'(x_i)h + O(h^3)\) (ได้ \(9 - 1 = 8\) และ \(9h - 3h = 6h\))</li>
+            <li>แก้หา \(f'(x_i)\) หารด้วย \(6h\) error จาก \(O(h^3)\) เหลือ \(O(h^2)\) ตามที่โจทย์ขอ
+              <div class="formula">\[ f'(x_i) \approx \frac{-8f(x_i) + 9f(x_{i+1}) - f(x_{i+3})}{6h} \]</div>
+            </li>
+          </ol>
+          <p style="margin:0;">ถ้าคิด error เต็มจะได้ \(f'(x_i)\) = สูตรข้างบน \(+\ \tfrac{1}{2}f'''(\xi)h^2\)</p>
+          <p style="margin:0;">ใช้กับข้อมูล (อาจารย์แต่งตัวเลขขึ้นมาในคาบ): ไม่รู้สูตรของ \(f\) รู้แค่ \(f(0) = 1,\ f(1) = 3,\ f(3) = 2\) หา \(f'(0)\)</p>
+          <ul style="margin:0;">
+            <li>จุด \(0, 1, 3\) ตรงกับ \(x_i, x_{i+1}, x_{i+3}\) พอดี โดย \(h = 1\) (ไม่มีข้อมูลที่ \(x_{i+2} = 2\))</li>
+            <li>\(f'(0) \approx \frac{-8(1) + 9(3) - 2}{6(1)} = \frac{17}{6} \approx 2.833\)</li>
+          </ul>
+          <div class="callout tip"><p style="margin:0;">อาจารย์บอกว่าในข้อสอบ "the point that is available may not be 0, 1, 3" ให้ derive สูตรเองด้วยวิธีเดียวกัน ตัวคูณได้จากอัตราส่วนของระยะยกกำลังสอง ระยะ \(2h\) คูณ 4 ระยะ \(3h\) คูณ 9</p></div>
         </div>
       </div>
 
@@ -159,6 +253,18 @@
         <div class="formula">\[ f''(x_i) \approx \frac{-f_{i-2} + 16f_{i-1} - 30f_i + 16f_{i+1} - f_{i+2}}{12h^2}, \quad O(h^4) \]</div>
       </div>
 
+      <div class="callout lecture">
+        <div class="callout-title">จากคาบเรียน: second derivative ต่างจาก first derivative ตรงไหน</div>
+        <div class="lecture-time">คาบ 19 ต.ค. · คลิป 3 · 02:08–10:49</div>
+        <ul style="margin:0;">
+          <li>ยังใช้ \(a = x_i\) กับ \(x = x_{i+1},\ x_{i-1}\) เหมือนเดิม แต่คราวนี้ term ที่อยากเก็บคือ \(f''\) และ term ที่ต้องกำจัดคือ \(f'''\) จึงขยายถึง term \(f'''\) (เก็บ 4 term แรก) remainder เป็น \(O(h^4)\)</li>
+          <li>\(f'''\) ในสองสมการมีเครื่องหมายตรงข้ามกัน จึงต้องเอาสองสมการมาบวกกัน บวกแล้ว term \(f'\) หายไปเองด้วย อาจารย์บอกว่า "just by chance" แต่ก็ดีเพราะสูตรไม่ควรมี derivative อื่นเหลือ</li>
+          <li>ได้ \(f(x_{i+1}) + f(x_{i-1}) = 2f(x_i) + f''(x_i)h^2 + O(h^4)\) หารด้วย \(h^2\) ตัวส่วนจึงเป็น \(h^2\) และ error เป็น \(O(h^2)\)</li>
+          <li>3-point forward/backward ของ \(f''\) อาจารย์ไม่ได้ derive บอกแค่ว่า error เป็น \(O(h)\)</li>
+          <li>5-point ต้องใช้ Taylor 4 สมการ อาจารย์บอกว่า "at most on the exam would be three points"</li>
+        </ul>
+      </div>
+
       <!-- Application -->
       <h2>5. การประยุกต์</h2>
       <div class="example open">
@@ -179,6 +285,38 @@
         </div>
       </div>
 
+      <div class="example">
+        <div class="example-header">
+          <span><span class="example-label">แบบฝึกหัดที่อาจารย์ชี้ในคาบ</span> Exercise 2–5 ท้าย note</span>
+          <span class="chev">▶</span>
+        </div>
+        <div class="example-body">
+          <div class="lecture-time">คาบ 19 ต.ค. · คลิป 3 · 10:56–23:41</div>
+          <p style="margin:0;">อาจารย์บอกว่าอาจเลือกบางข้อเป็น assignment ข้อ 1 คือตัวอย่าง 5.1 ด้านบน ในข้อ 1 อาจารย์ย้ำว่า central ต้องห่างจาก 80 เท่ากันทั้งสองข้าง (64 กับ 96 ห่าง 16 เท่ากัน) ถ้ามีจุดที่ห่างไม่เท่ากันจะใช้สูตรในบทนี้ไม่ได้</p>
+          <ol>
+            <li>ข้อ 2 (population): ปี 2006, 2010, 2014 มีประชากร 60, 61, 62.5 ล้านคน หา rate of change ปี 2012 ด้วย 2-point central ปี 2012 อยู่กึ่งกลาง 2010 กับ 2014 พอดี (\(h = 2\))
+              <div class="formula">\[ f'(2012) \approx \frac{62.5 - 61}{2014 - 2010} = \frac{1.5}{4} = 0.375 \text{ ล้านคนต่อปี} \]</div>
+            </li>
+            <li>ข้อ 3: \(f(x) = \dfrac{\cos(\pi x)}{2 + \sin(\pi x) + |x - 2|}\) ใช้ \(f'(x) \approx \frac{1}{12h}[f(x-2h) - 8f(x-h) + 8f(x+h) - f(x+2h)]\) ที่ \(x = 0,\ h = 0.5\) ต้องคำนวณ \(f(-1), f(-0.5), f(0.5), f(1)\)
+              <ul style="margin:0;">
+                <li>\(f(-1) = \tfrac{-1}{5} = -0.2,\ f(-0.5) = 0,\ f(0) = \tfrac{1}{4},\ f(0.5) = 0,\ f(1) = \tfrac{-1}{3}\)</li>
+                <li>(a) \(f'(0) \approx \frac{-0.2 - 0 + 0 + 0.3333}{6} = \frac{1}{45} \approx 0.0222\)</li>
+                <li>(b) \(f''(0) \approx \frac{0 - 2(0.25) + 0}{0.25} = -2\)</li>
+                <li>อาจารย์บอกว่าสูตรในโจทย์เขียนด้วย \(x \pm h,\ x \pm 2h\) ซึ่งก็คือ \(x_{i \pm 1}, x_{i \pm 2}\) และ "don't give me the actual derivative if I ask you for the approximation" ไม่ต้องเสียเวลาดิฟด้วย quotient rule</li>
+              </ul>
+            </li>
+            <li>ข้อ 4: หา error ของ \(f'(0) \approx \frac{f(2h) - f(0)}{2h}\) เป็น forward ระยะ \(2h\) แทน \(a = 0,\ x = 2h\) ได้ \(f(2h) = f(0) + 2hf'(0) + \tfrac{(2h)^2}{2}f''(\xi)\) จึงได้ error \(-hf''(\xi) = O(h)\)</li>
+            <li>ข้อ 5: ระยะเป็น \(2h\) ทั้งสองข้าง ทำแบบ central เดิม
+              <ul style="margin:0;">
+                <li>(a) \(f'(x) \approx \frac{f(x+2h) - f(x-2h)}{4h}\) error \(-\tfrac{2}{3}h^2 f'''(\xi) = O(h^2)\)</li>
+                <li>(b) \(f''(x) \approx \frac{f(x+2h) - 2f(x) + f(x-2h)}{4h^2}\) error \(-\tfrac{1}{3}h^2 f^{(4)}(\xi) = O(h^2)\)</li>
+              </ul>
+            </li>
+          </ol>
+          <div class="callout tip"><p style="margin:0;">ข้อ 3 ตอบ 0.0222 แต่ค่าจริง \(f'(0) \approx -0.134\) และ \(f''(0) \approx -2.32\) ที่ห่างมากเพราะ \(h = 0.5\) ใหญ่และ \(f\) แกว่งเร็ว ข้อสอบถามค่าประมาณจากสูตร ไม่ได้ถามค่าจริง</p></div>
+        </div>
+      </div>
+
       <!-- Summary -->
       <h2>6. สรุปสูตร (Cheat Sheet)</h2>
       <div class="table-wrap"><table>
@@ -195,10 +333,24 @@
         <tr><td>5-point Central</td><td>\(\frac{-f_{i-2} + 16f_{i-1} - 30f_i + 16f_{i+1} - f_{i+2}}{12h^2}\)</td><td>\(O(h^4)\)</td></tr>
       </table></div>
 
+      <div class="callout warn lecture">
+        <div class="callout-title">อาจารย์พูดถึงข้อสอบ Final</div>
+        <div class="lecture-time">คาบ 19 ต.ค. · คลิป 2 · 08:11–10:18, 41:59–45:55 · คลิป 3 · 09:38–10:49</div>
+        <ul style="margin:0;">
+          <li>Final วันจันทร์ 23 พ.ย. 9:00–12:00 ออกเฉพาะเนื้อหาหลัง Midterm สิ่งเดียวจากก่อน Midterm ที่ต้องใช้คือ Taylor series</li>
+          <li>Topic list ให้ numerical differentiation 1 ข้อ คือ finite difference และ derivation ด้วย Taylor</li>
+          <li>รูปแบบเหมือน Midterm มีทั้งข้อแทนค่าเข้าสูตร (แบบตัวอย่าง 3.1) และข้อที่ใช้ concept การ derive (แบบตัวอย่าง 2.2) อาจารย์บอกว่าบางข้อจะไม่เหมือนในคาบ "on purpose"</li>
+          <li>ข้อ derive จะไม่เกิน 3 จุด</li>
+          <li>Semi-open book: formula sheet A4 2 แผ่น (4 หน้า) และเครื่องคิดเลข อาจารย์จะพิมพ์สูตรจาก note แนบไปกับข้อสอบ และจะประกาศล่วงหน้าว่าแนบอะไร</li>
+          <li>ให้คะแนนตามวิธีทำ ตอบแค่ตัวเลขไม่มี partial credit แม้จะถูก แต่อย่าเขียนยาวจนทำข้อท้ายไม่ทัน อ่านทุกข้อก่อนแล้วทำข้อที่ทำได้ก่อน</li>
+          <li>ถ้าลอกโจทย์ที่ถูกเปลี่ยนตัวเลขจาก cheat sheet มาตอบโดยไม่สนโจทย์จริง จะไม่ได้คะแนน แต่ถ้าเขียนสูตรถูกจะได้ partial credit</li>
+        </ul>
+      </div>
+
       <!-- Quiz -->
       <h2>🧪 แบบทบทวนท้ายบท</h2>
       <div class="quiz-container" data-quiz="ch9">
-        <h3>Quiz: Numerical Differentiation (10 ข้อ)</h3>
+        <h3>Quiz: Numerical Differentiation (14 ข้อ)</h3>
 
         <div class="quiz-question" data-type="mc" data-answer="c">
           <div class="q-text"><span class="q-number">1</span> Central difference มี truncation error order?</div>
@@ -228,10 +380,10 @@
           <div class="q-explain">💡 3-point formulas มี \(O(h^2)\) ซึ่งดีกว่า 2-point forward/backward</div>
         </div>
 
-        <div class="quiz-question" data-type="num" data-answer="0.5" data-tol="0.05">
+        <div class="quiz-question" data-type="num" data-answer="0" data-tol="0.05">
           <div class="q-text"><span class="q-number">4</span> \(f(0)=1, f(1)=2, f(2)=5\); 3-point forward: \(f'(0) = ?\) (h=1)</div>
           <input type="text" class="q-input" placeholder="ตัวเลข">
-          <div class="q-explain">💡 \(f'(0) = (-3(1) + 4(2) - 5)/2 = (-3+8-5)/2 = 0/2 = 0\); สูตรจริง 2 (เพราะ f=x²+1); ตัวเลขที่ตอบขึ้นกับ data: tol หลวม</div>
+          <div class="q-explain">💡 \(f'(0) \approx (-3(1) + 4(2) - 5)/2 = 0/2 = 0\) ข้อมูลมาจาก \(f(x) = x^2 + 1\) ซึ่ง \(f'(0) = 0\) พอดี 3-point forward exact สำหรับ polynomial degree 2</div>
         </div>
 
         <div class="quiz-question" data-type="mc" data-answer="c">
@@ -254,7 +406,7 @@
         <div class="quiz-question" data-type="mc" data-answer="a">
           <div class="q-text"><span class="q-number">7</span> ทำไม Central ได้ accuracy order สูงกว่า Forward?</div>
           <div class="q-options">
-            <label><input type="radio" name="q7" value="a"> Odd-order terms ของ Taylor cancel</label>
+            <label><input type="radio" name="q7" value="a"> Even-order terms ของ Taylor (\(f(x_i)\), \(f''\)) cancel</label>
             <label><input type="radio" name="q7" value="b"> ใช้ data points มากกว่า</label>
             <label><input type="radio" name="q7" value="c"> ไม่ต้องรู้ \(h\)</label>
             <label><input type="radio" name="q7" value="d"> ง่ายกว่า</label>
@@ -293,6 +445,40 @@
             <label><input type="radio" name="q10" value="d"> 1/8</label>
           </div>
           <div class="q-explain">💡 Central มี \(O(h^2)\): \((h/2)^2 = h^2/4\) → error ลดลง 4 เท่า</div>
+        </div>
+
+        <div class="quiz-question" data-type="num" data-answer="2.8333" data-tol="0.01">
+          <div class="q-text"><span class="q-number">11</span> ไม่รู้สูตรของ \(f\) รู้แค่ \(f(0) = 1,\ f(1) = 3,\ f(3) = 2\) ใช้สูตร \(f'(x_i) \approx \frac{-8f(x_i) + 9f(x_{i+1}) - f(x_{i+3})}{6h}\) ประมาณ \(f'(0)\)</div>
+          <input type="text" class="q-input" placeholder="ตัวเลข">
+          <div class="q-explain">💡 \(h = 1\) และ 0, 1, 3 คือ \(x_i, x_{i+1}, x_{i+3}\) ได้ \((-8 + 27 - 2)/6 = 17/6\)</div>
+        </div>
+
+        <div class="quiz-question" data-type="mc" data-answer="c">
+          <div class="q-text"><span class="q-number">12</span> จะ derive สูตร \(f'(x_i)\) จาก \(x_i, x_{i+1}, x_{i+3}\) ต้องคูณสมการ Taylor ของ \(x_{i+1}\) ด้วยเท่าไรก่อนลบ เพื่อให้ term \(f''\) หายไป?</div>
+          <div class="q-options">
+            <label><input type="radio" name="q12" value="a"> 3</label>
+            <label><input type="radio" name="q12" value="b"> 4</label>
+            <label><input type="radio" name="q12" value="c"> 9</label>
+            <label><input type="radio" name="q12" value="d"> 6</label>
+          </div>
+          <div class="q-explain">💡 ระยะถึง \(x_{i+3}\) คือ \(3h\) term \(f''\) มี \((3h)^2 = 9h^2\) จึงคูณ 9</div>
+        </div>
+
+        <div class="quiz-question" data-type="num" data-answer="0.375" data-tol="0.005">
+          <div class="q-text"><span class="q-number">13</span> ปี 2010 ประชากร 61 ล้าน ปี 2014 ประชากร 62.5 ล้าน ใช้ 2-point central ประมาณ rate of change ปี 2012 (ล้านคนต่อปี)</div>
+          <input type="text" class="q-input" placeholder="ตัวเลข">
+          <div class="q-explain">💡 \((62.5 - 61)/(2014 - 2010) = 1.5/4 = 0.375\) ตัวส่วนคือ \(2h = 4\) ไม่ใช่ 2</div>
+        </div>
+
+        <div class="quiz-question" data-type="mc" data-answer="a">
+          <div class="q-text"><span class="q-number">14</span> สูตร \(f'(0) \approx \frac{f(2h) - f(0)}{2h}\) มี truncation error order?</div>
+          <div class="q-options">
+            <label><input type="radio" name="q14" value="a"> \(O(h)\)</label>
+            <label><input type="radio" name="q14" value="b"> \(O(h^2)\)</label>
+            <label><input type="radio" name="q14" value="c"> \(O(h^3)\)</label>
+            <label><input type="radio" name="q14" value="d"> \(O(1)\)</label>
+          </div>
+          <div class="q-explain">💡 เป็น forward 2 จุดระยะ \(2h\) error คือ \(-hf''(\xi)\) ระยะที่เปลี่ยนเป็น \(2h\) ไม่ทำให้ order เปลี่ยน</div>
         </div>
 
         <div class="quiz-actions">

@@ -240,6 +240,11 @@ p { margin: 10px 0; }
 .callout.warn { border-left-color: var(--danger); }
 .callout.note { border-left-color: var(--accent); }
 .callout.tip  { border-left-color: var(--success); }
+
+/* boxes added from the recorded lectures */
+.callout.lecture { border-left-color: var(--info); background: var(--surface-2); }
+.lecture-time { font-size: 0.8rem; color: var(--text-muted); margin: -2px 0 8px; }
+.lecture-time::before { content: "🎙️ "; }
 .callout-title {
   font-weight: 700;
   margin-bottom: 6px;

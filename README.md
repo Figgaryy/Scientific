@@ -8,7 +8,7 @@
 
 ## 📚 เนื้อหาที่ครอบคลุม
 
-### บทเรียน 5 บท
+### บทเรียน 13 บท
 | บท | หัวข้อ | เนื้อหาหลัก |
 |---|---|---|
 | 1 | **Errors & Taylor Series** | Taylor series, Truncation error, True/Relative/Approximate error, D.P. & S.D., Round-off |
@@ -16,14 +16,29 @@
 | 3 | **Linear Systems — Direct** | Gaussian Elimination, Partial Pivoting, Gauss-Jordan, Matrix Inverse, LU Decomposition |
 | 4 | **Linear Systems — Iterative** | Vector/Matrix Norms, Jacobi, Gauss-Seidel, SOR, Convergence Analysis |
 | 5 | **Nonlinear Systems** | Newton's Method (multi-variable + Jacobian), Fixed-Point Iteration |
+| 6 | **Least-Squares Regression** | Normal equations, R², linearization (power/exponential/reciprocal) |
+| 7 | **Interpolation** | Linear system (Vandermonde), Lagrange, Newton divided difference |
+| 8 | **Spline Interpolation** | Linear, quadratic, natural/clamped cubic spline |
+| 9 | **Numerical Differentiation** | Forward/backward/central difference, 3- และ 5-point formulas |
+| 10 | **Numerical Integration** | Trapezoid, Simpson 1/3 และ 3/8, Gauss quadrature |
+| 11 | **Numerical ODE** | Taylor method, Euler (explicit/implicit), Midpoint, Heun, Runge-Kutta |
+| 12 | **Eigenvalues** | Power, inverse power, shifted power method |
+| 13 | **PageRank** | PageRank ด้วย power method |
 
-### การบ้าน 4 ชุด
+บทที่ 7–10 มีกล่อง 🎙️ "จากคาบเรียน" เพิ่มจากคลิปคาบเรียนวันที่ 5, 12, 19 ต.ค. และ 2 พ.ย. 2026 มีวิธีที่อาจารย์อธิบาย ตัวอย่างบนกระดานแบบทีละขั้น และสิ่งที่อาจารย์พูดถึงข้อสอบ ทุกกล่องบอกวันที่ คลิป และนาทีในคลิปไว้ให้ย้อนไปฟังได้
+
+### การบ้าน 6 ชุด
 | HW | หัวข้อ |
 |---|---|
 | HW1 | Taylor Polynomial Error สำหรับ e⁻⁰·² |
 | HW2 | Root Finding methods + Internal Rate of Return (ThaiESG) |
 | HW3 | Jacobi & Gauss-Seidel iterations + Matrix T, c |
 | HW4 | Nonlinear System ด้วย Newton & Fixed-Point |
+| HW5 | Least-Squares Regression (Monod growth) |
+| HW6 | Numerical Differentiation (backward difference + Taylor error term) |
+
+### ห้องเตรียมสอบ Midterm
+Study guide, formula sheet และ mock exam 5 ชุด อยู่ใน `exam/`
 
 ---
 
