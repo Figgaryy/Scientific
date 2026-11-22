@@ -1,0 +1,530 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="page-id" content="fx991ex">
+<title>ใช้ fx-991EX ช่วยทำข้อสอบ — CSS322</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@400;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../assets/style.css">
+</head>
+<body>
+<div class="app">
+  <aside class="sidebar">
+    <div class="brand">📐 CSS322</div>
+    <div class="brand-sub">Scientific Computing</div>
+    <div class="nav-section">หน้าหลัก</div>
+    <nav class="nav"><a href="../index.html" data-page="home">🏠 หน้าแรก <span class="status"></span></a></nav>
+    <div class="nav-section">บทเรียน</div>
+    <nav class="nav">
+      <a href="ch1-errors-taylor.html" data-page="ch1">บทที่ 1 <span class="status"></span></a>
+      <a href="ch2-root-finding.html" data-page="ch2">บทที่ 2 <span class="status"></span></a>
+      <a href="ch3-linear-direct.html" data-page="ch3">บทที่ 3 <span class="status"></span></a>
+      <a href="ch4-linear-iterative.html" data-page="ch4">บทที่ 4 <span class="status"></span></a>
+      <a href="ch5-nonlinear.html" data-page="ch5">บทที่ 5 <span class="status"></span></a>
+      <a href="ch6-regression.html" data-page="ch6">บทที่ 6 <span class="status"></span></a>
+      <a href="ch7-interpolation.html" data-page="ch7">บทที่ 7 <span class="status"></span></a>
+      <a href="ch8-spline.html" data-page="ch8">บทที่ 8 <span class="status"></span></a>
+      <a href="ch9-numdiff.html" data-page="ch9">บทที่ 9 <span class="status"></span></a>
+      <a href="ch10-numintegrate.html" data-page="ch10">บทที่ 10 <span class="status"></span></a>
+      <a href="ch11-ode.html" data-page="ch11">บทที่ 11 <span class="status"></span></a>
+      <a href="ch12-eigenvalue.html" data-page="ch12">บทที่ 12: Eigenvalue <span class="status"></span></a>
+      <a href="ch13-pagerank.html" data-page="ch13">บทที่ 13 <span class="status"></span></a>
+      <a href="fx991ex.html" data-page="fx991ex">🧮 ใช้ fx-991EX ช่วย <span class="status"></span></a>
+    </nav>
+    <div class="nav-section">การบ้าน</div>
+    <nav class="nav">
+      <a href="../homework/hw1.html" data-page="hw1">HW1 <span class="status"></span></a>
+      <a href="../homework/hw2.html" data-page="hw2">HW2 <span class="status"></span></a>
+      <a href="../homework/hw3.html" data-page="hw3">HW3 <span class="status"></span></a>
+      <a href="../homework/hw4.html" data-page="hw4">HW4 <span class="status"></span></a>
+      <a href="../homework/hw5.html" data-page="hw5">HW5 <span class="status"></span></a>
+      <a href="../homework/hw6.html" data-page="hw6">HW6 🆕 <span class="status"></span></a>
+    </nav>
+    <div class="nav-section">📝 เตรียมสอบ</div>
+    <nav class="nav">
+      <a href="../exam/index.html" data-page="exam">📚 ห้องเตรียมสอบ Midterm <span class="status"></span></a>
+    </nav>
+    <button class="theme-toggle">🌙 โหมดมืด</button>
+  </aside>
+
+  <main class="main">
+    <div class="main-inner">
+      <h1>ใช้เครื่องคิดเลข fx-991EX ช่วยทำบท 6–12</h1>
+      <p>เครื่องคิดเลขช่วยหาตัวเลขและเช็กคำตอบ แต่ในข้อสอบอาจารย์ไม่ให้คะแนนถ้าเขียนแค่ตัวเลข ทุกตัวอย่างจึงบอกไว้ด้วยว่าต้องเขียนอะไรลงกระดาษ ขั้นที่มีป้าย <span class="unverified">ยังไม่ได้เช็กกับคู่มือ</span> ให้ลองกดในเครื่องจริงก่อนวันสอบ</p>
+      <nav class="toc">
+        <a href="#ch6">บทที่ 6: Least-Squares Regression</a>
+        <a href="#ch7">บทที่ 7: Interpolation</a>
+        <a href="#ch8">บทที่ 8: Spline</a>
+        <a href="#ch9">บทที่ 9: Numerical Differentiation</a>
+        <a href="#ch10">บทที่ 10: Numerical Integration</a>
+        <a href="#ch11">บทที่ 11: ODE</a>
+        <a href="#ch12">บทที่ 12: Eigenvalues</a>
+      </nav>
+<section id="ch6">
+<h2>บทที่ 6: Least-Squares Regression</h2>
+
+<div class="callout note"><div class="callout-title">เครื่องช่วยตรงไหน</div><p style="margin:0;">อาจารย์อยากเห็นตาราง sums และ normal equations ในกระดาษ เครื่องคิดเลขให้ค่า Σx, Σx², Σy, Σxy ครบในหน้าจอเดียว และให้ a, b, r ไว้เช็กคำตอบสุดท้าย ส่วนที่ประหยัดเวลาจริงคือไม่ต้องบวกคอลัมน์เอง และรู้ทันทีว่าแก้ระบบถูกหรือเปล่า</p></div>
+
+<div class="example open"><div class="example-header"><span><span class="example-label">fx 6.1</span> y=a+bx และค่า sums (ตัวอย่าง 2.1)</span><span class="chev">▶</span></div><div class="example-body">
+<p>Data: \(x = 1, 2, 3, 4, 5\) และ \(y = 1, 2, 1.3, 3.75, 2.25\)</p>
+<ol class="keys">
+<li><kbd>MENU</kbd> <kbd>6</kbd> → เลือก <b>2:y=a+bx</b> ด้วย <kbd>2</kbd> <span class="unverified">ยังไม่ได้เช็กกับคู่มือ</span></li>
+<li>ถ้ามีคอลัมน์ Freq โผล่มา ปิดก่อน: <kbd>SHIFT</kbd> <kbd>MENU</kbd> (SET UP) <kbd>▼</kbd> <kbd>3</kbd> (Statistics) <kbd>2</kbd> (Off)</li>
+<li>คอลัมน์ x: <kbd>1</kbd> <kbd>=</kbd> <kbd>2</kbd> <kbd>=</kbd> <kbd>3</kbd> <kbd>=</kbd> <kbd>4</kbd> <kbd>=</kbd> <kbd>5</kbd> <kbd>=</kbd></li>
+<li>กด <kbd>▶</kbd> ไปคอลัมน์ y แล้ว <kbd>▲</kbd> ขึ้นไปแถว 1 จากนั้น <kbd>1</kbd> <kbd>=</kbd> <kbd>2</kbd> <kbd>=</kbd> <kbd>1</kbd> <kbd>.</kbd> <kbd>3</kbd> <kbd>=</kbd> <kbd>3</kbd> <kbd>.</kbd> <kbd>7</kbd> <kbd>5</kbd> <kbd>=</kbd> <kbd>2</kbd> <kbd>.</kbd> <kbd>2</kbd> <kbd>5</kbd> <kbd>=</kbd></li>
+<li>ดู sums: <kbd>OPTN</kbd> <kbd>3</kbd> (2-Variable Calc) แล้วกด <kbd>▼</kbd> เลื่อนดู Σx, Σx², n, Σy, Σxy</li>
+<li>ดู a, b, r: <kbd>AC</kbd> <kbd>OPTN</kbd> <kbd>4</kbd> (Regression Calc)</li>
+</ol>
+<p>หน้าจอ 2-Variable Calc: Σx = 15, Σx² = 55, n = 5, Σy = 10.3, Σxy = 35.15</p>
+<p>หน้าจอ Regression Calc: a = 0.785, b = 0.425, r = 0.6268327…</p>
+<p>ถ้าโจทย์ถาม \(R^2\) ของเส้นตรง ใช้ \(r^2 = 0.6268^2 = 0.3929\) ได้เลย (เท่ากับ \(1 - SS_{res}/SS_{tot}\) ที่คิดตรงๆ) วิธีนี้ใช้ได้กับ y=a+bx เท่านั้น</p>
+<p><b>เขียนในกระดาษ:</b> ตาราง \(x_i, y_i, x_i^2, x_i y_i\) พร้อมแถว Σ, สูตร \(a_1 = \frac{n S_{xy} - S_x S_y}{n S_{xx} - S_x^2}\) และ \(a_0\) แทนตัวเลข \(\frac{5(35.15) - 15(10.30)}{5(55) - 15^2} = 0.425\) แล้วตอบ \(f(x) = 0.785 + 0.425x\) ตัวเลขในแถว Σ ลอกจากหน้าจอได้ แต่ค่าในแต่ละแถวต้องเขียนเอง</p>
+</div></div>
+
+<div class="example open"><div class="example-header"><span><span class="example-label">fx 6.2</span> ความดัน-อุณหภูมิ (ตัวอย่าง 2.2) เครื่องจับเลขผิดได้</span><span class="chev">▶</span></div><div class="example-body">
+<p>Data: \(T = 0, 30, 70, 100\) และ \(P = 0.94, 1.05, 1.17, 1.28\) กรอกแบบ fx 6.1 (x = T, y = P)</p>
+<ol class="keys">
+<li><kbd>OPTN</kbd> <kbd>3</kbd> (2-Variable Calc) → Σx = 200, Σx² = 15800, Σy = 4.44, Σxy = 241.4</li>
+<li><kbd>AC</kbd> <kbd>OPTN</kbd> <kbd>4</kbd> (Regression Calc) → a = 0.9427586…, b = 0.0033448…, r = 0.99915…</li>
+<li>กลับหน้าคำนวณ <kbd>MENU</kbd> <kbd>1</kbd> แล้วพิมพ์ \(P(10)\): <kbd>0</kbd> <kbd>.</kbd> <kbd>9</kbd> <kbd>4</kbd> <kbd>2</kbd> <kbd>7</kbd> <kbd>6</kbd> <kbd>+</kbd> <kbd>0</kbd> <kbd>.</kbd> <kbd>0</kbd> <kbd>0</kbd> <kbd>3</kbd> <kbd>3</kbd> <kbd>4</kbd> <kbd>4</kbd> <kbd>8</kbd> <kbd>×</kbd> <kbd>1</kbd> <kbd>0</kbd> <kbd>=</kbd> <span class="unverified">ยังไม่ได้เช็กกับคู่มือ</span></li>
+</ol>
+<p>ผล: \(f(T) = 0.9428 + 0.003345\,T\), \(P(10) = 0.9762\) atm, และ \(P = 1\) เมื่อ \(T = (1 - 0.9428)/0.003345 = 17.11\)°C</p>
+<div class="callout warn"><div class="callout-title">ตัวเลขในหน้าบท 6 ผิด</div><p style="margin:0;">หน้าบท 6 ใช้ \(S_{xy} = 259.9\) แต่ค่าจริงคือ \(0 + 31.5 + 81.9 + 128 = 241.4\) คำตอบ \(0.7833 + 0.006535T\) ในหน้านั้นจึงคลาดไปด้วย ข้อนี้คือเหตุผลที่ควรเช็ก Σ กับเครื่องทุกครั้ง</p></div>
+<p><b>เขียนในกระดาษ:</b> ตาราง sums, สูตร \(a_1, a_0\) แทนค่า \(\frac{4(241.4) - 200(4.44)}{4(15800) - 200^2} = \frac{77.6}{23200}\), สมการเส้นตรง แล้วแทน \(T = 10\) และแก้ \(0.9428 + 0.003345T = 1\) ให้เห็นทั้งสองบรรทัด</p>
+</div></div>
+
+<div class="example open"><div class="example-header"><span><span class="example-label">fx 6.3</span> Quadratic regression (ตัวอย่าง 3.2)</span><span class="chev">▶</span></div><div class="example-body">
+<p>Data: \(x = 1, 2, 3, 4, 5\) และ \(y = -25, 23, -31, 13, -45\)</p>
+<ol class="keys">
+<li><kbd>MENU</kbd> <kbd>6</kbd> → <kbd>3</kbd> <b>y=a+bx+cx²</b> <span class="unverified">ยังไม่ได้เช็กกับคู่มือ</span></li>
+<li>กรอก x และ y แบบ fx 6.1 (ค่าลบใช้ <kbd>(-)</kbd> เช่น <kbd>(-)</kbd> <kbd>2</kbd> <kbd>5</kbd> <kbd>=</kbd>)</li>
+<li><kbd>OPTN</kbd> <kbd>3</kbd> (2-Variable Calc) <kbd>▼</kbd> เลื่อนหา n, Σx, Σx², Σx³, Σx⁴, Σy, Σxy, Σx²y</li>
+<li><kbd>AC</kbd> <kbd>OPTN</kbd> <kbd>4</kbd> (Regression Calc) → หน้าจอแสดง a, b, c <span class="unverified">ยังไม่ได้เช็กกับคู่มือ</span></li>
+</ol>
+<p>Sums: n = 5, Σx = 15, Σx² = 55, Σx³ = 225, Σx⁴ = 979, Σy = −65, Σxy = −245, Σx²y = −1129</p>
+<p>Regression Calc: a = −55, b = 43.857142…, c = −8.142857… คือ \(f(x) = -55 + 43.8571x - 8.1429x^2\) (เครื่องเรียงเป็น a + bx + cx² ตรงกับ \(a_0, a_1, a_2\))</p>
+<div class="formula">\[ \begin{bmatrix} 5 & 15 & 55 \\ 15 & 55 & 225 \\ 55 & 225 & 979 \end{bmatrix} \begin{bmatrix} a_0 \\ a_1 \\ a_2 \end{bmatrix} = \begin{bmatrix} -65 \\ -245 \\ -1129 \end{bmatrix} \]</div>
+<p>ถ้าอยากเช็กว่าตั้งระบบถูก ใส่ระบบนี้ใน Simul Equation 3 unknowns (ปุ่มแบบ fx 6.5) ต้องได้ −55, 43.8571, −8.1429 เท่ากัน</p>
+<div class="callout tip"><div class="callout-title">R² ของ quadratic</div><p style="margin:0;">ใช้ \(r^2\) ไม่ได้ ต้องคิด \(R^2 = 1 - SS_{res}/SS_{tot}\) เอง</p></div>
+<p><b>เขียนในกระดาษ:</b> ตาราง \(x, y, x^2, x^3, x^4, xy, x^2y\) พร้อม Σ, ระบบ 3×3 ด้านบน, การแก้ระบบ (elimination) และคำตอบ \(f(x)\)</p>
+</div></div>
+
+<div class="example open"><div class="example-header"><span><span class="example-label">fx 6.4</span> เช็ก power และ exponential fit (ตัวอย่าง 6.1, 6.2)</span><span class="chev">▶</span></div><div class="example-body">
+<p>Data: \(x = 1, 2, 3, 4\) และ \(y = 1, 7, 11, 21\)</p>
+<ol class="keys">
+<li>ในหน้า Statistics กด <kbd>OPTN</kbd> <kbd>1</kbd> (Select Type) → <b>7:y=a·x^b</b> <span class="unverified">ยังไม่ได้เช็กกับคู่มือ</span></li>
+<li>ถ้าขึ้น <b>Clear memory?</b> กด <kbd>=</kbd> แล้วกรอก x, y ใหม่</li>
+<li><kbd>AC</kbd> <kbd>OPTN</kbd> <kbd>4</kbd> (Regression Calc) → a = 1.146804…, b = 2.152390…</li>
+<li><kbd>OPTN</kbd> <kbd>1</kbd> (Select Type) → <b>5:y=a·e^(bx)</b> แล้วทำซ้ำ → a = 0.577350…, b = 0.958555… <span class="unverified">ยังไม่ได้เช็กกับคู่มือ</span></li>
+</ol>
+<p>เครื่องคิด regression แบบ e^, ab^x และ ax^b โดย fit \(\ln y\) เป็นเส้นตรง เหมือน linearization ใน note ค่าที่ได้จึงต้องตรงกับที่คิดมือ ลองคิดด้วย python แล้ว: linearized fit ได้ \(1.1468x^{2.1524}\) และ \(0.5774e^{0.9586x}\) ส่วน least squares ตรงบน \(y\) (ไม่ take ln) ได้ \(1.5745x^{1.8570}\) และ \(1.4945e^{0.6625x}\) ต่างกันชัด ถ้าเครื่องแสดง 1.1468 กับ 0.5774 แปลว่าเครื่องใช้วิธีเดียวกับ note</p>
+<div class="callout warn"><div class="callout-title">note และหน้าบท 6 ตอบ b = 1.468 ในตัวอย่าง 6.1</div><p style="margin:0;">คิดใหม่ได้ \(a_0 = \bar Y - a_1 \bar X = 1.8471 - 2.1524(0.7945) = 0.1370\) จึง \(b = e^{0.1370} = 1.1468\) ตรงกับเครื่อง ค่า 1.468 (และ \(a_0 = 0.3838\) ในหน้าบท) น่าจะพิมพ์ผิด ในข้อสอบให้เขียนขั้นคิด \(a_0\) ให้เห็น</p></div>
+<p>ถ้าใช้ <b>6:y=a·b^x</b> จะได้ b = \(e^{0.9586} = 2.6079\) ซึ่งเป็นฐานของ \(b^x\) ถ้าจะเอา m ของ \(be^{mx}\) ต้อง take ln อีกที: \(\ln 2.6079 = 0.9586\)</p>
+<p><b>เขียนในกระดาษ:</b> การแปลง \(Y = \ln y,\ X = \ln x\) (หรือ \(X = x\)), ตาราง \(X_i, Y_i\), regression หา \(a_0, a_1\), แล้วแปลงกลับ \(b = e^{a_0},\ m = a_1\) เครื่องใช้เช็กคำตอบสุดท้ายเท่านั้น</p>
+</div></div>
+
+<div class="example open"><div class="example-header"><span><span class="example-label">fx 6.5</span> Basis ทั่วไป: แก้ normal equations ด้วย Simul Equation (ตัวอย่าง 5.1)</span><span class="chev">▶</span></div><div class="example-body">
+<p>Fit \(f(x) = c_1 x + c_2\cos^2(\pi x)\) กับ data เดิม \(x = 1..4\), \(y = 1, 7, 11, 21\) ที่ \(x\) เป็นจำนวนเต็ม \(\cos^2(\pi x) = 1\) ทุกจุด normal equations คือ</p>
+<div class="formula">\[ \begin{bmatrix} \sum x^2 & \sum x g_2 \\ \sum x g_2 & \sum g_2^2 \end{bmatrix} \begin{bmatrix} c_1 \\ c_2 \end{bmatrix} = \begin{bmatrix} \sum xy \\ \sum y g_2 \end{bmatrix} \;\Rightarrow\; \begin{bmatrix} 30 & 10 \\ 10 & 4 \end{bmatrix} \begin{bmatrix} c_1 \\ c_2 \end{bmatrix} = \begin{bmatrix} 132 \\ 40 \end{bmatrix} \]</div>
+<ol class="keys">
+<li><kbd>MENU</kbd> <kbd>(-)</kbd> (Equation/Func) <span class="unverified">ยังไม่ได้เช็กกับคู่มือ</span></li>
+<li><kbd>1</kbd> (Simul Equation) <kbd>2</kbd> (2 unknowns)</li>
+<li>แถว 1: <kbd>3</kbd> <kbd>0</kbd> <kbd>=</kbd> <kbd>1</kbd> <kbd>0</kbd> <kbd>=</kbd> <kbd>1</kbd> <kbd>3</kbd> <kbd>2</kbd> <kbd>=</kbd></li>
+<li>แถว 2: <kbd>1</kbd> <kbd>0</kbd> <kbd>=</kbd> <kbd>4</kbd> <kbd>=</kbd> <kbd>4</kbd> <kbd>0</kbd> <kbd>=</kbd></li>
+<li><kbd>=</kbd> แก้ระบบ, <kbd>▼</kbd> ดูตัวที่สอง, ถ้าเป็นเศษส่วนกด <kbd>S⇔D</kbd></li>
+</ol>
+<p>หน้าจอ: x = 32/5 (6.4), y = −6 จึง \(c_1 = 6.4,\ c_2 = -6\) ตรงกับ y=a+bx บน data เดียวกัน (b = 6.4, a = −6) เพราะ \(g_2 = 1\) ทำตัวเป็นค่าคงที่</p>
+<div class="callout tip"><div class="callout-title">ถ้า g(x) ไม่สวยแบบนี้ ใช้ Spreadsheet หา sums</div><p style="margin:0;"><kbd>MENU</kbd> <kbd>8</kbd> ใส่ x ในคอลัมน์ A, y ในคอลัมน์ B, ใส่ g(x) ในคอลัมน์ C ด้วย Fill Formula (<kbd>OPTN</kbd> <kbd>1</kbd>) แล้วหาผลรวมด้วย <kbd>OPTN</kbd> <kbd>▼</kbd> <kbd>▼</kbd> <kbd>▼</kbd> <kbd>4</kbd> (Sum) เช่น Sum(C1:C4) ถ้า g มี sin/cos ต้องตั้งเครื่องเป็น Radian ก่อน (<kbd>SHIFT</kbd> <kbd>MENU</kbd> <kbd>2</kbd> <kbd>2</kbd>) <span class="unverified">ยังไม่ได้เช็กกับคู่มือ</span></p></div>
+<p><b>เขียนในกระดาษ:</b> \(E = \sum (y_i - c_1 x_i - c_2 g_2(x_i))^2\), การตั้ง \(\partial E/\partial c_k = 0\), ตารางค่า \(g_2(x_i)\) และผลคูณ, ระบบ 2×2 ด้านบน และการแก้ระบบด้วยมือสั้นๆ (เช่น \(c_2 = (40 - 10c_1)/4\) แทนกลับ)</p>
+</div></div>
+</section>
+
+<section id="ch7">
+<h2>บทที่ 7: Interpolation</h2>
+
+<div class="callout note"><div class="callout-title">หลักคิด</div><p style="margin:0;">polynomial ที่ผ่าน n จุดมีตัวเดียว ไม่ว่าจะหาด้วย Lagrange, Newton หรือ Vandermonde ดังนั้นหาด้วยวิธีที่เร็วที่สุดในเครื่องเพื่อรู้คำตอบก่อน แล้วค่อยเขียนวิธีที่โจทย์สั่งลงกระดาษ ถ้าสองทางได้ค่าไม่ตรงกันแปลว่ามีจุดผิด</p></div>
+
+<div class="example open"><div class="example-header"><span><span class="example-label">fx 7.1</span> 3 จุด: quadratic regression คือ interpolating polynomial</span><span class="chev">▶</span></div><div class="example-body">
+<p>Data: \((0,1), (1,2), (3,8)\) หา \(p(2)\) (ตัวอย่าง 2.1)</p>
+<ol class="keys">
+<li><kbd>MENU</kbd> <kbd>6</kbd> → <kbd>3</kbd> <b>y=a+bx+cx²</b> <span class="unverified">ยังไม่ได้เช็กกับคู่มือ</span></li>
+<li>x: <kbd>0</kbd> <kbd>=</kbd> <kbd>1</kbd> <kbd>=</kbd> <kbd>3</kbd> <kbd>=</kbd> แล้ว <kbd>▶</kbd> <kbd>▲</kbd> ไปหัวคอลัมน์ y: <kbd>1</kbd> <kbd>=</kbd> <kbd>2</kbd> <kbd>=</kbd> <kbd>8</kbd> <kbd>=</kbd></li>
+<li><kbd>OPTN</kbd> <kbd>4</kbd> (Regression Calc) <span class="unverified">ยังไม่ได้เช็กกับคู่มือ</span></li>
+</ol>
+<p>หน้าจอ: a = 1, b = 0.3333…, c = 0.6666… คือ \(p(x) = 1 + \tfrac13 x + \tfrac23 x^2\) แทน \(x = 2\): \(1 + \tfrac23 + \tfrac83 = \tfrac{13}{3} = 4.3333\)</p>
+<p>3 จุดกับ degree 2 คือ unknown 3 ตัวพอดี least squares จึงผ่านทุกจุดและ error เป็นศูนย์ ใช้ได้เฉพาะกรณีจำนวนจุด = degree + 1 เท่านั้น</p>
+<p><b>เขียนในกระดาษ:</b> สูตร Lagrange ครบสามพจน์ \(1\cdot\frac{(x-1)(x-3)}{(0-1)(0-3)} + 2\cdot\frac{x(x-3)}{(1-0)(1-3)} + 8\cdot\frac{x(x-1)}{(3-0)(3-1)}\), แทน \(x = 2\) ทีละพจน์ \(-\tfrac13 + 2 + \tfrac83\) และตอบ \(\tfrac{13}{3}\) ระวังตัวส่วนพจน์ที่สาม \((3-0)(3-1) = 6\) เป็นบวก</p>
+</div></div>
+
+<div class="example open"><div class="example-header"><span><span class="example-label">fx 7.2</span> 4 จุด: Vandermonde ด้วย Simul Equation 4 unknowns</span><span class="chev">▶</span></div><div class="example-body">
+<p>Data: \((-2,-39), (0,3), (1,6), (3,36)\) (ตัวอย่าง 3.2) แต่ละจุดให้หนึ่งแถว \([1,\ x_i,\ x_i^2,\ x_i^3 \mid y_i]\)</p>
+<div class="formula">\[ \begin{bmatrix} 1 & -2 & 4 & -8 \\ 1 & 0 & 0 & 0 \\ 1 & 1 & 1 & 1 \\ 1 & 3 & 9 & 27 \end{bmatrix} \begin{bmatrix} a_0 \\ a_1 \\ a_2 \\ a_3 \end{bmatrix} = \begin{bmatrix} -39 \\ 3 \\ 6 \\ 36 \end{bmatrix} \]</div>
+<ol class="keys">
+<li><kbd>MENU</kbd> <kbd>(-)</kbd> <kbd>1</kbd> (Simul Equation) <kbd>4</kbd> (4 unknowns) <span class="unverified">ยังไม่ได้เช็กกับคู่มือ</span></li>
+<li>แถว 1: <kbd>1</kbd> <kbd>=</kbd> <kbd>(-)</kbd> <kbd>2</kbd> <kbd>=</kbd> <kbd>4</kbd> <kbd>=</kbd> <kbd>(-)</kbd> <kbd>8</kbd> <kbd>=</kbd> <kbd>(-)</kbd> <kbd>3</kbd> <kbd>9</kbd> <kbd>=</kbd></li>
+<li>แถว 2: <kbd>1</kbd> <kbd>=</kbd> <kbd>0</kbd> <kbd>=</kbd> <kbd>0</kbd> <kbd>=</kbd> <kbd>0</kbd> <kbd>=</kbd> <kbd>3</kbd> <kbd>=</kbd></li>
+<li>แถว 3: <kbd>1</kbd> <kbd>=</kbd> <kbd>1</kbd> <kbd>=</kbd> <kbd>1</kbd> <kbd>=</kbd> <kbd>1</kbd> <kbd>=</kbd> <kbd>6</kbd> <kbd>=</kbd></li>
+<li>แถว 4: <kbd>1</kbd> <kbd>=</kbd> <kbd>3</kbd> <kbd>=</kbd> <kbd>9</kbd> <kbd>=</kbd> <kbd>2</kbd> <kbd>7</kbd> <kbd>=</kbd> <kbd>3</kbd> <kbd>6</kbd> <kbd>=</kbd></li>
+<li><kbd>=</kbd> แล้ว <kbd>▼</kbd> ดูทีละตัว</li>
+</ol>
+<p>หน้าจอ: 3, 5, −4, 2 ตามลำดับคอลัมน์ จึง \(p(x) = 3 + 5x - 4x^2 + 2x^3\) และ \(p(2) = 3 + 10 - 16 + 16 = 13\) ตรงกับ Newton \(p_3(2) = 13\) ในหน้าบท</p>
+<p>Simul Equation รับได้สูงสุด 4 unknowns จึงใช้ได้ถึง 4 จุด (cubic) ถ้า 5 จุดขึ้นไปใช้ divided difference ใน fx 7.3 แทน</p>
+<p><b>เขียนในกระดาษ:</b> ถ้าโจทย์สั่ง Newton ให้เขียนตาราง divided difference และ \(p_3(x) = -39 + 21(x+2) - 6(x+2)x + 2(x+2)x(x-1)\) ตามเดิม ใช้ผล Vandermonde แค่เช็กว่า \(p(2)\) ตรงกัน ถ้าโจทย์สั่ง linear system ให้เขียน matrix ข้างบนและผลแก้ระบบ</p>
+</div></div>
+
+<div class="example open"><div class="example-header"><span><span class="example-label">fx 7.3</span> ตาราง divided difference ใน Spreadsheet (ตัวอย่าง 3.1)</span><span class="chev">▶</span></div><div class="example-body">
+<p>Data: \((0,0), (1,1), (2,8), (3,27), (4,64)\) วางคอลัมน์ A = x, B = y, C = 1st, D = 2nd, E = 3rd</p>
+<ol class="keys">
+<li><kbd>MENU</kbd> <kbd>8</kbd> (Spreadsheet) <span class="unverified">ยังไม่ได้เช็กกับคู่มือ</span></li>
+<li>A1–A5: <kbd>0</kbd> <kbd>=</kbd> <kbd>1</kbd> <kbd>=</kbd> <kbd>2</kbd> <kbd>=</kbd> <kbd>3</kbd> <kbd>=</kbd> <kbd>4</kbd> <kbd>=</kbd> แล้วเลื่อนไป B1 ใส่ <kbd>0</kbd> <kbd>=</kbd> <kbd>1</kbd> <kbd>=</kbd> <kbd>8</kbd> <kbd>=</kbd> <kbd>2</kbd> <kbd>7</kbd> <kbd>=</kbd> <kbd>6</kbd> <kbd>4</kbd> <kbd>=</kbd></li>
+<li>ไปที่ C1 กด <kbd>OPTN</kbd> <kbd>1</kbd> (Fill Formula) พิมพ์ (B2−B1)÷(A2−A1): <kbd>(</kbd> <kbd>ALPHA</kbd> <kbd>°'"</kbd> <kbd>2</kbd> <kbd>-</kbd> <kbd>ALPHA</kbd> <kbd>°'"</kbd> <kbd>1</kbd> <kbd>)</kbd> <kbd>÷</kbd> <kbd>(</kbd> <kbd>ALPHA</kbd> <kbd>(-)</kbd> <kbd>2</kbd> <kbd>-</kbd> <kbd>ALPHA</kbd> <kbd>(-)</kbd> <kbd>1</kbd> <kbd>)</kbd> <kbd>=</kbd></li>
+<li>Range ขึ้น C1:C1 ให้กด <kbd>▶</kbd> ไปท้าย <kbd>DEL</kbd> <kbd>4</kbd> ให้เป็น C1:C4 แล้ว <kbd>=</kbd></li>
+<li>ไปที่ D1 <kbd>OPTN</kbd> <kbd>1</kbd> พิมพ์ (C2−C1)÷(A3−A1) (C = <kbd>ALPHA</kbd> <kbd>x⁻¹</kbd>) <kbd>=</kbd> Range D1:D3 <kbd>=</kbd></li>
+<li>ไปที่ E1 <kbd>OPTN</kbd> <kbd>1</kbd> พิมพ์ (D2−D1)÷(A4−A1) (D = <kbd>ALPHA</kbd> <kbd>sin</kbd>) <kbd>=</kbd> Range E1:E2 <kbd>=</kbd></li>
+<li>หน้าจอเห็นแค่ A–D กด <kbd>▶</kbd> เลื่อนไปดูคอลัมน์ E (ถ้าต้องพิมพ์ E เอง ใช้ <kbd>ALPHA</kbd> <kbd>cos</kbd>) <span class="unverified">ยังไม่ได้เช็กกับคู่มือ</span></li>
+</ol>
+<div class="table-wrap"><table>
+<tr><th>แถว</th><th>A (x)</th><th>B (y)</th><th>C (1st)</th><th>D (2nd)</th><th>E (3rd)</th></tr>
+<tr><td>1</td><td>0</td><td>0</td><td>1</td><td>3</td><td>1</td></tr>
+<tr><td>2</td><td>1</td><td>1</td><td>7</td><td>6</td><td>1</td></tr>
+<tr><td>3</td><td>2</td><td>8</td><td>19</td><td>9</td><td></td></tr>
+<tr><td>4</td><td>3</td><td>27</td><td>37</td><td></td><td></td></tr>
+<tr><td>5</td><td>4</td><td>64</td><td></td><td></td><td></td></tr>
+</table></div>
+<p>Spreadsheet มีแค่ 5 คอลัมน์ ช่อง 4th ต้องคิดเอง: \((E2 - E1)/(A5 - A1) = (1 - 1)/4 = 0\) สัมประสิทธิ์ Newton อ่านจากแถว 1: \(a_1..a_5 = 0, 1, 3, 1, 0\) ได้ \(p(x) = x + 3x(x-1) + x(x-1)(x-2) = x^3\) และ \(p(2.5) = 15.625\)</p>
+<p>ข้อมูลตัวอย่าง 3.2 \((-2,-39), (0,3), (1,6), (3,36)\) ใช้สูตรเดิมได้เลย พิมพ์ทับ A1–A4, B1–B4 แล้วอ่านแค่ C1–C3, D1–D2, E1 (ช่องล่างที่ยังอ้างแถว 5 ไม่ต้องสนใจ ถ้าค่าไม่เปลี่ยนกด <kbd>OPTN</kbd> <kbd>▼</kbd> <kbd>4</kbd> Recalculate) ได้ C: 21, 3, 15 · D: −6, 4 · E: 2 ตรงกับหน้าบท</p>
+<p><b>เขียนในกระดาษ:</b> ตาราง divided difference ทั้งตาราง และอย่างน้อยหนึ่งช่องต่อคอลัมน์ให้เขียนเศษส่วนให้เห็น เช่น \(f[x_1,x_2,x_3] = \frac{7-1}{2-0} = 3\) จากนั้นเขียน \(p(x)\) ในรูป Newton และแทนค่า</p>
+</div></div>
+
+<div class="example open"><div class="example-header"><span><span class="example-label">fx 7.4</span> แทนค่า Lagrange/Newton form ด้วย CALC</span><span class="chev">▶</span></div><div class="example-body">
+<p>พิมพ์ polynomial รูปที่เขียนในกระดาษเข้าไปตรงๆ แล้วให้เครื่องแทนค่า ได้ผลเท่ากับที่แทนมือ ถ้าไม่ตรงแปลว่าแทนมือผิด ใช้ซ้ำได้หลายค่า x</p>
+<ol class="keys">
+<li><kbd>MENU</kbd> <kbd>1</kbd> (Calculate) <span class="unverified">ยังไม่ได้เช็กกับคู่มือ</span></li>
+<li>พิมพ์ Newton form \(-39 + 21(x+2) - 6(x+2)x + 2(x+2)x(x-1)\): <kbd>(-)</kbd> <kbd>3</kbd> <kbd>9</kbd> <kbd>+</kbd> <kbd>2</kbd> <kbd>1</kbd> <kbd>(</kbd> <kbd>x</kbd> <kbd>+</kbd> <kbd>2</kbd> <kbd>)</kbd> <kbd>-</kbd> <kbd>6</kbd> <kbd>(</kbd> <kbd>x</kbd> <kbd>+</kbd> <kbd>2</kbd> <kbd>)</kbd> <kbd>x</kbd> <kbd>+</kbd> <kbd>2</kbd> <kbd>(</kbd> <kbd>x</kbd> <kbd>+</kbd> <kbd>2</kbd> <kbd>)</kbd> <kbd>x</kbd> <kbd>(</kbd> <kbd>x</kbd> <kbd>-</kbd> <kbd>1</kbd> <kbd>)</kbd></li>
+<li><kbd>CALC</kbd> → เครื่องถาม x? พิมพ์ <kbd>2</kbd> <kbd>=</kbd> <span class="unverified">ยังไม่ได้เช็กกับคู่มือ</span></li>
+<li>อยากลองค่าอื่น กด <kbd>CALC</kbd> อีกครั้ง พิมพ์ค่าใหม่ <kbd>=</kbd> <span class="unverified">ยังไม่ได้เช็กกับคู่มือ</span></li>
+</ol>
+<p>หน้าจอ: 13 ลองแทน x = 0, 1, 3 ต้องได้ 3, 6, 36 กลับมา (อาจารย์บอกให้ใช้ data point เช็กคำตอบ)</p>
+<p>Lagrange ของตัวอย่าง 2.1: พิมพ์ (x−1)(x−3)÷3 − x(x−3) + 4÷3×x(x−1) แล้ว CALC x = 2 ได้ 13/3</p>
+<p>ถ้า CALC ใช้ไม่ได้ ให้ใช้ Table แทน (<kbd>MENU</kbd> <kbd>9</kbd> พิมพ์ f(x) <kbd>=</kbd> แล้วตั้ง Start/End/Step) ข้อดีคือเห็น p(x) หลายค่าพร้อมกัน</p>
+<p><b>เขียนในกระดาษ:</b> การแทนค่าทีละพจน์ เช่น \(-39 + 21(4) - 6(4)(2) + 2(4)(2)(1) = -39 + 84 - 48 + 16 = 13\) เครื่องแค่ยืนยันผลบรรทัดสุดท้าย</p>
+</div></div>
+</section>
+
+<section id="ch8">
+<h2>บทที่ 8: Spline</h2>
+
+<div class="callout note"><div class="callout-title">เครื่องช่วยตรงไหน</div><p style="margin:0;">งานหนักของ cubic spline คือแก้ระบบหา \(z_i\) แล้วแทนค่า \(S_i(x)\) ทั้งสองส่วนนี้ Simul Equation กับ CALC ทำแทนได้ ส่วนการตั้งสมการ \(h_{i-1}z_{i-1} + 2(h_{i-1}+h_i)z_i + h_i z_{i+1} = 6(\cdot)\) และการย้าย \(z\) ขอบไปฝั่งขวา ยังต้องทำเองในกระดาษ linear spline คิดมือเร็วกว่าอยู่แล้ว เลยไม่ใส่ในหน้านี้</p></div>
+
+<div class="example open"><div class="example-header"><span><span class="example-label">fx 8.1</span> ระบบ \(z\) ของ cubic spline (ตัวอย่างในคาบ 3.2)</span><span class="chev">▶</span></div><div class="example-body">
+<p>Data: \(f(1) = -1,\ f(2) = -3,\ f(3) = 5,\ f(4) = 1\), \(h = 1\) ทุกช่วง</p>
+<p>(a) natural \(z_1 = z_4 = 0\): \(\begin{bmatrix}4&1\\1&4\end{bmatrix}\begin{bmatrix}z_2\\z_3\end{bmatrix} = \begin{bmatrix}60\\-72\end{bmatrix}\)</p>
+<ol class="keys">
+<li><kbd>MENU</kbd> <kbd>(-)</kbd> <kbd>1</kbd> (Simul Equation) <kbd>2</kbd> <span class="unverified">ยังไม่ได้เช็กกับคู่มือ</span></li>
+<li><kbd>4</kbd> <kbd>=</kbd> <kbd>1</kbd> <kbd>=</kbd> <kbd>6</kbd> <kbd>0</kbd> <kbd>=</kbd> <kbd>1</kbd> <kbd>=</kbd> <kbd>4</kbd> <kbd>=</kbd> <kbd>(-)</kbd> <kbd>7</kbd> <kbd>2</kbd> <kbd>=</kbd></li>
+<li><kbd>=</kbd> → x = 104/5, <kbd>▼</kbd> y = −116/5 (<kbd>S⇔D</kbd> ได้ 20.8 และ −23.2)</li>
+</ol>
+<p>(b) \(z_1 = -1,\ z_4 = 1\): ฝั่งขวาเป็น \(60 - (1)(-1) = 61\) และ \(-72 - (1)(1) = -73\)</p>
+<ol class="keys">
+<li><kbd>AC</kbd> กลับไปหน้าแก้สัมประสิทธิ์ เลื่อนไปช่องฝั่งขวา แก้เป็น <kbd>6</kbd> <kbd>1</kbd> <kbd>=</kbd> และ <kbd>(-)</kbd> <kbd>7</kbd> <kbd>3</kbd> <kbd>=</kbd></li>
+<li><kbd>=</kbd> → x = 317/15 (21.1333), y = −353/15 (−23.5333)</li>
+</ol>
+<p>ฝึกเพิ่ม (ตัวอย่าง 3.3 ใน note): data \((-1,1),(0,2),(1,-1),(2,1)\) natural ได้ระบบ \(\begin{bmatrix}4&1\\1&4\end{bmatrix}\) กับฝั่งขวา \(-24,\ 30\) ต้องได้ \(z_2 = -8.4,\ z_3 = 9.6\)</p>
+<div class="callout warn"><div class="callout-title">Simul Equation รับได้ 4 unknowns</div><p style="margin:0;">natural spline ที่มี n จุดมี unknown \(z_2..z_{n-1}\) คือ \(n-2\) ตัว เครื่องจึงช่วยได้ถึง n ≤ 6 จุด ถ้าโจทย์ให้ \(S''\) ที่ขอบมา ก็ยังเหลือ \(n-2\) ตัวเท่าเดิม ตัวอย่าง \(n = 7\) ในคาบมี 5 unknowns ต้องแก้ด้วยมือ (แทนค่าไล่ทีละแถวของ tridiagonal)</p></div>
+<p><b>เขียนในกระดาษ:</b> \(h_i\), สมการที่ \(i = 2, 3\) แบบเต็ม (มี \(z\) ทุกพจน์), matrix 2×4 ก่อนแทนขอบ, การย้าย \(z_1, z_4\) ไปฝั่งขวา, ระบบ 2×2 และการแก้ (เช่น \(z_2 = (60 - z_3)/4\) แทนกลับ) จากนั้นค่อยเขียน \(z_2, z_3\)</p>
+</div></div>
+
+<div class="example open"><div class="example-header"><span><span class="example-label">fx 8.2</span> แทนค่า \(S_3(3.5)\) ด้วย CALC</span><span class="chev">▶</span></div><div class="example-body">
+<p>\(3.5 \in [3,4]\) ใช้แค่ \(S_3(x) = a_3 + b_3(x-3) + c_3(x-3)^2 + d_3(x-3)^3\) กับ \(a_3 = 5\), \(b_3 = \frac{y_4 - y_3}{h_3} - h_3\left(\frac{z_4}{6} + \frac{z_3}{3}\right)\), \(c_3 = \frac{z_3}{2}\), \(d_3 = \frac{z_4 - z_3}{6h_3}\)</p>
+<p>(a) \(z_3 = -23.2,\ z_4 = 0\): \(b_3 = -4 + \frac{23.2}{3} = \frac{56}{15} = 3.7333\), \(c_3 = -11.6\), \(d_3 = \frac{23.2}{6} = \frac{58}{15} = 3.8667\)</p>
+<ol class="keys">
+<li><kbd>MENU</kbd> <kbd>1</kbd> แล้วคิด \(b_3\) แบบเศษส่วนเพื่อไม่ให้ปัดเศษ: <kbd>(-)</kbd> <kbd>4</kbd> <kbd>+</kbd> <kbd>2</kbd> <kbd>3</kbd> <kbd>.</kbd> <kbd>2</kbd> <kbd>÷</kbd> <kbd>3</kbd> <kbd>=</kbd> → 56/15 <span class="unverified">ยังไม่ได้เช็กกับคู่มือ</span></li>
+<li>พิมพ์ \(S_3\): <kbd>5</kbd> <kbd>+</kbd> <kbd>(</kbd> <kbd>5</kbd> <kbd>6</kbd> <kbd>÷</kbd> <kbd>1</kbd> <kbd>5</kbd> <kbd>)</kbd> <kbd>(</kbd> <kbd>x</kbd> <kbd>-</kbd> <kbd>3</kbd> <kbd>)</kbd> <kbd>-</kbd> <kbd>1</kbd> <kbd>1</kbd> <kbd>.</kbd> <kbd>6</kbd> <kbd>(</kbd> <kbd>x</kbd> <kbd>-</kbd> <kbd>3</kbd> <kbd>)</kbd> <kbd>x²</kbd> <kbd>+</kbd> <kbd>(</kbd> <kbd>5</kbd> <kbd>8</kbd> <kbd>÷</kbd> <kbd>1</kbd> <kbd>5</kbd> <kbd>)</kbd> <kbd>(</kbd> <kbd>x</kbd> <kbd>-</kbd> <kbd>3</kbd> <kbd>)</kbd> <kbd>x■</kbd> <kbd>3</kbd></li>
+<li><kbd>CALC</kbd> x? <kbd>3</kbd> <kbd>.</kbd> <kbd>5</kbd> <kbd>=</kbd> <span class="unverified">ยังไม่ได้เช็กกับคู่มือ</span></li>
+</ol>
+<p>หน้าจอ: 89/20 = 4.45 ตอบ \(f(3.5) \approx 4.4500\)</p>
+<p>(b) \(z_3 = -\frac{353}{15},\ z_4 = 1\): \(b_3 = -4 - \left(\frac16 - \frac{353}{45}\right) = \frac{331}{90} = 3.6778\), \(c_3 = -\frac{353}{30} = -11.7667\), \(d_3 = \frac{1 + 353/15}{6} = \frac{184}{45} = 4.0889\) แก้เลขในสูตรเดิม (กด <kbd>◀</kbd> เข้าไปแก้) แล้ว <kbd>CALC</kbd> <kbd>3</kbd> <kbd>.</kbd> <kbd>5</kbd> <kbd>=</kbd> ได้ 4.408333… ตอบ \(4.4083\)</p>
+<div class="callout tip"><div class="callout-title">ใส่เศษส่วน ไม่ใส่ทศนิยมปัด</div><p style="margin:0;">ถ้าแทน \(b_3 = 3.7333\) แบบปัดแล้ว ผลจะคลาดในหลักที่ 4–5 อาจารย์ให้ตอบ 4 ตำแหน่ง ใช้เศษส่วนจาก Simul Equation ตรงๆ ปลอดภัยกว่า</p></div>
+<p><b>เขียนในกระดาษ:</b> เลือกช่วง \([3,4]\) และบอกว่าใช้ \(S_3\), สูตร \(a_3, b_3, c_3, d_3\) พร้อมแทนตัวเลข, รูป \(S_3(x)\) เต็ม, และบรรทัดแทน \(x = 3.5\): \(5 + 3.7333(0.5) - 11.6(0.25) + 3.8667(0.125) = 4.4500\)</p>
+</div></div>
+</section>
+
+<section id="ch9">
+<h2>บทที่ 9: Numerical Differentiation</h2>
+
+<div class="callout warn"><div class="callout-title">ตั้ง Rad ก่อนทุกข้อที่มี sin, cos</div><p style="margin:0;">โจทย์บทนี้กับบท 10 ชอบมี \(\cos(\pi x)\) หรือ \(\cos x\) ถ้าเครื่องอยู่ใน Degree ค่าผิดทั้งข้อ ตั้งครั้งเดียวก่อนเริ่มสอบ: <kbd>SHIFT</kbd> <kbd>MENU</kbd> (SET UP) → <kbd>2</kbd> (Angle Unit) → <kbd>2</kbd> (Radian) <span class="unverified">ยังไม่ได้เช็กกับคู่มือ</span> แล้วดูว่ามีตัว R บนแถบด้านบนของจอ</p></div>
+
+<p>บทนี้เครื่องช่วยสองอย่าง: Table ให้ค่า \(f(x-2h), \dots, f(x+2h)\) ครบในหน้าจอเดียว และ d/dx ให้ค่า derivative จริงไว้หา error สูตรกับการแทนค่ายังต้องเขียนเองทุกบรรทัด</p>
+
+<div class="example open"><div class="example-header"><span><span class="example-label">fx 9.1</span> Table: ค่า f ห้าจุดของ Exercise 3 ในครั้งเดียว</span><span class="chev">▶</span></div><div class="example-body">
+<p>โจทย์: \(f(x) = \dfrac{\cos(\pi x)}{2 + \sin(\pi x) + |x - 2|}\) ที่ \(x = 0,\ h = 0.5\) ต้องใช้ \(f(-1), f(-0.5), f(0), f(0.5), f(1)\)</p>
+<p>ทุกจุดอยู่ใน \([-1, 1]\) ซึ่ง \(x &lt; 2\) จึงเขียน \(|x - 2| = 2 - x\) ได้ ตัวส่วนกลายเป็น \(4 + \sin(\pi x) - x\) ไม่ต้องหาปุ่ม Abs</p>
+<ol class="keys">
+<li><kbd>SHIFT</kbd> <kbd>MENU</kbd> (SET UP) → <kbd>▼</kbd> <kbd>▼</kbd> → <kbd>2</kbd> (Table) → <kbd>1</kbd> (f(x)) ให้เหลือฟังก์ชันเดียว</li>
+<li><kbd>MENU</kbd> <kbd>9</kbd> (Table) <span class="unverified">ยังไม่ได้เช็กกับคู่มือ</span></li>
+<li>ที่ <code>f(x)=</code> พิมพ์ <code>cos(πx)÷(4+sin(πx)−x)</code> โดย π คือ <kbd>SHIFT</kbd> <kbd>×10ˣ</kbd> และตัวแปรคือปุ่ม <kbd>x</kbd> แล้ว <kbd>=</kbd></li>
+<li>Start: <kbd>(-)</kbd> <kbd>1</kbd> <kbd>=</kbd> · End: <kbd>1</kbd> <kbd>=</kbd> · Step: <kbd>0</kbd> <kbd>.</kbd> <kbd>5</kbd> <kbd>=</kbd> แล้ว <kbd>=</kbd> อีกครั้งเพื่อดูตาราง</li>
+</ol>
+<div class="table-wrap"><table>
+<tr><th>x</th><th>f(x) บนจอ</th></tr>
+<tr><td>−1</td><td>−0.2</td></tr>
+<tr><td>−0.5</td><td>0</td></tr>
+<tr><td>0</td><td>0.25</td></tr>
+<tr><td>0.5</td><td>0</td></tr>
+<tr><td>1</td><td>−0.3333333333</td></tr>
+</table></div>
+<p>ถ้าแถว ±0.5 ขึ้นเลขเล็กมากแบบ \(\times 10^{-13}\) ให้อ่านเป็น 0</p>
+<p>จากนั้นกด <kbd>AC</kbd> กลับไป Calculate (<kbd>MENU</kbd> <kbd>1</kbd>) แล้วพิมพ์ตัวเลขเข้าสูตรตรงๆ</p>
+<div class="formula">\[ f'(0) \approx \frac{f(-1) - 8f(-0.5) + 8f(0.5) - f(1)}{12(0.5)} = \frac{-0.2 + 0.3333}{6} = 0.0222 \]</div>
+<div class="formula">\[ f''(0) \approx \frac{f(-0.5) - 2f(0) + f(0.5)}{0.5^2} = \frac{-0.5}{0.25} = -2 \]</div>
+<p>ถ้าโจทย์ถาม error ค่อยหาค่าจริงด้วย d/dx (ยังอยู่ใน Calculate):</p>
+<ol class="keys">
+<li><kbd>SHIFT</kbd> <kbd>∫</kbd> (d/dx▭) → พิมพ์ <code>cos(πx)÷(4+sin(πx)−x)</code> → <kbd>▶</kbd> → <kbd>0</kbd> → <kbd>=</kbd></li>
+</ol>
+<p>จอแสดง <b>−0.1338495408</b> ดังนั้น error ของ \(f'(0)\) คือ \(|-0.1338 - 0.0222| = 0.1561\) เครื่องไม่มีปุ่ม d²/dx² ถ้าต้องการ \(f''\) จริงต้องดิฟเอง (ค่าจริง \(f''(0) \approx -2.3241\))</p>
+<p><b>เขียนในกระดาษ:</b> สูตรที่ใช้ ค่า \(h\) ค่า \(f\) ทั้ง 5 จุด (เขียนเป็นตาราง x กับ f(x)) แล้วแทนลงสูตรให้เห็นตัวเศษกับตัวส่วน เครื่องแทนแค่การคำนวณ \(f\) ทีละจุด ถ้าโจทย์ขอค่าประมาณ ห้ามเอาค่า d/dx ไปตอบแทน</p>
+</div></div>
+
+<div class="example open"><div class="example-header"><span><span class="example-label">fx 9.2</span> CALC: central difference หลายค่า h ด้วยสูตรเดียว</span><span class="chev">▶</span></div><div class="example-body">
+<p>ใช้เมื่อต้องคำนวณสูตรเดิมซ้ำด้วย \(h\) หลายค่า เช่นโจทย์ให้เทียบ error เมื่อลด \(h\) ตัวอย่าง: \(f(x) = x^3\) ประมาณ \(f'(3)\) ด้วย 2-point central ที่ \(h = 1, 0.5, 0.1\) ให้ A แทน \(h\)</p>
+<ol class="keys">
+<li><kbd>MENU</kbd> <kbd>1</kbd> → พิมพ์ <code>((x+A)³−(x−A)³)÷(2A)</code> โดย A คือ <kbd>ALPHA</kbd> <kbd>(-)</kbd></li>
+<li><kbd>CALC</kbd> → x? <kbd>3</kbd> <kbd>=</kbd> → A? <kbd>1</kbd> <kbd>=</kbd> → ได้ 28 <span class="unverified">ยังไม่ได้เช็กกับคู่มือ</span></li>
+<li><kbd>CALC</kbd> อีกครั้ง → x? <kbd>=</kbd> (ใช้ 3 เดิม) → A? <kbd>0</kbd> <kbd>.</kbd> <kbd>5</kbd> <kbd>=</kbd> → ได้ 27.25 <span class="unverified">ยังไม่ได้เช็กกับคู่มือ</span></li>
+<li>ทำซ้ำด้วย A = 0.1 → ได้ 27.01</li>
+<li>ค่าจริง: <kbd>SHIFT</kbd> <kbd>∫</kbd> → พิมพ์ <code>x³</code> → <kbd>▶</kbd> → <kbd>3</kbd> → <kbd>=</kbd> → ได้ 27</li>
+</ol>
+<div class="table-wrap"><table>
+<tr><th>h</th><th>central</th><th>error</th></tr>
+<tr><td>1</td><td>28</td><td>1</td></tr>
+<tr><td>0.5</td><td>27.25</td><td>0.25</td></tr>
+<tr><td>0.1</td><td>27.01</td><td>0.01</td></tr>
+</table></div>
+<p>ลด \(h\) ครึ่งหนึ่ง error ลด 4 เท่า ตรงกับ \(O(h^2)\)</p>
+<p><b>เขียนในกระดาษ:</b> สูตร \(f'(3) \approx \frac{f(3+h) - f(3-h)}{2h}\) และการแทนค่าของแต่ละ \(h\) เช่น \(\frac{4^3 - 2^3}{2} = 28\) ค่าจริงเขียนจากการดิฟ \(f'(x) = 3x^2\) แล้วเขียน error เป็น \(|27 - 28| = 1\) เครื่องใช้แค่เช็กตัวเลข</p>
+</div></div>
+
+<div class="callout tip"><div class="callout-title">สูตรที่ derive เอง</div><p style="margin:0;">ข้อ derive (เช่น Ex 2.2 ที่ได้ \(\frac{-8f_i + 9f_{i+1} - f_{i+3}}{6h}\)) เครื่องช่วยไม่ได้ในส่วน Taylor ทั้งหมด ใช้แค่ตอนแทนค่าท้ายข้อ: \((-8(1) + 9(3) - 2)/6 = 2.833333333\)</p></div>
+</section>
+
+<section id="ch10">
+<h2>บทที่ 10: Numerical Integration</h2>
+
+<p>ลำดับที่เร็วที่สุด: Table หา \(f(x_i)\) ทุกจุดไว้เขียนลงกระดาษ, Σ คำนวณ composite ทั้งก้อนในบรรทัดเดียวเพื่อเช็กผลรวม, ปุ่ม ∫ หาค่า exact ถ้าโจทย์ถาม error ส่วนข้อที่ให้มาแค่ตาราง \(f(x_i)\) (เช่น Simpson 1/3 + 3/8 ใน Ex 4.2) ใช้เครื่องแค่บวกเลข</p>
+
+<div class="example open"><div class="example-header"><span><span class="example-label">fx 10.1</span> Simpson 1/3 และ trapezoid ของ \(\int_{-1}^{1} \sqrt{x^2+1}\,dx\), N = 10</span><span class="chev">▶</span></div><div class="example-body">
+<p>\(h = 0.2\) มี 11 จุด \(x_i = -1, -0.8, \dots, 1\)</p>
+<p><b>1) ค่า \(f(x_i)\) ด้วย Table</b></p>
+<ol class="keys">
+<li><kbd>MENU</kbd> <kbd>9</kbd> → <code>f(x)=</code> พิมพ์ <kbd>√▭</kbd> <kbd>x</kbd> <kbd>x²</kbd> <kbd>+</kbd> <kbd>1</kbd> <kbd>=</kbd></li>
+<li>Start <kbd>(-)</kbd> <kbd>1</kbd> <kbd>=</kbd> · End <kbd>1</kbd> <kbd>=</kbd> · Step <kbd>0</kbd> <kbd>.</kbd> <kbd>2</kbd> <kbd>=</kbd> <kbd>=</kbd></li>
+</ol>
+<p>ได้ 1.4142, 1.2806, 1.1662, 1.0770, 1.0198, 1, 1.0198, … (สมมาตรรอบ 0) เขียนลงกระดาษพร้อมสัมประสิทธิ์ 1, 4, 2, 4, …, 4, 1</p>
+<p><b>2) Simpson ทั้งก้อนด้วย Σ</b> (Calculate, <kbd>MENU</kbd> <kbd>1</kbd>) จุดคี่ \(x = -1 + 0.2(2k-1)\), \(k = 1..5\) คูณ 4 และจุดคู่ \(x = -1 + 0.4k\), \(k = 1..4\) คูณ 2 ตัวนับใน Σ ใช้ปุ่ม <kbd>x</kbd></p>
+<div class="formula">\[ \frac{0.2}{3}\left[\sqrt{2} + \sqrt{2} + 4\sum_{x=1}^{5} \sqrt{(-1 + 0.2(2x-1))^2 + 1} + 2\sum_{x=1}^{4} \sqrt{(-1 + 0.4x)^2 + 1}\right] \]</div>
+<ol class="keys">
+<li>Σ คือ <kbd>SHIFT</kbd> <kbd>x</kbd> (Σ▭) → พิมพ์ตัวในซิกมา → <kbd>▶</kbd> ค่าล่าง → <kbd>▶</kbd> ค่าบน → <kbd>▶</kbd> ออกมาพิมพ์ต่อ</li>
+<li>พิมพ์ทั้งบรรทัดข้างบนแล้ว <kbd>=</kbd></li>
+</ol>
+<p>จอแสดง <b>2.295577782</b> ตรงกับ 2.2956 ในหน้าบท</p>
+<p><b>Trapezoid</b> แบบเดียวกัน: \(0.1\left[\sqrt{2} + 2\sum_{x=1}^{9} \sqrt{(-1 + 0.2x)^2 + 1} + \sqrt{2}\right]\) จอแสดง <b>2.300303549</b></p>
+<p><b>3) Exact ด้วย ∫:</b> <kbd>∫</kbd> → <code>√(x²+1)</code> → <kbd>▶</kbd> <kbd>(-)</kbd> <kbd>1</kbd> → <kbd>▶</kbd> <kbd>1</kbd> → <kbd>=</kbd> จอแสดง <b>2.295587149</b></p>
+<div class="table-wrap"><table>
+<tr><th>วิธี</th><th>ค่าประมาณ</th><th>|exact − approx|</th></tr>
+<tr><td>Trapezoid N = 10</td><td>2.3003</td><td>0.0047</td></tr>
+<tr><td>Simpson 1/3 N = 10</td><td>2.2956</td><td>0.0000094</td></tr>
+</table></div>
+<p><b>เขียนในกระดาษ:</b> \(h = (b-a)/N = 0.2\) รายการ \(x_i\) กับ \(f(x_i)\) สูตร Simpson พร้อมสัมประสิทธิ์ 1, 4, 2, …, 4, 1 แทนค่าในวงเล็บ แล้วผลรวมในวงเล็บ 34.4337 × 0.2/3 = 2.2956 ส่วน Σ ใช้เช็กผลรวม ไม่ต้องเขียนลงกระดาษ ค่า exact ถ้าโจทย์ถามให้เขียน \(\sqrt{2} + \ln(1 + \sqrt{2})\) หรือบอกว่าใช้เครื่องคำนวณ</p>
+</div></div>
+
+<div class="callout warn"><div class="callout-title">Σ ใช้ได้เมื่อมีสูตร f</div><p style="margin:0;">ถ้าโจทย์ให้แค่ตาราง \(x, f(x)\) ไม่มีสูตร ทั้ง Σ และ ∫ ใช้ไม่ได้ บวกเลขตามสัมประสิทธิ์ตรงๆ และระวังจุดรอยต่อ เช่น \(x_5\) ใน Ex 4.2 ที่ต้องใส่ทั้งในวงเล็บของ 1/3 และของ 3/8</p></div>
+
+<div class="example open"><div class="example-header"><span><span class="example-label">fx 10.2</span> Gauss 3 พจน์ของ \(\int_1^5 \sqrt{x^2+1}\,dx\) (Ex 5.3)</span><span class="chev">▶</span></div><div class="example-body">
+<p>แปลงช่วงก่อนบนกระดาษ: \(\frac{b-a}{2} = 2\) และ \(u(t) = 2(t + 1) + 1\) จากนั้นให้ Table คำนวณ \(f(u(t))\) โดยใส่ \(t\) เป็น x</p>
+<ol class="keys">
+<li><kbd>MENU</kbd> <kbd>9</kbd> → <code>f(x)=</code> พิมพ์ <code>√((2(x+1)+1)²+1)</code> → <kbd>=</kbd> → ตั้ง Start/End/Step อะไรก็ได้ แล้ว <kbd>=</kbd></li>
+<li>ในตาราง เลื่อนไปช่อง x แถวไหนก็ได้ พิมพ์ค่า t ใหม่แล้ว <kbd>=</kbd>: <kbd>(-)</kbd> <kbd>√▭</kbd> <kbd>0</kbd> <kbd>.</kbd> <kbd>6</kbd> <kbd>=</kbd> แล้ว <kbd>0</kbd> <kbd>=</kbd> แล้ว <kbd>√▭</kbd> <kbd>0</kbd> <kbd>.</kbd> <kbd>6</kbd> <kbd>=</kbd> (พิมพ์ √ เป็นค่า x ในตาราง) <span class="unverified">ยังไม่ได้เช็กกับคู่มือ</span></li>
+</ol>
+<div class="table-wrap"><table>
+<tr><th>t</th><th>u = 2(t+1)+1</th><th>f(u) บนจอ</th><th>A</th></tr>
+<tr><td>−√0.6</td><td>1.4508</td><td>1.762055609</td><td>5/9</td></tr>
+<tr><td>0</td><td>3</td><td>3.16227766</td><td>8/9</td></tr>
+<tr><td>√0.6</td><td>4.5492</td><td>4.657806354</td><td>5/9</td></tr>
+</table></div>
+<p>รวมใน Calculate: <code>2(5÷9×1.762055609 + 8÷9×3.16227766 + 5÷9×4.657806354)</code> = <b>12.75500691</b> (ถ้าใช้ค่าปัด 4 ตำแหน่งจะได้ 12.7551 อาจารย์บอกว่าคลาดแค่นี้ยังได้คะแนน)</p>
+<p>เช็ก exact: <kbd>∫</kbd> <code>√(x²+1)</code> จาก 1 ถึง 5 ได้ <b>12.75597438</b></p>
+<p><b>เขียนในกระดาษ:</b> สูตร \(\frac{b-a}{2}\sum A_i f(u_i)\) ค่า \(A_i, t_i\) จากตาราง การคำนวณ \(u_i\) ทั้งสามตัว (เช็กว่าอยู่ใน \([1, 5]\)) ค่า \(f(u_i)\) แล้วแทนรวม เครื่องแทนแค่การคำนวณ \(f(u_i)\)</p>
+</div></div>
+
+<div class="example open"><div class="example-header"><span><span class="example-label">fx 10.3</span> Gauss 2 พจน์ของ \(\int_0^{\pi/2} \cos x\,dx\) (Ex 5.4b) ต้องใช้ Rad</span><span class="chev">▶</span></div><div class="example-body">
+<p>เช็กว่าจอมี R ก่อน \(\frac{b-a}{2} = \frac{\pi}{4}\), \(u(t) = \frac{\pi}{4}(t + 1)\)</p>
+<ol class="keys">
+<li><kbd>MENU</kbd> <kbd>9</kbd> → <code>f(x)=</code> พิมพ์ <code>cos(π÷4(x+1))</code> → <kbd>=</kbd></li>
+<li>ใส่ x = <code>−1÷√3</code> และ <code>1÷√3</code> ในตาราง ได้ 0.9454092081 กับ 0.3258856076 <span class="unverified">ยังไม่ได้เช็กกับคู่มือ</span></li>
+<li>Calculate: <code>π÷4×(0.9454092081+0.3258856076)</code> = <b>0.9984726134</b></li>
+</ol>
+<p>Exact \(= 1\) relative error \(= |1 - 0.9985|/1 = 0.0015\) ถ้าลืม Rad จะได้ค่า f ใกล้ 1 ทั้งคู่และคำตอบผิด</p>
+<p><b>เขียนในกระดาษ:</b> \(u_1 = \frac{\pi}{4}(1 - \frac{1}{\sqrt{3}}) = 0.3319\), \(u_2 = \frac{\pi}{4}(1 + \frac{1}{\sqrt{3}}) = 1.2388\) แล้ว \(\frac{\pi}{4}[\cos(0.3319) + \cos(1.2388)]\) และ exact \([\sin x]_0^{\pi/2} = 1\)</p>
+</div></div>
+</section>
+
+<section id="ch11">
+<h2>บทที่ 11: ODE</h2>
+
+<p>Spreadsheet (<kbd>MENU</kbd> <kbd>8</kbd>) มี 5 คอลัมน์ A–E และ 45 แถว ใส่ x, y และ slope เป็นคอลัมน์ แล้วใช้ Fill Formula ลากสูตรลงหลายแถว ได้ทุก step ในครั้งเดียว ตัวอย่างทั้งหมดใช้ \(y' = x + y + 1,\ y(0) = 0\) จากหน้าบท</p>
+
+<div class="callout note"><div class="callout-title">วิธีใส่สูตรใน Spreadsheet</div><p style="margin:0;">ใส่สูตรช่องเดียว: เลื่อนไปที่ช่อง → <kbd>ALPHA</kbd> <kbd>CALC</kbd> (=) → พิมพ์สูตร → <kbd>=</kbd> ตัวอักษรช่อง: A = <kbd>ALPHA</kbd> <kbd>(-)</kbd>, B = <kbd>ALPHA</kbd> <kbd>°'"</kbd>, C = <kbd>ALPHA</kbd> <kbd>x⁻¹</kbd>, D = <kbd>ALPHA</kbd> <kbd>sin</kbd> ลากสูตรลงหลายแถว: วางเคอร์เซอร์ที่ช่องแรก → <kbd>OPTN</kbd> <kbd>1</kbd> (Fill Formula) → Form พิมพ์สูตรของช่องนั้น <kbd>=</kbd> → Range แก้เลขแถวท้าย (<kbd>▶</kbd> ไปท้ายบรรทัด <kbd>DEL</kbd> แล้วพิมพ์เลขแถว) → <kbd>=</kbd> <kbd>=</kbd> สูตรจะเลื่อนแถวให้เอง</p></div>
+
+<div class="example open"><div class="example-header"><span><span class="example-label">fx 11.1</span> Euler explicit, h = 1 (Ex 4.1)</span><span class="chev">▶</span></div><div class="example-body">
+<p>\(y_{i+1} = y_i + h f(x_i, y_i)\) ให้ A = x, B = y</p>
+<ol class="keys">
+<li><kbd>MENU</kbd> <kbd>8</kbd> → A1: <kbd>0</kbd> <kbd>=</kbd> · B1: <kbd>0</kbd> <kbd>=</kbd></li>
+<li>เคอร์เซอร์ที่ A2 → <kbd>OPTN</kbd> <kbd>1</kbd> → Form <code>=A1+1</code> → Range <code>A2:A5</code> → <kbd>=</kbd> <kbd>=</kbd></li>
+<li>เคอร์เซอร์ที่ B2 → <kbd>OPTN</kbd> <kbd>1</kbd> → Form <code>=B1+1×(A1+B1+1)</code> → Range <code>B2:B5</code> → <kbd>=</kbd> <kbd>=</kbd></li>
+</ol>
+<div class="table-wrap"><table>
+<tr><th>แถว</th><th>A (x)</th><th>B (y)</th></tr>
+<tr><td>1</td><td>0</td><td>0</td></tr>
+<tr><td>2</td><td>1</td><td>1</td></tr>
+<tr><td>3</td><td>2</td><td>4</td></tr>
+<tr><td>4</td><td>3</td><td>11</td></tr>
+<tr><td>5</td><td>4</td><td>26</td></tr>
+</table></div>
+<p>\(h\) ค่าอื่นให้เปลี่ยนเลข 1 ทั้งสองสูตร เช่น \(h = 0.5\) ใช้ <code>=A1+0.5</code> และ <code>=B1+0.5×(A1+B1+1)</code> ค่า exact เช็กใน Calculate: \(2e^1 - 1 - 2 = 2.436563657\)</p>
+<p><b>เขียนในกระดาษ:</b> สูตร Euler แล้วเขียนทุก step แบบ \(y_2 = y_1 + f(0, 0)(1) = 0 + 1 = 1\), \(y_3 = 1 + f(1, 1)(1) = 1 + 3 = 4\) ตารางในเครื่องใช้เช็กว่าแต่ละ step ถูก</p>
+</div></div>
+
+<div class="example open"><div class="example-header"><span><span class="example-label">fx 11.2</span> Modified Euler (Heun), h = 1 (Ex 7.1)</span><span class="chev">▶</span></div><div class="example-body">
+<p>ให้ A = x, B = y, C = slope ต้นช่วง \(f(x_i, y_i)\), D = slope ปลายช่วงที่จุด predictor \(f(x_{i+1},\ y_i + h\,C)\)</p>
+<ol class="keys">
+<li>A1: <kbd>0</kbd> <kbd>=</kbd> · B1: <kbd>0</kbd> <kbd>=</kbd></li>
+<li>C1 → Fill Formula Form <code>=A1+B1+1</code> Range <code>C1:C4</code></li>
+<li>D1 → Fill Formula Form <code>=(A1+1)+(B1+1×C1)+1</code> Range <code>D1:D4</code></li>
+<li>A2 → Fill Formula Form <code>=A1+1</code> Range <code>A2:A4</code></li>
+<li>B2 → Fill Formula Form <code>=B1+1×(C1+D1)÷2</code> Range <code>B2:B4</code></li>
+</ol>
+<div class="table-wrap"><table>
+<tr><th>แถว</th><th>A (x)</th><th>B (y)</th><th>C</th><th>D</th></tr>
+<tr><td>1</td><td>0</td><td>0</td><td>1</td><td>3</td></tr>
+<tr><td>2</td><td>1</td><td>2</td><td>4</td><td>9</td></tr>
+<tr><td>3</td><td>2</td><td>8.5</td><td>11.5</td><td>24</td></tr>
+<tr><td>4</td><td>3</td><td>26.25</td><td>30.25</td><td>61.5</td></tr>
+</table></div>
+<p>\(y(1) \approx 2\) ตรงกับหน้าบท error \(|2.4366 - 2| = 0.4366\) ถ้าช่อง D ยังไม่ขึ้นค่าเพราะสร้างก่อนคอลัมน์ B ให้กด <kbd>OPTN</kbd> <kbd>▼</kbd> <kbd>4</kbd> (Recalculate)</p>
+<p><b>เขียนในกระดาษ:</b> predictor \(y_2^0 = 0 + 1 \cdot f(0, 0) = 1\) แล้ว corrector \(y_2 = 0 + 1 \cdot \frac{f(0,0) + f(1,1)}{2} = \frac{1 + 3}{2} = 2\) ทุก step ค่า predictor คือ \(B + hC\) ซึ่งเครื่องไม่ได้โชว์เป็นช่อง ต้องเขียนเอง</p>
+</div></div>
+
+<div class="example open"><div class="example-header"><span><span class="example-label">fx 11.3</span> Euler implicit เมื่อ f เป็นเชิงเส้น, h = 0.5 (Ex 5.1)</span><span class="chev">▶</span></div><div class="example-body">
+<p>แก้หา \(y_{i+1}\) บนกระดาษก่อน: \(y_{i+1} = \dfrac{y_i + h(x_{i+1} + 1)}{1 - h}\) จากนั้นเป็น explicit ธรรมดา ใส่ Spreadsheet ได้</p>
+<ol class="keys">
+<li>A1: <kbd>0</kbd> <kbd>=</kbd> · B1: <kbd>0</kbd> <kbd>=</kbd></li>
+<li>A2 → Fill Formula Form <code>=A1+0.5</code> Range <code>A2:A4</code></li>
+<li>B2 → Fill Formula Form <code>=(B1+0.5×(A2+1))÷0.5</code> Range <code>B2:B4</code> (ใช้ A2 เพราะสูตรต้องการ \(x_{i+1}\))</li>
+</ol>
+<p>ได้ y = 0, <b>1.5</b>, <b>5</b>, 12.5 ที่ x = 0, 0.5, 1, 1.5 สองค่าแรกตรงกับหน้าบท</p>
+<p>ถ้า f ไม่เชิงเส้น (เช่นมี \(y^2\)) แก้พีชคณิตไม่ได้ ให้ใช้ SOLVE ใน Calculate ทีละ step: พิมพ์สมการ \(x = y_i + h f(x_{i+1}, x)\) โดยใช้ x เป็นตัวแทน \(y_{i+1}\) ใส่ = ด้วย <kbd>ALPHA</kbd> <kbd>CALC</kbd> แล้ว <kbd>SHIFT</kbd> <kbd>CALC</kbd> (SOLVE) ใส่ค่าเดาเป็น \(y_i\) แล้ว <kbd>=</kbd></p>
+<p><b>เขียนในกระดาษ:</b> สมการ implicit \(y_{i+1} = y_i + (x_{i+1} + y_{i+1} + 1)h\) ขั้นย้ายข้างจนได้สูตร \(y_{i+1}\) แล้วแทนทีละ step เช่น \(y_2 = (0 + 0.5(1.5))/0.5 = 1.5\) ขั้นแก้สมการคือส่วนที่ได้คะแนน เครื่องทำแทนไม่ได้</p>
+</div></div>
+
+<div class="example open"><div class="example-header"><span><span class="example-label">fx 11.4</span> RK4 ใส่ได้พอดี 5 คอลัมน์, h = 1</span><span class="chev">▶</span></div><div class="example-body">
+<p>หน้าบทไม่มีตัวอย่างตัวเลขของ RK4 ข้อนี้ใช้ ODE เดิมเป็นตัวเช็ก RK4 ต้องเก็บ x, y, \(K_1, K_2, K_3, K_4\) = 6 ค่า แต่มีแค่ 5 คอลัมน์ จึงคำนวณ \(K_4\) ข้างในสูตรของ y แถวถัดไป</p>
+<p>A = x, B = y, C = \(K_1\), D = \(K_2\), E = \(K_3\) (\(h/2 = 0.5\)) ตัว E คือ <kbd>ALPHA</kbd> <kbd>cos</kbd> <span class="unverified">ยังไม่ได้เช็กกับคู่มือ</span></p>
+<ol class="keys">
+<li>C1: <code>=A1+B1+1</code> · D1: <code>=(A1+0.5)+(B1+0.5×C1)+1</code> · E1: <code>=(A1+0.5)+(B1+0.5×D1)+1</code></li>
+<li>B2: <code>=B1+1÷6×(C1+2×D1+2×E1+((A1+1)+(B1+1×E1)+1))</code> ส่วนในวงเล็บสุดท้ายคือ \(K_4\)</li>
+<li>A2: <code>=A1+1</code> แล้ว Fill Formula ทุกคอลัมน์ลงไปตามจำนวน step</li>
+</ol>
+<p>แถว 1: \(K_1 = 1,\ K_2 = 2,\ K_3 = 2.5,\ K_4 = 4.5\) ได้ \(y(1) \approx\) <b>2.416666667</b> (exact 2.4366)</p>
+<p><b>เขียนในกระดาษ:</b> \(K_1\) ถึง \(K_4\) ทีละตัวพร้อมการแทนค่า แล้ว \(y_2 = 0 + \frac{1}{6}(1 + 2(2) + 2(2.5) + 4.5) = 2.4167\)</p>
+</div></div>
+</section>
+
+<section id="ch12">
+<h2>บทที่ 12: Eigenvalues</h2>
+
+<p>Matrix mode (<kbd>MENU</kbd> <kbd>4</kbd>) รับได้สูงสุด 4×4 ใช้คูณ \(A\mathbf{x}\) ซ้ำแทนการคูณมือทุกรอบ อ่านค่าจากจอแล้วเขียนเวกเตอร์ลงกระดาษ</p>
+
+<div class="callout note"><div class="callout-title">ตั้ง MatA กับ MatB ครั้งเดียว</div><p style="margin:0;"><kbd>MENU</kbd> <kbd>4</kbd> → <kbd>1</kbd> (MatA) → <kbd>3</kbd> (rows) <kbd>3</kbd> (columns) → ใส่ทีละตัวแล้ว <kbd>=</kbd> → <kbd>AC</kbd> → <kbd>OPTN</kbd> <kbd>1</kbd> (Define Matrix) → <kbd>2</kbd> (MatB) → <kbd>3</kbd> <kbd>1</kbd> → ใส่ \(\mathbf{x}^{(0)}\) → <kbd>AC</kbd> เลขลบใช้ <kbd>(-)</kbd></p></div>
+
+<div class="example open"><div class="example-header"><span><span class="example-label">fx 12.1</span> Power method ของ Ex 2.1</span><span class="chev">▶</span></div><div class="example-body">
+<p>\(A = \begin{bmatrix}6&5&-5\\2&6&-2\\2&5&-1\end{bmatrix}\), \(\mathbf{x}^{(0)} = [-1, 1, 1]^T\), \(\varphi(\mathbf{x}) = x_2\), normalize ด้วย infinity norm</p>
+<ol class="keys">
+<li>รอบแรก: <kbd>OPTN</kbd> <kbd>3</kbd> (MatA) <kbd>×</kbd> <kbd>OPTN</kbd> <kbd>4</kbd> (MatB) <kbd>=</kbd> → [−6, 2, 2]</li>
+<li>Normalize: <kbd>OPTN</kbd> <kbd>▼</kbd> <kbd>1</kbd> (MatAns) <kbd>÷</kbd> <kbd>6</kbd> <kbd>=</kbd> (หารด้วยค่าสัมบูรณ์ที่มากที่สุดในเวกเตอร์) <span class="unverified">ยังไม่ได้เช็กกับคู่มือ</span></li>
+<li>รอบถัดไป: <kbd>OPTN</kbd> <kbd>3</kbd> (MatA) <kbd>×</kbd> <kbd>OPTN</kbd> <kbd>▼</kbd> <kbd>1</kbd> (MatAns) <kbd>=</kbd> แล้ว normalize อีกครั้ง <span class="unverified">ยังไม่ได้เช็กกับคู่มือ</span></li>
+</ol>
+<p>\(r_k = \varphi(A\mathbf{x}^{(k-1)}) / \varphi(\mathbf{x}^{(k-1)})\) คือช่องที่ 2 ของผลคูณหารช่องที่ 2 ของเวกเตอร์ก่อนคูณ</p>
+<div class="table-wrap"><table>
+<tr><th>k</th><th>\(A\mathbf{x}^{(k-1)}\)</th><th>\(r_k\)</th><th>\(\mathbf{x}^{(k)}\) หลัง normalize</th></tr>
+<tr><td>1</td><td>[−6, 2, 2]</td><td>2</td><td>[−1, 0.3333, 0.3333]</td></tr>
+<tr><td>2</td><td>[−6, −0.6667, −0.6667]</td><td>−2</td><td>[−1, −0.1111, −0.1111]</td></tr>
+<tr><td>3</td><td>[−6, −2.4444, −2.4444]</td><td>22</td><td>[−1, −0.4074, −0.4074]</td></tr>
+<tr><td>4</td><td>[−6, −3.6296, −3.6296]</td><td>8.9091</td><td>[−1, −0.6049, −0.6049]</td></tr>
+<tr><td>5</td><td>[−6, −4.4198, −4.4198]</td><td>7.3061</td><td>[−1, −0.7366, −0.7366]</td></tr>
+<tr><td>10</td><td>[−6, −5.7919, −5.7919]</td><td>6.1098</td><td>[−1, −0.9653, −0.9653]</td></tr>
+</table></div>
+<p>\(r_k \to 6\) ช้าเพราะ \(|\lambda_2/\lambda_1| = 4/6\) ช่วงแรก \(r_k\) กระโดด (ถึง 22) เพราะ \(x_2\) เข้าใกล้ 0 เป็นเรื่องปกติ เวกเตอร์เข้าหา \([-1, -1, -1]^T\)</p>
+<p><b>เขียนในกระดาษ:</b> ทุกรอบเขียน \(A\mathbf{x}^{(k-1)}\), \(r_k\) และ \(\mathbf{x}^{(k)}\) ที่ normalize แล้ว อย่างน้อยรอบแรกให้เขียนการคูณแถวทีละแถว \([6(-1) + 5 - 5,\ \dots]\) เครื่องแทนการคูณรอบที่เหลือ</p>
+</div></div>
+
+<div class="example open"><div class="example-header"><span><span class="example-label">fx 12.2</span> Inverse power: eigenvalue เล็กสุด</span><span class="chev">▶</span></div><div class="example-body">
+<p>ใช้ A เดิม เปลี่ยน MatB เป็น \(\mathbf{x}^{(0)} = [1, 1, 0]^T\) และใช้ \(\varphi(\mathbf{x}) = x_1\) (เหตุผลอยู่ในกล่องเตือนข้างล่าง)</p>
+<ol class="keys">
+<li>รอบแรก: <kbd>OPTN</kbd> <kbd>3</kbd> (MatA) <kbd>x⁻¹</kbd> <kbd>×</kbd> <kbd>OPTN</kbd> <kbd>4</kbd> (MatB) <kbd>=</kbd> → [−0.6667, 0.0833, −0.9167]</li>
+<li>Normalize ด้วย <kbd>÷</kbd> 0.9167 (พิมพ์ 11/12 ด้วย <kbd>▭/▭</kbd> ถ้าจอโชว์เป็นเศษส่วน) แล้วรอบถัดไปใช้ MatA⁻¹ × MatAns <span class="unverified">ยังไม่ได้เช็กกับคู่มือ</span></li>
+</ol>
+<div class="table-wrap"><table>
+<tr><th>k</th><th>\(A^{-1}\mathbf{x}^{(k-1)}\)</th><th>\(r_k\)</th><th>\(1/r_k\)</th></tr>
+<tr><td>1</td><td>[−0.6667, 0.0833, −0.9167]</td><td>−0.6667</td><td>−1.5</td></tr>
+<tr><td>2</td><td>[−1.0303, −0.0076, −1.0985]</td><td>1.4167</td><td>0.7059</td></tr>
+<tr><td>3</td><td>[−0.9839, −0.0063, −0.9994]</td><td>1.0490</td><td>0.9533</td></tr>
+<tr><td>4</td><td>[−0.9921, −0.0023, −0.9960]</td><td>1.0078</td><td>0.9923</td></tr>
+</table></div>
+<p>\(r_k \to 1\) ดังนั้น \(\lambda_{\min} = 1/r_k \to 1\)</p>
+<p><b>เขียนในกระดาษ:</b> ตามสไลด์ให้เขียนว่าแก้ระบบ \(A\mathbf{x}^{(k+1)} = \mathbf{x}^{(k)}\) (เช่นด้วย LU) แล้วเขียนผลแต่ละรอบ \(r_k\) และ \(\lambda = 1/r_k\) MatA⁻¹ ในเครื่องใช้แทนการแก้ระบบเพื่อได้ตัวเลขเร็ว</p>
+</div></div>
+
+<div class="callout warn"><div class="callout-title">ถ้า r_k ลู่เข้าค่าที่ไม่คาด ให้เช็ก x⁽⁰⁾ กับ φ</div><p style="margin:0;">Eigenvector ของ A คือ \([1,1,1]^T\) (λ = 6), \([0,1,1]^T\) (λ = 4), \([1,0,1]^T\) (λ = 1) ถ้าใช้ \(\mathbf{x}^{(0)} = [-1, 1, 1]^T\) กับ inverse power จะลู่เข้า \(r_k = 0.25\) คือ λ = 4 เพราะ \([-1,1,1]^T\) ไม่มีส่วนของ \([1,0,1]^T\) เลย และ \(\varphi = x_2\) ใช้กับ λ = 1 ไม่ได้เพราะช่องที่ 2 ของ eigenvector เป็น 0 ให้เปลี่ยน \(\mathbf{x}^{(0)}\) หรือ φ แล้วเขียนเหตุผลนี้ลงกระดาษ</p></div>
+
+<div class="example open"><div class="example-header"><span><span class="example-label">fx 12.3</span> Shifted power และ shifted inverse, μ = 7 (Ex 4.1)</span><span class="chev">▶</span></div><div class="example-body">
+<p>คิด \(A - 7I\) ในหัว (ลบ 7 แค่แนวทแยง) แล้วเก็บเป็น MatC เลย เร็วกว่าคำสั่ง Identity</p>
+<div class="formula">\[ A - 7I = \begin{bmatrix}-1&5&-5\\2&-1&-2\\2&5&-8\end{bmatrix} \]</div>
+<ol class="keys">
+<li><kbd>OPTN</kbd> <kbd>1</kbd> (Define Matrix) → <kbd>3</kbd> (MatC) → <kbd>3</kbd> <kbd>3</kbd> → ใส่ค่าข้างบน → <kbd>AC</kbd></li>
+<li>Shifted power: <kbd>OPTN</kbd> <kbd>5</kbd> (MatC) <kbd>×</kbd> <kbd>OPTN</kbd> <kbd>4</kbd> (MatB) <kbd>=</kbd> แล้ว normalize และวนแบบ fx 12.1</li>
+<li>Shifted inverse: <kbd>OPTN</kbd> <kbd>5</kbd> (MatC) <kbd>x⁻¹</kbd> <kbd>×</kbd> <kbd>OPTN</kbd> <kbd>4</kbd> (MatB) <kbd>=</kbd> แล้ววนแบบ fx 12.2</li>
+</ol>
+<p>ใช้ \(\mathbf{x}^{(0)} = [1, 1, 0]^T\), \(\varphi = x_1\) เหมือน fx 12.2</p>
+<div class="table-wrap"><table>
+<tr><th>k</th><th>shifted power \(r_k\)</th><th>\(\lambda = r_k + 7\)</th><th>shifted inverse \(r_k\)</th><th>\(\lambda = 1/r_k + 7\)</th></tr>
+<tr><td>1</td><td>4</td><td>11</td><td>−1.8333</td><td>6.4545</td></tr>
+<tr><td>2</td><td>−8.5</td><td>−1.5</td><td>−1.0758</td><td>6.0704</td></tr>
+<tr><td>3</td><td>−6.2941</td><td>0.7059</td><td>−1.0117</td><td>6.0116</td></tr>
+<tr><td>4</td><td>−6.0467</td><td>0.9533</td><td>−1.0019</td><td>6.0019</td></tr>
+<tr><td>5</td><td>−6.0077</td><td>0.9923</td><td>−1.0003</td><td>6.0003</td></tr>
+</table></div>
+<p>Shifted power ลู่เข้า −6 จึงได้ λ = 1 (ไกล 7 ที่สุด) shifted inverse ลู่เข้า −1 จึงได้ λ = 6 (ใกล้ 7 ที่สุด) ตรงกับหน้าบท เวกเตอร์ของ shifted power สลับเครื่องหมายทุกรอบเพราะ \(r_k\) ติดลบ</p>
+<p><b>เขียนในกระดาษ:</b> เมทริกซ์ \(A - 7I\) ที่คำนวณแล้ว ทฤษฎีที่ใช้ (\(\lambda - \mu\) เป็น eigenvalue ของ \(A - \mu I\)) ตาราง \(r_k\) แต่ละรอบ และขั้นแปลงกลับ \(\lambda = r_k + \mu\) หรือ \(\lambda = 1/r_k + \mu\)</p>
+</div></div>
+
+<div class="example open"><div class="example-header"><span><span class="example-label">fx 12.4</span> เช็ก eigenvalue ด้วย Polynomial solver</span><span class="chev">▶</span></div><div class="example-body">
+<p><b>2×2 (Ex 1.1)</b> \(A = \begin{bmatrix}2&1\\0&3\end{bmatrix}\): \(\det(A - \lambda I) = \lambda^2 - (\text{trace})\lambda + \det A = \lambda^2 - 5\lambda + 6\)</p>
+<ol class="keys">
+<li><kbd>MENU</kbd> <kbd>(-)</kbd> (Equation/Func) → <kbd>2</kbd> (Polynomial) → <kbd>2</kbd> (degree 2) <span class="unverified">ยังไม่ได้เช็กกับคู่มือ</span></li>
+<li>a: <kbd>1</kbd> <kbd>=</kbd> · b: <kbd>(-)</kbd> <kbd>5</kbd> <kbd>=</kbd> · c: <kbd>6</kbd> <kbd>=</kbd> → <kbd>=</kbd> → x₁ = 3, <kbd>▼</kbd> x₂ = 2</li>
+</ol>
+<p><b>3×3 (A ของ Ex 2.1)</b> \(\lambda^3 - (\text{trace})\lambda^2 + (\text{ผลรวม minor 2×2 บนแนวทแยง})\lambda - \det A\) โดย trace = 11, minor = 26 + 4 + 4 = 34, det หาจาก Matrix mode: <kbd>OPTN</kbd> <kbd>▼</kbd> <kbd>2</kbd> (Determinant) <kbd>OPTN</kbd> <kbd>3</kbd> (MatA) <kbd>)</kbd> <kbd>=</kbd> ได้ 24 แล้วใส่ Polynomial degree 3: 1, −11, 34, −24 ได้ x = 6, 4, 1</p>
+<p>ใช้เช็กว่า power method ลู่เข้าค่าที่ถูก ถ้าโจทย์สั่งให้ใช้ iterative method ห้ามตอบด้วยวิธีนี้แทน</p>
+<p><b>เขียนในกระดาษ:</b> สำหรับข้อที่สั่งให้หาด้วย characteristic polynomial เขียน \(\det(A - \lambda I) = (2 - \lambda)(3 - \lambda) - 0 = 0\) แล้ว \(\lambda = 2, 3\) และหา eigenvector จาก \((A - \lambda I)\mathbf{v} = 0\) เอง เครื่องไม่หา eigenvector ให้</p>
+</div></div>
+</section>
+
+    </div>
+  </main>
+</div>
+<script src="../assets/app.js"></script>
+</body>
+</html>

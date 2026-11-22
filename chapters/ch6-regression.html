@@ -32,6 +32,7 @@
       <a href="ch11-ode.html" data-page="ch11">บทที่ 11: ODE 🆕 <span class="status"></span></a>
       <a href="ch12-eigenvalue.html" data-page="ch12">บทที่ 12: Eigenvalue 🆕 <span class="status"></span></a>
       <a href="ch13-pagerank.html" data-page="ch13">บทที่ 13: PageRank 🆕 <span class="status"></span></a>
+      <a href="fx991ex.html" data-page="fx991ex">🧮 ใช้ fx-991EX ช่วย <span class="status"></span></a>
     </nav>
     <div class="nav-section">การบ้าน</div>
     <nav class="nav">
@@ -71,6 +72,7 @@
           <li>ใช้ <b>General basis functions</b> \(f(x) = a_0 g_0(x) + a_1 g_1(x) + \cdots\)</li>
         </ul>
       </div>
+      <div class="callout tip"><p style="margin:0;">🧮 บทนี้ใช้ fx-991EX ช่วยได้ ดูปุ่มทีละขั้นที่ <a href="fx991ex.html#ch6">หน้าใช้เครื่องคิดเลข</a></p></div>
 
       <!-- ==================== INTRO ==================== -->
       <h2>1. Introduction</h2>
@@ -181,13 +183,13 @@
             <li>Temp เมื่อ Pressure = 1 atm</li>
           </ol>
 
-          <p><b>Sums:</b> \(n = 4\), \(S_x = 200, S_y = 4.44, S_{xx} = 15800, S_{xy} = 259.9\)</p>
-          <p>\(a_1 = \frac{4(259.9) - 200(4.44)}{4(15800) - 200^2} = \frac{1039.6 - 888}{63200 - 40000} = \frac{151.6}{23200} = 0.006535\)</p>
-          <p>\(a_0 = \frac{15800(4.44) - 259.9(200)}{23200} = \frac{70152 - 51980}{23200} = 0.7833\)</p>
+          <p><b>Sums:</b> \(n = 4\), \(S_x = 200, S_y = 4.44, S_{xx} = 15800, S_{xy} = 241.4\)</p>
+          <p>\(a_1 = \frac{4(241.4) - 200(4.44)}{4(15800) - 200^2} = \frac{965.6 - 888}{63200 - 40000} = \frac{77.6}{23200} = 0.003345\)</p>
+          <p>\(a_0 = \frac{15800(4.44) - 241.4(200)}{23200} = \frac{70152 - 48280}{23200} = 0.9428\)</p>
 
-          <p><b>Linear fit:</b> \(f(T) = 0.7833 + 0.006535 T\)</p>
-          <p>1. \(f(10) = 0.7833 + 0.06535 = 0.849\) atm</p>
-          <p>2. \(1 = 0.7833 + 0.006535 T \Rightarrow T = 33.16\) °C</p>
+          <p><b>Linear fit:</b> \(f(T) = 0.9428 + 0.003345 T\)</p>
+          <p>1. \(f(10) = 0.9428 + 0.03345 = 0.9762\) atm</p>
+          <p>2. \(1 = 0.9428 + 0.003345 T \Rightarrow T = 17.11\) °C</p>
         </div>
       </div>
 
@@ -383,10 +385,10 @@
             <tr><th>\(Y = \ln y\)</th><td>0</td><td>1.9459</td><td>2.3979</td><td>3.0445</td></tr>
           </table></div>
 
-          <p><b>Step 2:</b> Linear regression → \(a_0 = 0.3838, a_1 = 2.1524\)</p>
-          <p><b>Step 3:</b> \(b = e^{0.3838} = 1.468, m = 2.1524\)</p>
+          <p><b>Step 2:</b> Linear regression → \(a_0 = 0.1370, a_1 = 2.1524\)</p>
+          <p><b>Step 3:</b> \(b = e^{0.1370} = 1.1468, m = 2.1524\)</p>
 
-          <div class="callout tip"><p style="margin:0;"><b>คำตอบ:</b> \(f(x) = 1.468 x^{2.1524}\)</p></div>
+          <div class="callout tip"><p style="margin:0;"><b>คำตอบ:</b> \(f(x) = 1.1468 x^{2.1524}\)</p></div>
         </div>
       </div>
 
@@ -532,10 +534,10 @@
           <div class="q-explain">💡 \(S_{xy} = \sum x_i y_i\) (ผลรวมของ product)</div>
         </div>
 
-        <div class="quiz-question" data-type="num" data-answer="0.85" data-tol="0.02">
-          <div class="q-text"><span class="q-number">3</span> จากตัวอย่าง 2.2, \(f(T) = 0.7833 + 0.006535 T\); ประมาณ pressure ที่ \(T = 10\)°C (ทศนิยม 2 ตำแหน่ง)</div>
+        <div class="quiz-question" data-type="num" data-answer="0.98" data-tol="0.01">
+          <div class="q-text"><span class="q-number">3</span> จากตัวอย่าง 2.2, \(f(T) = 0.9428 + 0.003345 T\); ประมาณ pressure ที่ \(T = 10\)°C (ทศนิยม 2 ตำแหน่ง)</div>
           <input type="text" class="q-input" placeholder="ตัวเลข">
-          <div class="q-explain">💡 \(f(10) = 0.7833 + 0.06535 = 0.849 \approx 0.85\) atm</div>
+          <div class="q-explain">💡 \(f(10) = 0.9428 + 0.03345 = 0.9762 \approx 0.98\) atm</div>
         </div>
 
         <div class="quiz-question" data-type="mc" data-answer="b">

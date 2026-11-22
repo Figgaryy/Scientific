@@ -620,3 +620,11 @@ pre code { background: none; padding: 0; }
   .example-body { max-height: none !important; padding: 12px !important; }
   .solution-body { display: block !important; }
 }
+
+/* fx-991EX guide page */
+.keys { padding-left: 1.4em; }
+.keys li { margin: 4px 0; }
+kbd { display: inline-block; min-width: 1.6em; padding: 1px 6px; border: 1px solid var(--border); border-bottom-width: 2px; border-radius: 4px; background: var(--surface); font-family: var(--font-mono); font-size: 0.85em; text-align: center; }
+.unverified { display: inline-block; margin-left: 6px; padding: 0 6px; border-radius: 4px; font-size: 0.75rem; background: var(--accent-soft); color: var(--accent-hover); }
+.toc { display: flex; flex-wrap: wrap; gap: 8px; margin: 12px 0 24px; }
+.toc a { padding: 4px 10px; border: 1px solid var(--border); border-radius: 999px; text-decoration: none; }
